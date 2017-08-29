@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <title>S/Key Calculator</title>
+
+
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <style>
+      ::-moz-selection {
+        background-color: #aaa;
+        color: #aaa;
+      }
+      ::selection {
+        background: #aaa;
+        color: #aaa;
+      }
+      body {
+        overflow-x:hidden;
+        width: 98%;
+      }
+      #button {
+          display:inline-block;
+          color:#444;
+          border:1px solid #CCC;
+          background:#DDD;
+          box-shadow: 0 0 5px -1px rgba(0,0,0,0.2);
+          cursor:pointer;
+          vertical-align:middle;
+          max-width: 100px;
+          padding: 5px;
+          text-align: center;
+      }
+      #button:active {
+          color:red;
+          box-shadow: 0 0 5px -1px rgba(0,0,0,0.6);
+      }
+    </style>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+  </head>
+  <body>
+    <form id="form"
+          class="form-horizontal"
+          onsubmit="javascript: return calculate();"
+          method="post"
+          action="https://127.0.0.1:0/"
+          onmouseleave="remove_selection();"
+          style="margin: 5px; padding: 5px;" />
+
+      <fieldset>
+        <div class="form-group">
+          <label class="col-lg-4 col-md-2 col-sm-2 col-xs-2 control-label" for="seq">seq&nbsp;#</label>
+          <div class="col-lg-1 col-md-1 col-sm-1 col-xs-4">
+            <input id="seq" name="seq" placeholder="#" class="form-control input-md"
+                   required="" value="99" onclick="deselect_obj(this)"
+                   onchange="now_changed()" onfocus="now_changed()" oninput="now_changed()"
+                   type="text"/>
+          </div>
+          <div class="col-lg-1 col-md-1 col-sm-1 col-xs-2">
+            <div id="button"
+                 onclick="window.open(window.location.href.replace('www.', ''), '_blank', 'directories=no,titlebar=no,toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no,width=400,height=600');"
+                 oncontextmenu="window.open(window.prompt('URL:', window.location.href) || window.location.href, '_blank', 'directories=no,titlebar=no,toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no,width=600,height=400');"
+                 >&nbsp;&#x21B1;&nbsp;</div>
+          </div>
+          <div class="col-lg-1 col-md-1 col-sm-1 col-xs-3">
+            <a href="https://tools.ietf.org/html/rfc2289" title="Only SHA-1 algorithm is implemented.">RFC2289</a>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="col-lg-4 col-md-2 col-sm-2 col-xs-2 control-label" for="seed"
+                 onclick="password_last_changed = 0; clear_passwords_after_timeout();"
+                 >seed</label>
+          <div class="col-lg-2 col-md-2 col-sm-3 col-xs-7">
+            <input id="seed" name="seed" placeholder="key name" required=""
+                   class="form-control input-md" type="text" onclick="deselect_obj(this)"
+                   onchange="now_changed()" onfocus="now_changed()" oninput="now_changed()"/>
+          </div>
+          <div class="col-lg-1 col-md-1 col-sm-2 col-xs-3">
+            <input id="prefix" name="prefix" placeholder="prefix"
+                   class="form-control input-md" type="password"
+                   onchange="now_changed()" onfocus="now_changed()" oninput="now_changed()"/>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="col-lg-4 col-md-2 col-sm-2 col-xs-2 control-label" for="secret"
+                 onclick="secret_toggle()">secret</label>
+          <div class="col-lg-4 col-md-8 col-sm-10 col-xs-10">
+            <input id="secret" name="secret" placeholder="password" required=""
+                   class="form-control input-md" type="password" value=""
+                   onchange="now_changed()" onfocus="now_changed()" oninput="now_changed()" onclick="deselect_obj(this)"/>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="col-lg-4 col-md-2 col-sm-2 col-xs-2 control-label" for="secret2">&nbsp;</label>
+          <div class="col-lg-4 col-md-8 col-sm-10 col-xs-10">
+            <input id="secret2" name="secret2" placeholder="verify" value=""
+                   class="form-control input-md" type="password"
+                   onchange="now_changed()" onfocus="now_changed()" oninput="now_changed()"/>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="col-lg-4 col-md-2 col-sm-2 col-xs-1 control-label" for="calc">&nbsp;</label>
+          <div class="col-lg-3 col-md-5 col-sm-5 col-xs-6">
+            <button id="calc" type="submit" name="calc" class="btn btn-primary" style="width: 100%;">calculate</input>
+          </div>
+          <div class="col-lg-1 col-md-3 col-sm-3 col-xs-4">
+            <button id="switch" type="button" onclick="switch_passwords()" name="switch" class="btn btn-primary" style="width: 100%;">switch</input>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="col-lg-4 col-md-2 col-sm-2 col-xs-2 control-label" for="resn"
+                 onclick="result_toggle()">passwd</label>
+          <div class="col-lg-4 col-md-8 col-sm-10 col-xs-10"><div id="resn" class="form-control input-md" style="color: #fff;"></div></div>
+        </div>
+
+        <div class="form-group">
+          <label class="col-lg-4 col-md-2 col-sm-2 col-xs-2 control-label" for="resm">&nbsp;</label>
+          <div class="col-lg-4 col-md-8 col-sm-10 col-xs-10"><div id="resm" class="form-control input-md" style="color: #fff;"></div></div>
+        </div>
+
+        <div class="form-group">
+          <label class="col-lg-4 col-md-2 col-sm-2 col-xs-2 control-label" for="resx"><em>hex</em></label>
+          <div class="col-lg-4 col-md-8 col-sm-10 col-xs-10"><div id="resx" class="form-control input-md" style="color: #fff;"></div></div>
+        </div>
+
+        <div class="form-group">
+          <label class="col-lg-4 col-md-2 col-sm-2 col-xs-2 control-label" for="resb"><em>b64</em></label>
+          <div class="col-lg-4 col-md-8 col-sm-10 col-xs-10"><div id="resb" class="form-control input-md" style="color: #fff;"></div></div>
+        </div>
+
+        <div class="form-group">
+          <label class="col-lg-4 col-md-2 col-sm-2 col-xs-2 control-label" for="resd"><em>dec</em></label>
+          <div class="col-lg-4 col-md-8 col-sm-10 col-xs-10"><div id="resd" class="form-control input-md" style="color: #fff;"></div></div>
+        </div>
+
+      </fieldset>
+    </form>
+
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/dict.js"></script>
+    <script src="js/sha1.js"></script>
+    <script src="js/main.js"></script>
+  </body>
+</html>
