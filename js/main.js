@@ -201,8 +201,10 @@ function calculate() {
 
             if (pw2 != "" &&  pw != pw2) {
                 resn.innerHTML = "passwords do not match";
+                result_show();
             } else if (isNaN(iter) || iter < 1) {
                 resn.innerHTML = "sequence need to be > 0";
+                result_show();
             } else {
                 var p = gen_otp_sha1(pw, seed, iter);
                 var pw = a_to_6word(p);
