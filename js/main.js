@@ -238,6 +238,7 @@ function result_show() {
     document.getElementById('resb').style.color = "#000";
     document.getElementById('resd').style.color = "#000";
     black_color = document.getElementById('resn').style.color;
+    document.getElementById('show_hide').textContent = "hide";
 }
 
 function result_hide() {
@@ -246,6 +247,7 @@ function result_hide() {
     document.getElementById('resx').style.color = "#fff";
     document.getElementById('resb').style.color = "#fff";
     document.getElementById('resd').style.color = "#fff";
+    document.getElementById('show_hide').textContent = "show";
 }
 
 function result_toggle() {
@@ -362,7 +364,7 @@ function copy_content(id) {
     var e = document.getElementById(id);
     if (e.innerHTML != '') {
         if (copy_hidden(e.innerHTML) == true) {
-            document.getElementById('copy_btn').textContent = "COPIED TO CLIPBOARD";
+            document.getElementById('copy_btn').textContent = "! COPIED !";
             e.style.border = copied_border_style;
         }
     }
