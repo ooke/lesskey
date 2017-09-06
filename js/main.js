@@ -344,10 +344,11 @@ function copy_hidden(text) {
         document.execCommand('copy');
         document.body.removeChild(textArea);
         remove_selection();
-        document.getElementById('copy_btn').textContent = "COPIED TO CLIPBOARD";
+        return true;
     }
     else{
         console.log("Copy command is not supported!");
+        return false;
     }
 }
 
@@ -360,8 +361,10 @@ function copy_selected() {
 function copy_content(id) {
     var e = document.getElementById(id);
     if (e.innerHTML != '') {
-        copy_hidden(e.innerHTML);
-        e.style.border = copied_border_style;
+        if (copy_hidden(e.innerHTML) == true) {
+            document.getElementById('copy_btn').textContent = "COPIED TO CLIPBOARD";
+            e.style.border = copied_border_style;
+        }
     }
 }
  
