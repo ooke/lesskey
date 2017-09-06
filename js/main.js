@@ -140,6 +140,7 @@ function a_to_6word(h) {
 }
 
 var password_last_changed = new Date().getTime();
+var selected = '';
 
 function now_changed() {
     password_last_changed = new Date().getTime();
@@ -311,5 +312,33 @@ function deselect_obj(o) {
     o.selectionStart = o.selectionEnd;
 }
 
+function store_selected(id) {
+    selected_id = id;
+}
+  
+function copy_hidden(text) {
+    if (document.queryCommandSupported('copy') == true) {
+        var textArea = document.createElement("textarea");
+        textArea.style.position = "fixed";
+        textArea.style.top = 0;
+        textArea.style.left = 0;
+        textArea.style.background  ="transparent";
+        textArea.value = text;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        remove_selection();
+        window.alert("Copied to clipboard!");
+    }
+    else{
+        console.log("Copy command is not supported!");
+    }
+}
+
+function copy_selected() {
+    copy_hidden(document.getElementById(selected_id).innerHTML);
+}
+ 
 window.setInterval(clear_passwords_after_timeout, 10000);
 document.getElementById("seed").focus();
