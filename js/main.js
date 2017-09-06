@@ -141,6 +141,7 @@ function a_to_6word(h) {
 
 var password_last_changed = new Date().getTime();
 var selected = '';
+var selected_border_style = "2px solid #337ab7";
 
 function now_changed() {
     password_last_changed = new Date().getTime();
@@ -308,12 +309,22 @@ function clear_passwords_after_timeout() {
     }
 }
 
+function reset_borders() {
+    document.getElementById('resn').style.border = '';
+    document.getElementById('resm').style.border = '';
+    document.getElementById('resx').style.border = '';
+    document.getElementById('resb').style.border = '';
+    document.getElementById('resd').style.border = '';
+}
+
 function deselect_obj(o) {
     o.selectionStart = o.selectionEnd;
 }
 
 function store_selected(id) {
     selected_id = id;
+    reset_borders();
+    document.getElementById(id).style.border = selected_border_style;
 }
   
 function copy_hidden(text) {
@@ -329,6 +340,7 @@ function copy_hidden(text) {
         document.execCommand('copy');
         document.body.removeChild(textArea);
         remove_selection();
+        reset_borders();
         window.alert("Copied to clipboard!");
     }
     else{
