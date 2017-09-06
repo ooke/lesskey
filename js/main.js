@@ -140,8 +140,9 @@ function a_to_6word(h) {
 }
 
 var password_last_changed = new Date().getTime();
-var selected = '';
+var selected_id = '';
 var selected_border_style = "2px solid #337ab7";
+var copied_border_style = "2px solid green";
 
 function now_changed() {
     password_last_changed = new Date().getTime();
@@ -352,7 +353,15 @@ function copy_hidden(text) {
 
 function copy_selected() {
     if (selected_id != '') {
-        copy_hidden(document.getElementById(selected_id).innerHTML);
+        copy_content(selected_id);
+    }
+}
+
+function copy_content(id) {
+    var e = document.getElementById(id);
+    if (e.innerHTML != '') {
+        copy_hidden(e.innerHTML);
+        e.style.border = copied_border_style;
     }
 }
  
