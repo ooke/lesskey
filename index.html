@@ -78,7 +78,7 @@
                  onclick="password_last_changed = 0; clear_passwords_after_timeout();"
                  >seed</label>
           <div class="col-lg-2 col-md-2 col-sm-3 col-xs-7">
-            <input id="seed" name="seed" placeholder="key name" required=""
+            <input id="seed" name="seed" placeholder="key name" autocomplete="off" required=""
                    class="form-control input-md" type="text"
                    onchange="now_changed()" onfocus="now_changed()" oninput="now_changed()"/>
           </div>
@@ -121,29 +121,46 @@
         <div class="form-group">
           <label class="col-lg-4 col-md-2 col-sm-2 col-xs-2 control-label" for="resn"
                  onclick="result_toggle()">passwd</label>
-          <div class="col-lg-4 col-md-8 col-sm-10 col-xs-10"><div id="resn" class="form-control input-md" style="color: #fff;"></div></div>
+          <div class="col-lg-4 col-md-8 col-sm-10 col-xs-10">
+              <div id="resn" onclick="store_selected('resn')" ondblclick="copy_hidden(innerHTML);" class="form-control input-md" style="color: #fff;"></div>
+          </div>
         </div>
 
         <div class="form-group">
           <label class="col-lg-4 col-md-2 col-sm-2 col-xs-2 control-label" for="resm">&nbsp;</label>
-          <div class="col-lg-4 col-md-8 col-sm-10 col-xs-10"><div id="resm" class="form-control input-md" style="color: #fff;"></div></div>
+          <div class="col-lg-4 col-md-8 col-sm-10 col-xs-10">
+              <div id="resm" onclick="store_selected('resm')" ondblclick="copy_hidden(innerHTML);" class="form-control input-md" style="color: #fff;"></div>
+          </div>
         </div>
 
         <div class="form-group">
           <label class="col-lg-4 col-md-2 col-sm-2 col-xs-2 control-label" for="resx"><em>hex</em></label>
-          <div class="col-lg-4 col-md-8 col-sm-10 col-xs-10"><div id="resx" class="form-control input-md" style="color: #fff;"></div></div>
+          <div class="col-lg-4 col-md-8 col-sm-10 col-xs-10">
+              <div id="resx" onclick="store_selected('resx')" ondblclick="copy_hidden(innerHTML);" class="form-control input-md" style="color: #fff;"></div>
+          </div>
         </div>
 
         <div class="form-group">
           <label class="col-lg-4 col-md-2 col-sm-2 col-xs-2 control-label" for="resb"><em>b64</em></label>
-          <div class="col-lg-4 col-md-8 col-sm-10 col-xs-10"><div id="resb" class="form-control input-md" style="color: #fff;"></div></div>
+          <div class="col-lg-4 col-md-8 col-sm-10 col-xs-10">
+              <div id="resb" onclick="store_selected('resb')" ondblclick="copy_hidden(innerHTML);" class="form-control input-md" style="color: #fff;"></div>
+          </div>
         </div>
 
         <div class="form-group">
           <label class="col-lg-4 col-md-2 col-sm-2 col-xs-2 control-label" for="resd"><em>dec</em></label>
-          <div class="col-lg-4 col-md-8 col-sm-10 col-xs-10"><div id="resd" class="form-control input-md" style="color: #fff;"></div></div>
+          <div class="col-lg-4 col-md-8 col-sm-10 col-xs-10">
+              <div id="resd" onclick="store_selected('resd')" ondblclick="copy_hidden(innerHTML);" class="form-control input-md" style="color: #fff;"></div>
+          </div>
         </div>
-
+ 
+        <div class="form-group hidden-lg">
+          <label class="col-lg-4 col-md-2 col-sm-2 col-xs-1 control-label" for="show">&nbsp;</label>
+          <div class="col-lg-4 col-md-8 col-sm-10 col-xs-10">
+            <button id="copy selected" type="button" onclick="copy_selected()" name="copy selected" class="btn btn-primary" style="width: 100%;">copy selected</button>
+          </div>
+        </div>
+       
       </fieldset>
     </form>
 
