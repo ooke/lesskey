@@ -279,6 +279,7 @@ function secret_toggle() {
 function hide_all() {
     secret_hide();
     result_hide();
+    reset_selected();
 }
 
 function remove_selection() {
@@ -309,12 +310,14 @@ function clear_passwords_after_timeout() {
     }
 }
 
-function reset_borders() {
+function reset_selected() {
     document.getElementById('resn').style.border = '';
     document.getElementById('resm').style.border = '';
     document.getElementById('resx').style.border = '';
     document.getElementById('resb').style.border = '';
     document.getElementById('resd').style.border = '';
+    selected_id = '';
+    document.getElementById('copy_btn').textContent = "copy selected";
 }
 
 function deselect_obj(o) {
@@ -322,8 +325,8 @@ function deselect_obj(o) {
 }
 
 function store_selected(id) {
+    reset_selected();
     selected_id = id;
-    reset_borders();
     document.getElementById(id).style.border = selected_border_style;
 }
   
@@ -340,8 +343,7 @@ function copy_hidden(text) {
         document.execCommand('copy');
         document.body.removeChild(textArea);
         remove_selection();
-        reset_borders();
-        window.alert("Copied to clipboard!");
+        document.getElementById('copy_btn').textContent = "COPIED TO CLIPBOARD";
     }
     else{
         console.log("Copy command is not supported!");
@@ -349,7 +351,9 @@ function copy_hidden(text) {
 }
 
 function copy_selected() {
-    copy_hidden(document.getElementById(selected_id).innerHTML);
+    if (selected_id != '') {
+        copy_hidden(document.getElementById(selected_id).innerHTML);
+    }
 }
  
 window.setInterval(clear_passwords_after_timeout, 10000);
