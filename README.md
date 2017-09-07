@@ -1,2 +1,2 @@
 # PasS/KEY
-## S/KEY based passwort management
+## S/KEY based password management
