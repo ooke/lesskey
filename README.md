@@ -123,7 +123,7 @@ information, only your secret should really be secret.
 
 Usually you do not need to change the `seq #` field, it is only needed
 if you use this password manager as a S/Key calculator, playing with
-the `seq #` without to know what you are doing is dangerous.
+the `seq #` without knowing what you are doing is dangerous.
 
 # S/Key usage
 
@@ -135,6 +135,12 @@ your password.
 Warning: only SHA-1 S/Key mode is supported and S/Key is not safe to
 use, if any one could see your password. Do not use it through
 unencrypted connections!
+
+This use case is usefull, if your need f.e. login to your server from
+a PC, which you do not trust (internet caffee f.e.). You could use
+PasS/KEY on your smartphone to calculate the one time password and
+type it on this PC. Also if some body logs the keyboard, this password
+is usable only one single time.
 
 # Hierarchical passwords
 
