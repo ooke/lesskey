@@ -5,22 +5,40 @@ S/Key system described in the
 [RFC2289](https://tools.ietf.org/html/rfc2289). This password manager
 is made with following goals in mind:
 
+1. Password need to be memorable, secure and easy to type on any
+   keyboard.
+   
+   The passwords which are generated with PasS/KEY can be momoized and
+   used without the generator. Generate the passwords only if you
+   forgot a password, it reduces the number of times you enter your
+   master password dramatically.
+
 1. It should work every where.
 
    In fact you even do not require this particular tool, but can use
    any tool which is capable of generating S/Key SHA-1 passwords. So
-   you have the garantee that you can generate the password also
-   without access to something or if this tool will be lost. For most
-   UNIX systems exists command `skey -t sha` which also can regenerate
-   your passwords, which you have generated with PaaS/KEY.
+   you have the garantee, that you can generate the password also
+   without access to this particular tool. For most UNIX systems you
+   can install the `skey` or equivalent command, which also generate
+   exactly the same passwords.
    
 1. You should be able to use it in a safe way even if the whole time
-   somoby look on your screen.
+   you generate a password sombody look on your screen.
+   
+   With PasS/KEY you can generate your passwords securely, also if
+   somobody look on your screen and you are on a foreign PC. (do not
+   generate passwords on devices that you do not trust!)
    
 1. It should work offline and should never send anything through
    network.
    
-1. It should not store anything anywhere.
+   Files from this repository and a browser are enought to use this
+   tool, you do not need to install something. It is also usable on
+   any smart phone or similar devices, also without permanent
+   connection to the internet.
+   
+1. It should not store anything anywhere and should be also usable on
+   foreign systems.
 
 Live Demo: https://ooke.github.io/sk/
 
@@ -115,7 +133,7 @@ sequence number, seed and secret, click on `calculate` and copy/paste
 your password.
 
 Warning: only SHA-1 S/Key mode is supported and S/Key is not safe to
-uses, if any one could see your password. Do not use it through
+use, if any one could see your password. Do not use it through
 unencrypted connections!
 
 # Hierarchical passwords
@@ -142,3 +160,28 @@ For example I use one master password for home, one for work and one
 for regular web pages. All of the master passwords are generatable
 but I memoize them and do typically never type the mastermaster
 password somewhere.
+
+# Security considerations
+
+This password manager was inspired by the XKCD commic:
+
+[![password_strength](https://imgs.xkcd.com/comics/password_strength.png)](https://www.xkcd.com/936/)
+
+Internally it calculates SHA-1 checksum chained `seq #` number of
+times from `seed` and `secret` concatenated together. The result is
+reduced to a 64 bit number and represented as 6 words, with the scheme
+from [RFC2289](https://tools.ietf.org/html/rfc2289). Other
+representations are simply different representations of this 64 bits.
+
+The [SHA-1](https://en.wikipedia.org/wiki/SHA-1) is considered as
+insecure, because it is possible to generate multiple documents whith
+same checksum. This weakness do not apply here, because the
+possibility to genarate multiple seed/secret combinations which
+creates same password is irrelevant for the use case here.
+
+Also S/Key is considered as insecure, because it is unsafe to use it
+on unencrypted links. Do not use unencrypted interfaces or systems,
+where some body could read your password, S/Key, OTP or this password
+manager will not help you in such cases.
+
+Do not generate passwords on devices that you do not trust!
