@@ -334,25 +334,31 @@ function store_selected(id) {
 }
   
 function copy_hidden(text) {
-    if (document.queryCommandSupported('copy') == true) {
-        var textArea = document.createElement("textarea");
-        textArea.style.position = "fixed";
-        textArea.style.top = 0;
-        textArea.style.left = 0;
-        textArea.style.background  ="transparent";
-        textArea.value = text;
-        document.body.appendChild(textArea);
-        textArea.select();
-        var copy_res = document.execCommand('copy');
-        document.body.removeChild(textArea);
-        remove_selection();
-        if (copy_res == false) {
-            console.log("Copy command failed!");
+    try {
+        if (document.queryCommandSupported('copy') == true) {
+            var textArea = document.createElement("textarea");
+            textArea.style.position = "fixed";
+            textArea.style.top = 0;
+            textArea.style.left = 0;
+            textArea.style.background  ="transparent";
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            var copy_res = document.execCommand('copy');
+            document.body.removeChild(textArea);
+            remove_selection();
+            if (copy_res == false) {
+                console.log("Copy command failed!");
+            }
+            return copy_res;
         }
-        return copy_res;
+        else{
+            console.log("Copy command is not supported!");
+            return false;
+        }
     }
-    else{
-        console.log("Copy command is not supported!");
+    catch (err) {
+        console.log("Caught exception while trying to copy!");
         return false;
     }
 }
