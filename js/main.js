@@ -343,10 +343,13 @@ function copy_hidden(text) {
         textArea.value = text;
         document.body.appendChild(textArea);
         textArea.select();
-        document.execCommand('copy');
+        var copy_res = document.execCommand('copy');
         document.body.removeChild(textArea);
         remove_selection();
-        return true;
+        if (copy_res == false) {
+            console.log("Copy command failed!");
+        }
+        return copy_res;
     }
     else{
         console.log("Copy command is not supported!");
