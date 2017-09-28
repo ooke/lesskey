@@ -203,7 +203,7 @@ function calculate() {
             }
 
             if (pw2 != "" &&  pw != pw2) {
-                resn.innerHTML = "passwords do not match";
+                resn.innerHTML = "the passwords don't match!";
                 result_show();
             } else if (isNaN(iter) || iter < 1) {
                 resn.innerHTML = "sequence need to be > 0";
@@ -262,11 +262,12 @@ function result_toggle() {
 
 function secret_show() {
     document.getElementById('secret').type = "text";
+    document.getElementById('secret2').type = "text";
 }
 
 function secret_hide() {
-    var secret = document.getElementById('secret')
-    secret.type = "password";
+    var secret = document.getElementById('secret').type = "password"
+    var secret2 = document.getElementById('secret2').type = "password"
 }
 
 function secret_toggle() {
