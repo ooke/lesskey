@@ -225,7 +225,7 @@ function calculate() {
                 resd.title = a_to_dec6(p);
                 resd.innerHTML = a_to_dec(p);
             }
-        } catch (err) { resn.innerHTML = err.message; }
+        } catch (err) { resn.innerHTML = err.message; result_show();}
     } catch (err) { alert("ERROR: " + err.message); }
     return false;
 }
