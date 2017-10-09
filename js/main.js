@@ -142,7 +142,7 @@ function a_to_6word(h) {
 var password_last_changed = new Date().getTime();
 var selected_id = '';
 var selected_border_style = "2px solid #337ab7";
-var copied_border_style = "2px solid green";
+var copied_border_style = "2px solid #359335";
 
 function now_changed() {
     password_last_changed = new Date().getTime();
@@ -315,13 +315,15 @@ function clear_passwords_after_timeout() {
 }
 
 function reset_selected() {
+    selected_id = '';
     document.getElementById('resn').style.border = '';
     document.getElementById('resm').style.border = '';
     document.getElementById('resx').style.border = '';
     document.getElementById('resb').style.border = '';
     document.getElementById('resd').style.border = '';
-    selected_id = '';
     document.getElementById('copy_btn').textContent = "copy selected";
+    document.getElementById('copy_btn').style.background = '';
+    document.getElementById('copy_btn').style.borderColor = '';
 }
 
 function deselect_obj(o) {
@@ -375,6 +377,8 @@ function copy_content(id) {
     if (e.innerHTML != '') {
         if (copy_hidden(e.innerHTML) == true) {
             document.getElementById('copy_btn').textContent = "! COPIED !";
+            document.getElementById('copy_btn').style.background = "#359335";
+            document.getElementById('copy_btn').style.borderColor = "#248224";
             e.style.border = copied_border_style;
         }
     }
