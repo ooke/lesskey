@@ -277,7 +277,9 @@ function secret_toggle() {
     result_hide();
     if (sectype == "text") {
         secret_hide();
-    } else {
+    }
+    /* don't make secret visible if 'keep' is checked */
+    else if (document.getElementById('keep').checked == false) {
         secret_show();
     }
 }
