@@ -140,6 +140,8 @@ function a_to_6word(h) {
 }
 
 var password_last_changed = new Date().getTime();
+var def_clear_timeout = 60000;
+var keep_clear_timeout = 1200000;
 var selected_id = '';
 var selected_border_style = "2px solid #337ab7";
 var copied_border_style = "2px solid #359335";
@@ -299,19 +301,33 @@ function remove_selection() {
 }
 
 function clear_passwords_after_timeout() {
-    var t = new Date().getTime();
-    if ((t - password_last_changed) > 180000) {
-        document.getElementById('resn').innerHTML = "";
-        document.getElementById('resm').innerHTML = "";
-        document.getElementById('resx').innerHTML = "";
-        document.getElementById('resb').innerHTML = "";
-        document.getElementById('resd').innerHTML = "";
-        document.getElementById('resd').title = "";
-        document.getElementById('secret').value = "";
-        document.getElementById('secret2').value = "";
-        document.getElementById('prefix').value = "";
-        hide_all();
+    var clear_timeout = def_clear_timeout;
+    if (document.getElementById('keep').checked) {
+        clear_timeout = keep_clear_timeout;
     }
+    var t = new Date().getTime();
+    if ((t - password_last_changed) > clear_timeout) {
+        clear_passwords();  
+    }
+}
+
+function check_clear_passwords(cb) {
+    if (cb.checked == false) {
+        clear_passwords();
+    }
+}
+
+function clear_passwords() {
+    document.getElementById('resn').innerHTML = "";
+    document.getElementById('resm').innerHTML = "";
+    document.getElementById('resx').innerHTML = "";
+    document.getElementById('resb').innerHTML = "";
+    document.getElementById('resd').innerHTML = "";
+    document.getElementById('resd').title = "";
+    document.getElementById('secret').value = "";
+    document.getElementById('secret2').value = "";
+    document.getElementById('prefix').value = "";
+    hide_all();
 }
 
 function reset_selected() {
