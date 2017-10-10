@@ -327,6 +327,7 @@ function clear_passwords() {
     document.getElementById('secret').value = "";
     document.getElementById('secret2').value = "";
     document.getElementById('prefix').value = "";
+    document.getElementById('seed').value = "";
     hide_all();
 }
 
