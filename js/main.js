@@ -140,8 +140,8 @@ function a_to_6word(h) {
 }
 
 var password_last_changed = new Date().getTime();
-var def_clear_timeout = 60000;
-var keep_clear_timeout = 1200000;
+var def_clear_timeout = default_clear_passwords_timeout;
+var keep_clear_timeout = keep_clear_passwords_timeout;
 var selected_id = '';
 var selected_border_style = "2px solid #337ab7";
 var copied_border_style = "2px solid #359335";
@@ -308,12 +308,18 @@ function clear_passwords_after_timeout() {
         clear_timeout = keep_clear_timeout;
     }
     var t = new Date().getTime();
+    if (((clear_timeout - (t - password_last_changed)) <= 61000) && (document.getElementById('secret').value != "")) {
+        document.getElementById('keepstr').innerHTML = "&nbsp;(" + Math.max(0, Math.floor((clear_timeout - (t - password_last_changed)) / 1000)) + "s)";
+    } else {
+        document.getElementById('keepstr').innerHTML = "";
+    }
     if ((t - password_last_changed) > clear_timeout) {
         clear_passwords();  
     }
 }
 
 function check_clear_passwords(cb) {
+    hide_all();
     if (cb.checked == false) {
         clear_passwords();
     }
@@ -403,5 +409,5 @@ function copy_content(id) {
     }
 }
  
-window.setInterval(clear_passwords_after_timeout, 10000);
+window.setInterval(clear_passwords_after_timeout, 1000);
 document.getElementById("seed").focus();

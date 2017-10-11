@@ -1,6 +1,8 @@
 #!/bin/sh
 
-DIR="${1%/}"
+CONFFILE="$1"
+DIR="${2%/}"
+[ -f "$CONFFILE" ] || { echo "Config gile '$CONFFILE' not fount." >&2; exit 1; }
 [ -d "$DIR" ] || { echo "Directory '$DIR' not found." >&2; exit 1; }
 for FNAME in css/bootstrap.css \
              css/bootstrap.css.map \
@@ -30,7 +32,13 @@ do
         echo "Creation of directory '$DIR/$SUBDIR' failed." >&2
         exit 2;
     }
-    diff -q "$DIR/$FNAME" "$FNAME" 2>/dev/null || cp -v "$FNAME" "$DIR/$FNAME" || {
+    if [ "$FNAME" = "js/main.js" -o "$FNAME" = "index.html" ]; then
+        FNAMEIN="${FNAME}.result"
+        cat "$CONFFILE" "$FNAME" | m4 - >"$FNAMEIN"
+    else
+        FNAMEIN="$FNAME"
+    fi
+    diff -q "$DIR/$FNAME" "$FNAMEIN" 2>/dev/null || cp -v "$FNAMEIN" "$DIR/$FNAME" || {
         echo "Copy of file '$FNAME' to directory '$DIR' failed." >&2
         exit 3;
     }
