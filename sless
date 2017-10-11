@@ -1,0 +1,31 @@
+#!/bin/sh
+
+TRFROM="A-Z"
+TRTO="a-z"
+OPTS=""
+
+while true; do
+if [ "X$1" = "X-x" ]; then
+    TRFROM="A-Z "
+    TRTO="a-z"
+    OPTS="-x $OPTS"
+    shift
+    continue
+fi
+if [ "X$1" = "X-m" ]; then
+    TRFROM="A-Z "
+    TRTO="a-z-"
+    shift
+    continue
+fi
+break
+done
+
+case $# in
+    1) SEQ=99; NAME="$1"; PREF="";;
+    2) SEQ="$1"; NAME="$2"; PREF="";;
+    *) echo "Usage: $0 [-x] [seq] name" >&2
+       exit 1;;
+esac
+
+skey $OPTS -t sha1 "$SEQ" "$NAME" | tr "$TRFROM" "$TRTO"
