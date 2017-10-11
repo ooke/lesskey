@@ -1,8 +1,13 @@
 #!/bin/sh
 
+if [ $# -ne 2 ]; then
+    echo "Usage: $0 <config> <destination>" >&2
+    exit 1
+fi
+
 CONFFILE="$1"
 DIR="${2%/}"
-[ -f "$CONFFILE" ] || { echo "Config gile '$CONFFILE' not fount." >&2; exit 1; }
+[ -f "$CONFFILE" ] || { echo "Config gile '$CONFFILE' not found." >&2; exit 1; }
 [ -d "$DIR" ] || { echo "Directory '$DIR' not found." >&2; exit 1; }
 for FNAME in css/bootstrap.css \
              css/bootstrap.css.map \
