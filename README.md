@@ -1,4 +1,4 @@
-# PasS/KEY
+# LesS/KEY
 
 This is a project to build a password management tool based on the
 S/Key system described in the
@@ -8,7 +8,7 @@ is made with following goals in mind:
 1. Passwords need to be memorable, secure and easy to type on any
    keyboard.
    
-   The passwords which are generated with PasS/KEY can be easy
+   The passwords which are generated with LesS/KEY can be easy
    momoized and used without the generator. Generate the passwords
    only if you forgot a password, it reduces the number of times you
    enter your master password dramatically.
@@ -25,7 +25,7 @@ is made with following goals in mind:
 1. You should be able to use it in a safe way even if the whole time
    you generate a password some body look on your screen.
    
-   With PasS/KEY you can generate your passwords securely, also if
+   With LesS/KEY you can generate your passwords securely, also if
    some body look on your screen and you are on a foreign PC. (do not
    generate passwords on devices that you do not trust!)
    
@@ -69,7 +69,7 @@ name (`seed`). Typical usage:
    usually to verify that you entered the password correctly. If you
    do not want make the password visible, but you are not sure if it
    is entered correctly, than you can enter the password in the
-   `verify` field a second time. In this case PasS/KEY will check if
+   `verify` field a second time. In this case LesS/KEY will check if
    the passwords are equal and show an error if not.
 
 1. Click on button `calculate` (or simply press `enter` key) to
@@ -157,7 +157,7 @@ unencrypted connections! (I know, S/Key was developed initally for
 this case, but trust me, you should not use unencrypted connections)
 
 This is usefull, if your need f.e. login to your server from a PC,
-which you do not trust (internet caffee f.e.). You could use PasS/KEY
+which you do not trust (internet caffee f.e.). You could use LesS/KEY
 on your smartphone to calculate the one time password and type it on
 this PC. Also if some body logs the keyboard, this password is usable
 only one single time.
