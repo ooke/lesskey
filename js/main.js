@@ -310,7 +310,11 @@ function clear_passwords_after_timeout() {
     var t = new Date().getTime();
     if (((clear_timeout - (t - password_last_changed)) <= 61000) && (document.getElementById('secret').value != "")) {
         document.getElementById('keepstr').innerHTML = "&nbsp;(" + Math.max(0, Math.floor((clear_timeout - (t - password_last_changed)) / 1000)) + "s)";
-    } else {
+    }
+    else if (((clear_timeout - (t - password_last_changed)) <= keep_clear_timeout) && (document.getElementById('secret').value != "")) {
+        document.getElementById('keepstr').innerHTML = "&nbsp;(" + Math.max(0, Math.ceil((clear_timeout - (t - password_last_changed)) / 60000)) + "m)";
+    }
+    else {
         document.getElementById('keepstr').innerHTML = "";
     }
     if ((t - password_last_changed) > clear_timeout) {
