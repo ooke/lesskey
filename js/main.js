@@ -158,6 +158,9 @@ function switch_passwords() {
     var resn = document.getElementById('resn');
     pass2.value = "";
     pass.value = resn.innerHTML;
+    var seed = document.getElementById('seed');
+    seed.select();
+    seed.selectionStart = seed.selectionEnd;
 }   
 
 function calculate() {
