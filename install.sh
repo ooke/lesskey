@@ -9,21 +9,16 @@ CONFFILE="$1"
 DIR="${2%/}"
 [ -f "$CONFFILE" ] || { echo "Config gile '$CONFFILE' not found." >&2; exit 1; }
 [ -d "$DIR" ] || { echo "Directory '$DIR' not found." >&2; exit 1; }
-for FNAME in css/bootstrap.css \
-             css/bootstrap.css.map \
-             css/bootstrap.min.css \
-             css/bootstrap.min.css.map \
-             css/bootstrap-theme.css \
-             css/bootstrap-theme.css.map \
-             css/bootstrap-theme.min.css.map \
+for FNAME in css/bootstrap.min.css \
              css/bootstrap-theme.min.css \
+             css/bootstrap.ss.min.css \
+             css/bootstrap-theme.ss.min.css \
              fonts/glyphicons-halflings-regular.eot \
              fonts/glyphicons-halflings-regular.svg \
              fonts/glyphicons-halflings-regular.ttf \
              fonts/glyphicons-halflings-regular.woff \
              fonts/glyphicons-halflings-regular.woff2 \
              index.html \
-             js/bootstrap.js \
              js/bootstrap.min.js \
              js/dict.js \
              js/jquery.min.js \

@@ -26,23 +26,25 @@
         width: 98%;
       }
       #button {
-          display:inline-block;
-          color:#444;
-          border:1px solid #CCC;
-          background:#DDD;
-          box-shadow: 0 0 5px -1px rgba(0,0,0,0.2);
-          cursor:pointer;
-          vertical-align:middle;
-          max-width: 100px;
-          padding: 5px;
-          text-align: center;
+        display:inline-block;
+        color:#444;
+        border:1px solid #CCC;
+        background:#DDD;
+        box-shadow: 0 0 5px -1px rgba(0,0,0,0.2);
+        cursor:pointer;
+        vertical-align:middle;
+        max-width: 100px;
+        padding: 5px;
+        text-align: center;
       }
       #button:active {
-          color:red;
-          box-shadow: 0 0 5px -1px rgba(0,0,0,0.6);
+        color:red;
+        box-shadow: 0 0 5px -1px rgba(0,0,0,0.6);
       }
     </style>
-    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <script async defer src="https://buttons.github.io/buttons.js"></script>
+    <link href="css/ifelse(use_small_fonts, `true', `bootstrap.ss.min.css', `bootstrap.min.css')" rel="stylesheet">
+    <link href="css/ifelse(use_small_fonts, `true', `bootstrap-theme.ss.min.css', `bootstrap-theme.min.css')" rel="stylesheet">
   </head>
   <body>
     <form id="form"
@@ -62,15 +64,19 @@
                    onchange="now_changed()" onfocus="now_changed()" oninput="now_changed()"
                    type="text"/>
           </div>
+ifelse(show_new_window_button, `true', `', `divert(-1)')dnl
           <div class="col-lg-1 col-md-1 col-sm-1 col-xs-2">
             <div id="button"
                  onclick="window.open(window.location.href, '_blank', 'directories=no,titlebar=no,toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no,width=400,height=600');"
                  oncontextmenu="window.open(window.prompt('URL:', window.location.href) || window.location.href, '_blank', 'directories=no,titlebar=no,toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no,width=600,height=400');"
                  >&nbsp;&#x21B1;&nbsp;</div>
           </div>
+ifelse(show_new_window_button, `true', `', `divert(1)')dnl
+ifelse(show_github_repository_url, `true', `', `divert(-1)')dnl
           <div class="col-lg-1 col-md-1 col-sm-1 col-xs-3">
-            <a href="github_repository_url" title="Source code repository.">GitHub</a>
+            <a class="github-button" href="github_repository_url" aria-label="Star ooke/lesskey on GitHub">LesS/KEY</a>
           </div>
+ifelse(show_github_repository_url, `true', `', `divert(1)')dnl
         </div>
 
         <div class="form-group">
