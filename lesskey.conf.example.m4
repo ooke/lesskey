@@ -1,6 +1,8 @@
 divert(-1)
 
-define(`github_repository_url', `https://github.com/ooke/lesskey')
+define(`about_url', `https://github.com/ooke/lesskey')
+define(`about_title', `source code repository')
+define(`about_name', `GitHub')
 define(`double_click_on_result', `ondblclick="copy_content($1)"')
 define(`click_on_key_label', `onclick="result_toggle()"')
 define(`click_on_seed_label', `onclick="clear_passwords()"')
