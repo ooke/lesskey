@@ -25,7 +25,9 @@ for FNAME in css/bootstrap.min.css \
              js/main.js \
              js/npm.js \
              js/otp.js \
-             js/sha1.js
+             js/sha1.js \
+             manifest.json \
+             browserconfig.xml
 do
     SUBDIR="`dirname "$FNAME"`"
     [ -d "$DIR/$SUBDIR" ] || mkdir -p "$DIR/$SUBDIR" || {
@@ -43,5 +45,8 @@ do
         exit 3;
     }
 done
+# copy icons
+echo "Installing icons"
+cp -v *.ico *.png *.svg "$DIR/" || { echo "Failed to copy icons to '$DIR'"; exit 4; }
 
 exit 0
