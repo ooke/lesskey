@@ -1,12 +1,15 @@
 divert(-1)
 
-define(`github_repository_url', `https://github.com/ooke/lesskey')
+define(`about_url', `https://github.com/ooke/lesskey')
+define(`about_title', `source code repository')
+define(`about_name', `LesS/KEY')
+define(`show_about_url', `true')
 define(`double_click_on_result', `ondblclick="copy_content($1)"')
-define(`default_font_size', `16px')
+define(`click_on_key_label', `onclick="result_toggle()"')
+define(`click_on_seed_label', `onclick="clear_passwords()"')
 define(`default_clear_passwords_timeout', `60000')
 define(`keep_clear_passwords_timeout', `1200000')
 define(`show_new_window_button', `true')
-define(`show_github_repository_url', `true')
 define(`use_small_fonts', `false')
 
 divert(1)dnl
