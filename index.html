@@ -11,7 +11,7 @@
     <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
 
-    <!-- begin: icons (do not remove)-->
+ifelse(show_page_icon, `true', `', `divert(-1)')dnl
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
@@ -20,7 +20,7 @@
     <meta name="apple-mobile-web-app-title" content="LesS/KEY">
     <meta name="application-name" content="LesS/KEY">
     <meta name="theme-color" content="#004ba0">
-    <!-- end: icons (do not remove)-->
+ifelse(show_page_icon, `true', `', `divert(1)')dnl
 
     <style>
       ::-moz-selection {
