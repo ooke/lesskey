@@ -23,7 +23,7 @@ for FNAME in css/bootstrap.css \
              fonts/glyphicons-halflings-regular.woff \
              fonts/glyphicons-halflings-regular.woff2 \
              index.html \
-             about.html \
+             about_android.html \
              js/bootstrap.js \
              js/bootstrap.min.js \
              js/dict.js \
