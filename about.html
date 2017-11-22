@@ -24,6 +24,31 @@
               <p>The generated keys are invisible. Clicking 'show' makes them visible, but that's optional.</p></li>
           <li><p>Double-click a key to copy it to the clipboard, or select it first and then click 'copy'.</p></li>
         </ol>
+     <h3>HowTo: advanced usage</h3>
+        <ul>
+          <li>
+            <p><strong>seq#</strong></p>
+            <p>You only need to change the sequence number if you are using LesS/KEY as a 'classical' S/KEY generator. In that case, you probably know what you're doing. If not, leave it at the defaut value.</p>
+            <p>You can also change the number if you use LesS/KEY for password management, but make sure that you always use the same number for a given key.</p>
+          </li>
+          <li>
+            <p><strong>seed</strong></p>
+            <p>The seed is the name of the account you're creating a password for. You can choose any name you want. If it ends with one or more 'X', each of them will be substituted with a random number during key generation. This is useful if you want to change your keys (i. e. account passwords) regularly, but keep the master password.</p>
+          </li>
+          <li>
+            <p><strong>prefix</strong></p>
+            <p>Anything you enter in the 'prefix' field will be prefixed to the generated keys (except for the decimal key). This is useful if a service requires that a password contains special characters (which, btw, does not improve the strength of password and is no longer recommended).</p>
+          </li>
+          <li>
+            <p><strong>secret</strong></p>
+            <p>Your master password. Keep it secret and don't enter it on a machine that you don't trust. You can make it visible by clicking the 'secret' label.</p>
+            <p>The web version of LesS/KEY does not transfer your master password to a server. It is only used locally and discarded after 60 seconds. The timer is reset each time you make the keys or secret visible.</p>
+          </li>
+          <li>
+            <p><strong>keep</strong></p>
+            <p>If you enable the 'keep' checkbox, the time after which the master password (and the generated keys) are discarded is increased. They are immediately discarded if you uncheck it.</p>
+          </li>
+        </ul>
       <h3>Github project page</h3>
       <p> The project page can be found at <a href="https://github.com/minimeee/lesskey/">https://github.com/minimeee/lesskey/</a>.</p>
   </body>
