@@ -149,8 +149,12 @@ var copied_background = "#359335";
 var copied_borderColor = "#248224";
 
 function now_changed() {
+    restart_timer();
+    reset_calculated();
+}
+
+function restart_timer() {
     password_last_changed = new Date().getTime();
-    reset_calculated()
 }
 
 function switch_passwords() {
@@ -247,6 +251,10 @@ function result_show() {
     document.getElementById('resd').style.color = "#000";
     black_color = document.getElementById('resn').style.color;
     document.getElementById('show_hide').textContent = "hide";
+    /* restart the timer in order to give the user more time */
+    if (document.getElementById('keep').checked == false) {
+        restart_timer();
+    }
 }
 
 function result_hide() {
@@ -271,6 +279,10 @@ function result_toggle() {
 function secret_show() {
     document.getElementById('secret').type = "text";
     document.getElementById('secret2').type = "text";
+    /* restart the timer in order to give the user more time */
+    if (document.getElementById('keep').checked == false) {
+    	restart_timer();
+    }
 }
 
 function secret_hide() {
