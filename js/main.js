@@ -145,9 +145,12 @@ var keep_clear_timeout = keep_clear_passwords_timeout;
 var selected_id = '';
 var selected_border_style = "2px solid #337ab7";
 var copied_border_style = "2px solid #359335";
+var copied_background = "#359335";
+var copied_borderColor = "#248224";
 
 function now_changed() {
     password_last_changed = new Date().getTime();
+    reset_calculated()
 }
 
 function switch_passwords() {
@@ -226,6 +229,9 @@ function calculate() {
                 }
                 resd.title = a_to_dec6(p);
                 resd.innerHTML = a_to_dec(p);
+            	document.getElementById('calc').textContent = "calculated";
+            	document.getElementById('calc').style.background = copied_background;
+            	document.getElementById('calc').style.borderColor = copied_borderColor;
             }
         } catch (err) { resn.innerHTML = err.message; result_show();}
     } catch (err) { alert("ERROR: " + err.message); }
@@ -341,6 +347,7 @@ function clear_passwords() {
     document.getElementById('prefix').value = "";
     document.getElementById('seed').value = "";
     hide_all();
+    reset_calculated();
 }
 
 function reset_selected() {
@@ -353,6 +360,12 @@ function reset_selected() {
     document.getElementById('copy_btn').textContent = "copy selected";
     document.getElementById('copy_btn').style.background = '';
     document.getElementById('copy_btn').style.borderColor = '';
+}
+
+function reset_calculated() {
+    document.getElementById('calc').textContent = "calculate";
+    document.getElementById('calc').style.background = '';
+    document.getElementById('calc').style.borderColor = '';
 }
 
 function deselect_obj(o) {
@@ -406,8 +419,8 @@ function copy_content(id) {
     if (e.innerHTML != '') {
         if (copy_hidden(e.innerHTML) == true) {
             document.getElementById('copy_btn').textContent = "! COPIED !";
-            document.getElementById('copy_btn').style.background = "#359335";
-            document.getElementById('copy_btn').style.borderColor = "#248224";
+            document.getElementById('copy_btn').style.background = copied_background;
+            document.getElementById('copy_btn').style.borderColor = copied_borderColor;
             e.style.border = copied_border_style;
         }
     }
