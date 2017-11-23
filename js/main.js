@@ -279,6 +279,7 @@ function result_toggle() {
 function secret_show() {
     document.getElementById('secret').type = "text";
     document.getElementById('secret2').type = "text";
+    document.getElementById('prefix').type = "text";
     /* restart the timer in order to give the user more time */
     if (document.getElementById('keep').checked == false) {
     	restart_timer();
@@ -288,6 +289,7 @@ function secret_show() {
 function secret_hide() {
     var secret = document.getElementById('secret').type = "password"
     var secret2 = document.getElementById('secret2').type = "password"
+    document.getElementById('prefix').type = "password"
 }
 
 function secret_toggle() {
