@@ -59,7 +59,7 @@ ifelse(show_page_icon, `true', `', `divert(1)')dnl
   <body>
     <form id="form"
           class="form-horizontal"
-          onsubmit="javascript: return calculate();"
+          onsubmit="javascript: return generate();"
           method="post"
           action="https://127.0.0.1:0/"
           onmouseleave="remove_selection();"
@@ -71,7 +71,7 @@ ifelse(show_page_icon, `true', `', `divert(1)')dnl
           <div class="col-lg-1 col-md-1 col-sm-2 col-xs-4">
             <input id="seq" name="seq" placeholder="#" class="form-control input-md"
                    required="" value="99" onclick="deselect_obj(this)"
-                   onchange="now_changed()" onfocus="now_changed()" oninput="now_changed()"
+                   onchange="now_changed()" oninput="now_changed()"
                    type="text"/>
           </div>
 ifelse(show_new_window_button, `true', `', `divert(-1)')dnl
@@ -94,12 +94,12 @@ ifelse(show_about_url, `true', `', `divert(1)')dnl
           <div class="col-lg-2 col-md-4 col-sm-5 col-xs-7">
             <input id="seed" name="seed" placeholder="key name" required="" class="form-control input-md" type="text"
                    autocomplete="off" autocapitalize="none" autocorrect="off"
-                   onchange="now_changed()" onfocus="now_changed()" oninput="now_changed()"/>
+                   onchange="now_changed()" oninput="now_changed()"/>
           </div>
           <div class="col-lg-1 col-md-2 col-sm-3 col-xs-3">
             <input id="prefix" name="prefix" placeholder="prefix (optional)"
                    class="form-control input-md" type="password"
-                   onchange="now_changed()" onfocus="now_changed()" oninput="now_changed()"/>
+                   onchange="now_changed()" oninput="now_changed()"/>
           </div>
         </div>
 
@@ -109,7 +109,8 @@ ifelse(show_about_url, `true', `', `divert(1)')dnl
           <div class="col-lg-4 col-md-8 col-sm-10 col-xs-10">
             <input id="secret" name="secret" placeholder="your password" required=""
                    class="form-control input-md" type="password" value=""
-                   onchange="now_changed()" onfocus="now_changed()" oninput="now_changed()" onclick="deselect_obj(this)"/>
+                   autocomplete="off" autocapitalize="none" autocorrect="off"
+                   onchange="now_changed()" oninput="now_changed()" onclick="deselect_obj(this)"/>
           </div>
         </div>
 
@@ -118,7 +119,8 @@ ifelse(show_about_url, `true', `', `divert(1)')dnl
           <div class="col-lg-3 col-md-6 col-sm-8 col-xs-6">
             <input id="secret2" name="secret2" placeholder="verify password (optional)" value=""
                    class="form-control input-md" type="password"
-                   onchange="now_changed()" onfocus="now_changed()" oninput="now_changed()"/>
+                   autocomplete="off" autocapitalize="none" autocorrect="off"
+                   onchange="now_changed()" oninput="now_changed()"/>
           </div>
           <div class="col-lg-2 col-md-2 col-sm-2 col-xs-4 checkbox">
             <label title="increase clearance timeout"><input id="keep" type="checkbox" autocomplete="off" onclick="check_clear_passwords(this)">&nbsp;keep<span id="keepstr"></span></input></label>
@@ -128,7 +130,7 @@ ifelse(show_about_url, `true', `', `divert(1)')dnl
         <div class="form-group">
           <label class="col-lg-4 col-md-2 col-sm-2 col-xs-1 control-label" for="calc">&nbsp;</label>
           <div class="col-lg-3 col-md-5 col-sm-7 col-xs-6">
-            <button id="calc" type="submit" name="calc" class="btn btn-primary" style="width: 100%;">calculate</button>
+            <button id="calc" type="submit" name="calc" class="btn btn-primary" style="width: 100%;">generate</button>
           </div>
           <div class="col-lg-1 col-md-3 col-sm-3 col-xs-4">
             <button id="switch" type="button" onclick="switch_passwords()" name="switch" class="btn btn-primary" style="width: 100%;">switch</button>
@@ -163,10 +165,10 @@ ifelse(show_about_url, `true', `', `divert(1)')dnl
         <div class="form-group">
           <label class="col-lg-4 col-md-2 col-sm-2 col-xs-1 control-label" for="show">&nbsp;</label>
           <div class="col-lg-3 col-md-5 col-sm-7 col-xs-6">
-            <button id="copy_btn" type="button" onclick="copy_selected()" name="copy selected" class="btn btn-primary" style="width: 100%;">copy selected</button>
+            <button id="copy_btn" type="button" onclick="copy_selected()" name="copy selected" class="btn btn-primary" style="width: 100%;" disabled>copy selected</button>
           </div>
           <div class="col-lg-1 col-md-3 col-sm-3 col-xs-4">
-            <button id="show_hide" type="button" onclick="result_toggle()" name="show_hide" class="btn btn-primary" style="width: 100%;">show</button>
+            <button id="show_hide" type="button" onclick="result_toggle()" name="show_hide" class="btn btn-primary" style="width: 100%;" disabled>show</button>
           </div>
         </div>
        

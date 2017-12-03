@@ -72,8 +72,8 @@ name (`seed`). Typical usage:
    `verify` field a second time. In this case LesS/KEY will check if
    the passwords are equal and show an error if not.
 
-1. Click on button `calculate` (or simply press `enter` key) to
-   calculate the password and the password will be entered in the
+1. Click on button `generate` (or simply press `enter` key) to
+   generate the password and the password will be entered in the
    fields at the bottom in following representations:
    
    1. Usual 6 words S/Key representation.
@@ -141,7 +141,7 @@ the `seq #` without knowing what you are doing is dangerous.
 
 This password manager can also be used as a S/Key calculator, if you
 login to a system with enabled S/Key athentication method, then type
-the sequence number, seed and secret, click on `calculate` and
+the sequence number, seed and secret, click on `generate` and
 copy/paste your password. Usually it looks like follows:
 
 ```
@@ -158,7 +158,7 @@ this case, but trust me, you should not use unencrypted connections)
 
 This is usefull, if your need f.e. login to your server from a PC,
 which you do not trust (internet caffee f.e.). You could use LesS/KEY
-on your smartphone to calculate the one time password and type it on
+on your smartphone to generate the one time password and type it on
 this PC. Also if some body logs the keyboard, this password is usable
 only one single time.
 
@@ -170,11 +170,11 @@ It is possible to use multiple master passwords in a hierarhical way:
 
 1. Type your mastermaster password in `secret` field
 
-1. Click on `calculate` and on `switch`
+1. Click on `generate` and on `switch`
 
 1. Type the name of page you need the password for in `seed`
 
-1. Click on `calculate` and use it as usual
+1. Click on `generate` and use it as usual
 
 The reason to use hierarchical passwords is to use own master
 passwords for different types of systems. Typically you memoize the
@@ -196,7 +196,7 @@ This password manager was inspired by the XKCD commic:
 
 [![password_strength](https://imgs.xkcd.com/comics/password_strength.png)](https://www.xkcd.com/936/)
 
-Internally it calculates SHA-1 checksum chained `seq #` number of
+Internally it generates SHA-1 checksum chained `seq #` number of
 times from `seed` and `secret` concatenated together. The result is
 reduced to a 64 bit number and represented as 6 words, with the scheme
 from [RFC2289](https://tools.ietf.org/html/rfc2289). Other

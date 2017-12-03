@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <title>LesS/KEY &bull; S/KEY based passwort management</title>
+  </head>
+  <body>
+    <div>
+      <h2>LesS/KEY</h2>
+      <p> LesS/KEY is a passwort generation and management tool based on S/KEY.</p>
+      </p>Features:
+          <ul>
+            <li><p>The generated passwords (called 'keys') are strong but easy to remember.</p></li>
+            <li><p>The keys can be (re)generated at any time and on any device (without having to sync a file).</p></li>
+            <li><p>The keys (and your master password) are not stored and not sent anywhere.</p></li>
+          </ul>
+      </p>
+      <h3>HowTo: basic usage</h3>
+        <ol>
+          <li><p>Enter a name for the account you wish to create a password for into the 'seed' field (e. g. 'amazon' or 'github.com').</p></li>
+          <li><p>Enter your master password into the first 'secret' field (optionally also into the second one, for verification) and click 'generate'.</p>
+              <p>The generated keys are invisible. Clicking 'show' makes them visible, but that's optional.</p></li>
+          <li><p>Double-click a key to copy it to the clipboard, or select it first and then click 'copy'.</p></li>
+        </ol>
+     <h3>HowTo: advanced usage</h3>
+        <ul>
+          <li>
+            <p><strong>seq#</strong></p>
+            <p>You only need to change the sequence number if you are using LesS/KEY as a 'classical' S/KEY generator. In that case you probably know what you're doing. If not, leave it at the default value.</p>
+            <p>You can also change the sequence number if you use LesS/KEY for password management, but make sure that you always use the same number for a given key.</p>
+          </li>
+          <li>
+            <p><strong>seed</strong></p>
+            <p>The seed is the name of the account you're creating a password for. You can choose any name you want. If it ends with one or more 'X', each of them will be replaced by a random number during key generation. This is useful if you want to change your keys (i. e. account passwords) regularly, but keep the master password.</p>
+          </li>
+          <li>
+            <p><strong>prefix</strong></p>
+            <p>Anything you enter in the 'prefix' field will be prefixed to the generated keys (except for the decimal key). This is useful if a service requires special characters in a password (which, btw, does not improve the strength of password and is no longer recommended).</p>
+          </li>
+          <li>
+            <p><strong>secret</strong></p>
+            <p>Your master password. Keep it secret and don't enter it on a machine that you don't trust. You can make it visible by clicking the 'secret' label.</p>
+            <p>The web version of LesS/KEY does not transfer your master password to a server. It is only used locally and discarded after 60 seconds. The timer is reset each time you make the keys or secret visible.</p>
+          </li>
+          <li>
+            <p><strong>keep</strong></p>
+            <p>If you enable the 'keep' checkbox, the time after which the master password (and the generated keys) are discarded is increased. They are immediately discarded if you uncheck it.</p>
+          </li>
+         <li>
+            <p><strong>switch</strong></p>
+            <p>The 'switch' button replaces the content of the 'secret' field (i. e. your password) with the first key (i. e. the key becomes the new password). This feature can be used to create a password hierarchy: you can have one 'master password' that generates other 'sub master passwords' for different scopes, e. g. one for your gaming accounts, one for your banking accounts etc. If one of these passwords is compromised, you'll only have to change the keys for the affected account group, not for all accounts.</p>
+            <p>Of course, you can also use this technique with your own passwords.</p>
+          </li>
+          <li>
+            <p><strong>key</strong></p>
+            <p>The 'key' field contains the standard 64bit key created by the S/KEY algorithm. It consists of 6 words that are relatively easy to remember.</p>
+            <p>The field below contains the same key without spaces (because not all services accept passwords with spaces).</p>
+          </li> 
+          <li>
+            <p><strong>hex</strong></p>
+            <p>The 'hex' field contains the hexadecimal representation of the first key. It consists of lowercase letters and numbers.</p>
+          </li> 
+          <li>
+            <p><strong>b64</strong></p>
+            <p>The 'b64' field contains the base64 encoded version of the first key. It usually contains upper- and lowercase letters and numbers.</p>
+          </li> 
+          <li>
+            <p><strong>dec</strong></p>
+            <p>The 'dec' field contains the decimal representation of the first key. Very useful if you need to generate a PIN.</p>
+          </li> 
+          <li>
+            <p><strong>copy selected</strong></p>
+            <p>This button copies the content of the selected key to the clipboard (no matter if the key is visible or not). This functionality needs browser support but should work in all modern browsers. The button turns green if copying was successful.</p>
+            <p>You can also copy a key by double-clicking it.</p>
+          </li> 
+          <li>
+            <p><strong>show</strong></p>
+            <p>Makes the keys visible and restarts the timer that is responsible for clearing the secret and keys (so you have enough time to transcribe a key if you have to).</p>
+          </li> 
+        </ul>
+      <h3>Github project page</h3>
+      <p> The project page can be found at <a href="https://github.com/minimeee/lesskey/">https://github.com/minimeee/lesskey/</a>.</p>
+  </body>
+</html>
