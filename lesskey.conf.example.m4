@@ -12,5 +12,6 @@ define(`default_clear_passwords_timeout', `60000')
 define(`keep_clear_passwords_timeout', `1200000')
 define(`show_new_window_button', `true')
 define(`use_small_fonts', `false')
+define(`install_files', `files_web.conf')
 
 divert(1)dnl
