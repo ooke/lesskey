@@ -9,7 +9,7 @@ CONFFILE="$1"
 DIR="${2%/}"
 [ -f "$CONFFILE" ] || { echo "Config gile '$CONFFILE' not found." >&2; exit 1; }
 [ -d "$DIR" ] || { echo "Directory '$DIR' not found." >&2; exit 1; }
-cat "$(( cat "$CONFFILE"; echo install_files ) | m4 -)" | while read FNAME
+cat "$( ( cat "$CONFFILE"; echo install_files ) | m4 - )" | while read FNAME
 do
     SUBDIR="`dirname "$FNAME"`"
     [ -d "$DIR/$SUBDIR" ] || mkdir -p "$DIR/$SUBDIR" || {
