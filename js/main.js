@@ -150,7 +150,7 @@ var copied_borderColor = "#248224";
 
 function now_changed() {
     restart_timer();
-    reset_calculated();
+    reset_generated();
 }
 
 function restart_timer() {
@@ -167,7 +167,7 @@ function switch_passwords() {
     pass.value = resn.innerHTML;
 }   
 
-function calculate() {
+function generate() {
     hide_all();
     now_changed();
     try {
@@ -233,7 +233,7 @@ function calculate() {
                 }
                 resd.title = a_to_dec6(p);
                 resd.innerHTML = a_to_dec(p);
-            	document.getElementById('calc').textContent = "calculated";
+            	document.getElementById('calc').textContent = "GENERATED";
             	document.getElementById('calc').style.background = copied_background;
             	document.getElementById('calc').style.borderColor = copied_borderColor;
             }
@@ -361,7 +361,7 @@ function clear_passwords() {
     document.getElementById('prefix').value = "";
     document.getElementById('seed').value = "";
     hide_all();
-    reset_calculated();
+    reset_generated();
 }
 
 function reset_selected() {
@@ -376,8 +376,8 @@ function reset_selected() {
     document.getElementById('copy_btn').style.borderColor = '';
 }
 
-function reset_calculated() {
-    document.getElementById('calc').textContent = "calculate";
+function reset_generated() {
+    document.getElementById('calc').textContent = "generate";
     document.getElementById('calc').style.background = '';
     document.getElementById('calc').style.borderColor = '';
 }
@@ -432,7 +432,7 @@ function copy_content(id) {
     var e = document.getElementById(id);
     if (e.innerHTML != '') {
         if (copy_hidden(e.innerHTML) == true) {
-            document.getElementById('copy_btn').textContent = "! COPIED !";
+            document.getElementById('copy_btn').textContent = "COPIED";
             document.getElementById('copy_btn').style.background = copied_background;
             document.getElementById('copy_btn').style.borderColor = copied_borderColor;
             e.style.border = copied_border_style;
