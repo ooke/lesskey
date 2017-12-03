@@ -234,6 +234,7 @@ function generate() {
                 resd.title = a_to_dec6(p);
                 resd.innerHTML = a_to_dec(p);
             	document.getElementById('calc').textContent = "GENERATED";
+            	document.getElementById('show_hide').removeAttribute('disabled');
             	document.getElementById('calc').style.background = copied_background;
             	document.getElementById('calc').style.borderColor = copied_borderColor;
             }
@@ -360,6 +361,8 @@ function clear_passwords() {
     document.getElementById('secret2').value = "";
     document.getElementById('prefix').value = "";
     document.getElementById('seed').value = "";
+    document.getElementById('copy_btn').setAttribute('disabled', 'disabled');
+    document.getElementById('show_hide').setAttribute('disabled', 'disabled');
     hide_all();
     reset_generated();
 }
@@ -390,6 +393,7 @@ function store_selected(id) {
     reset_selected();
     selected_id = id;
     document.getElementById(id).style.border = selected_border_style;
+    document.getElementById('copy_btn').removeAttribute('disabled');
 }
   
 function copy_hidden(text) {
@@ -442,3 +446,5 @@ function copy_content(id) {
  
 window.setInterval(clear_passwords_after_timeout, 1000);
 document.getElementById("seed").focus();
+document.getElementById('copy_btn').setAttribute('disabled', 'disabled');
+document.getElementById('show_hide').setAttribute('disabled', 'disabled');
