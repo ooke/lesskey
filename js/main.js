@@ -361,7 +361,7 @@ function clear_passwords_after_timeout() {
 }
 
 function check_clear_passwords(cb) {
-    hide_all();
+    secret_hide();
     if (cb.checked == false) {
         clear_passwords();
     }
