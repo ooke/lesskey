@@ -51,6 +51,18 @@ ifelse(show_page_icon, `true', `', `divert(1)')dnl
         color:red;
         box-shadow: 0 0 5px -1px rgba(0,0,0,0.6);
       }
+      @font-face {
+          font-family: 'password';
+          src: url('fonts/password.eot');
+          src: url('fonts/password.eot') format('embedded-opentype'),
+               url('fonts/password.woff2') format('woff2'),
+               url('fonts/password.woff') format('woff'),
+               url('fonts/password.ttf') format('truetype'),
+               url('fonts/password.svg#password') format('svg');
+      }
+      password-text {
+          font-family: "password";
+      }
     </style>
     <script async defer src="https://buttons.github.io/buttons.js"></script>
     <link href="css/ifelse(use_small_fonts, `true', `bootstrap.ss.min.css', `bootstrap.min.css')" rel="stylesheet">
@@ -139,27 +151,27 @@ ifelse(show_about_url, `true', `', `divert(1)')dnl
 
         <div class="form-group">
           <label class="col-lg-4 col-md-2 col-sm-2 col-xs-2 control-label" for="resn" click_on_key_label>key</label>
-          <div class="col-lg-4 col-md-8 col-sm-10 col-xs-10"><div id="resn" onclick="store_selected('resn')" double_click_on_result('resn') class="form-control input-md" style="color: #fff;"></div></div>
+          <div class="col-lg-4 col-md-8 col-sm-10 col-xs-10"><div id="resn" onclick="store_selected('resn')" double_click_on_result('resn') class="form-control input-md" style="font-family: 'password';"></div></div>
         </div>
 
         <div class="form-group">
           <label class="col-lg-4 col-md-2 col-sm-2 col-xs-2 control-label" for="resm">&nbsp;</label>
-          <div class="col-lg-4 col-md-8 col-sm-10 col-xs-10"><div id="resm" onclick="store_selected('resm')" double_click_on_result('resm') class="form-control input-md" style="color: #fff;"></div></div>
+          <div class="col-lg-4 col-md-8 col-sm-10 col-xs-10"><div id="resm" onclick="store_selected('resm')" double_click_on_result('resm') class="form-control input-md" style="font-family: 'password';"></div></div>
         </div>
 
         <div class="form-group">
           <label class="col-lg-4 col-md-2 col-sm-2 col-xs-2 control-label" for="resx"><em>hex</em></label>
-          <div class="col-lg-4 col-md-8 col-sm-10 col-xs-10"><div id="resx" onclick="store_selected('resx')" double_click_on_result('resx') class="form-control input-md" style="color: #fff;"></div></div>
+          <div class="col-lg-4 col-md-8 col-sm-10 col-xs-10"><div id="resx" onclick="store_selected('resx')" double_click_on_result('resx') class="form-control input-md" style="font-family: 'password';"></div></div>
         </div>
 
         <div class="form-group">
           <label class="col-lg-4 col-md-2 col-sm-2 col-xs-2 control-label" for="resb"><em>b64</em></label>
-          <div class="col-lg-4 col-md-8 col-sm-10 col-xs-10"><div id="resb" onclick="store_selected('resb')" double_click_on_result('resb') class="form-control input-md" style="color: #fff;"></div></div>
+          <div class="col-lg-4 col-md-8 col-sm-10 col-xs-10"><div id="resb" onclick="store_selected('resb')" double_click_on_result('resb') class="form-control input-md" style="font-family: 'password';"></div></div>
         </div>
 
         <div class="form-group">
           <label class="col-lg-4 col-md-2 col-sm-2 col-xs-2 control-label" for="resd"><em>dec</em></label>
-          <div class="col-lg-4 col-md-8 col-sm-10 col-xs-10"><div id="resd" onclick="store_selected('resd')" double_click_on_result('resd') class="form-control input-md" style="color: #fff;"></div></div>
+          <div class="col-lg-4 col-md-8 col-sm-10 col-xs-10"><div id="resd" onclick="store_selected('resd')" double_click_on_result('resd') class="form-control input-md" style="font-family: 'password';"></div></div>
         </div>
  
         <div class="form-group">

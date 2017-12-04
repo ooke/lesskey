@@ -246,12 +246,12 @@ function generate() {
 
 var black_color = "#000";
 function result_show() {
-    document.getElementById('resn').style.color = "#000";
-    document.getElementById('resm').style.color = "#000";
-    document.getElementById('resx').style.color = "#000";
-    document.getElementById('resb').style.color = "#000";
-    document.getElementById('resd').style.color = "#000";
-    black_color = document.getElementById('resn').style.color;
+    document.getElementById('resn').style.fontFamily = "monospace";
+    document.getElementById('resm').style.fontFamily = "monospace";
+    document.getElementById('resx').style.fontFamily = "monospace";
+    document.getElementById('resb').style.fontFamily = "monospace";
+    document.getElementById('resd').style.fontFamily = "monospace";
+    black_color = document.getElementById('resn').style.fontFamily;
     document.getElementById('show_hide').textContent = "hide";
     /* restart the timer in order to give the user more time */
     if (document.getElementById('keep').checked == false) {
@@ -260,16 +260,16 @@ function result_show() {
 }
 
 function result_hide() {
-    document.getElementById('resn').style.color = "#fff";
-    document.getElementById('resm').style.color = "#fff";
-    document.getElementById('resx').style.color = "#fff";
-    document.getElementById('resb').style.color = "#fff";
-    document.getElementById('resd').style.color = "#fff";
+    document.getElementById('resn').style.fontFamily = "password";
+    document.getElementById('resm').style.fontFamily = "password";
+    document.getElementById('resx').style.fontFamily = "password";
+    document.getElementById('resb').style.fontFamily = "password";
+    document.getElementById('resd').style.fontFamily = "password";
     document.getElementById('show_hide').textContent = "show";
 }
 
 function result_toggle() {
-    var resncolor = document.getElementById('resn').style.color;
+    var resncolor = document.getElementById('resn').style.fontFamily;
     secret_hide();
     if (resncolor == black_color) {
         result_hide();
