@@ -146,6 +146,22 @@ var copied_border_style = "2px solid #359335";
 var copied_background = "#359335";
 var copied_borderColor = "#248224";
 
+var entityMap = {
+  '&': '&amp;',
+  '<': '&lt;',
+  '>': '&gt;',
+  '"': '&quot;',
+  "'": '&#39;',
+  '/': '&#x2F;',
+  '=': '&#x3D;'
+};
+
+function escapeHtml (string) {
+  return String(string).replace(/[&<>"'=\/]/g, function (s) {
+    return entityMap[s];
+  });
+}
+
 function now_changed() {
     restart_timer();
     reset_generated();
@@ -189,7 +205,7 @@ function generate() {
             var pass = document.getElementById('secret');
             var pass2 = document.getElementById('secret2');
             var seed = document.getElementById('seed').value;
-            var prefix = document.getElementById('prefix').value;
+            var prefix = escapeHtml(document.getElementById('prefix').value);
             var iter = parseInt(document.getElementById('seq').value);
             var pw = pass.value;
             var pw2 = pass2.value;
