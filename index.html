@@ -64,7 +64,9 @@ ifelse(show_page_icon, `true', `', `divert(1)')dnl
           font-family: "password";
       }
     </style>
+ifelse(about_class, `github-button', `', `divert(-1)')dnl
     <script async defer src="https://buttons.github.io/buttons.js"></script>
+ifelse(about_class, `github-button', `', `divert(1)')dnl
     <link href="css/ifelse(use_small_fonts, `true', `bootstrap.ss.min.css', `bootstrap.min.css')" rel="stylesheet">
     <link href="css/ifelse(use_small_fonts, `true', `bootstrap-theme.ss.min.css', `bootstrap-theme.min.css')" rel="stylesheet">
   </head>
@@ -96,7 +98,7 @@ ifelse(show_new_window_button, `true', `', `divert(-1)')dnl
 ifelse(show_new_window_button, `true', `', `divert(1)')dnl
 ifelse(show_about_url, `true', `', `divert(-1)')dnl
           <div class="col-lg-1 col-md-1 col-sm-1 col-xs-3">
-            <a class="github-button" href="about_url" aria-label="about_title">about_name</a>
+            <a class="about_class" href="about_url" aria-label="about_title">about_name</a>
           </div>
 ifelse(show_about_url, `true', `', `divert(1)')dnl
         </div>
