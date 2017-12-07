@@ -108,11 +108,13 @@ ifelse(show_about_url, `true', `', `divert(1)')dnl
           <div class="col-lg-2 col-md-4 col-sm-5 col-xs-7">
             <input id="seed" name="seed" placeholder="key name" required="" class="form-control input-md" type="text"
                    autocomplete="off" autocapitalize="none" autocorrect="off"
+                   style="font-family: 'monospace';"
                    onchange="now_changed()" oninput="now_changed()"/>
           </div>
           <div class="col-lg-1 col-md-2 col-sm-3 col-xs-3">
             <input id="prefix" name="prefix" placeholder="prefix (optional)"
                    class="form-control input-md" type="password"
+                   style="font-family: 'monospace';"
                    onchange="now_changed()" oninput="now_changed()"/>
           </div>
         </div>
@@ -124,6 +126,7 @@ ifelse(show_about_url, `true', `', `divert(1)')dnl
             <input id="secret" name="secret" placeholder="your password" required=""
                    class="form-control input-md" type="password" value=""
                    autocomplete="off" autocapitalize="none" autocorrect="off"
+                   style="font-family: 'monospace';"
                    onchange="now_changed()" oninput="now_changed()" onclick="deselect_obj(this)"/>
           </div>
         </div>
@@ -134,6 +137,7 @@ ifelse(show_about_url, `true', `', `divert(1)')dnl
             <input id="secret2" name="secret2" placeholder="verify password (optional)" value=""
                    class="form-control input-md" type="password"
                    autocomplete="off" autocapitalize="none" autocorrect="off"
+                   style="font-family: 'monospace';"
                    onchange="now_changed()" oninput="now_changed()"/>
           </div>
           <div class="col-lg-2 col-md-2 col-sm-2 col-xs-4 checkbox">
@@ -157,7 +161,7 @@ ifelse(show_about_url, `true', `', `divert(1)')dnl
         </div>
 
         <div class="form-group">
-          <label class="col-lg-4 col-md-2 col-sm-2 col-xs-2 control-label" for="resm" style="font-family: 'password';">&nbsp;</label>
+          <label class="col-lg-4 col-md-2 col-sm-2 col-xs-2 control-label" for="resm" style="font-family: 'password'; color: #fff;">&nbsp;</label>
           <div class="col-lg-4 col-md-8 col-sm-10 col-xs-10"><div id="resm" onclick="store_selected('resm')" double_click_on_result('resm') class="form-control input-md" style="font-family: 'password'; white-space: nowrap; overflow: hidden;"></div></div>
         </div>
 
