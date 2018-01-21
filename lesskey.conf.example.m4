@@ -15,4 +15,6 @@ define(`show_new_window_button', `true')
 define(`use_small_fonts', `false')
 define(`install_files', `files_web.conf')
 
+define(`m4_format', defn(`format'))undefine(`format')dnl
+
 divert(1)dnl

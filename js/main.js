@@ -411,6 +411,16 @@ function store_selected(id) {
     selected_id = id;
     document.getElementById(id).style.border = selected_border_style;
     document.getElementById('copy_btn').removeAttribute('disabled');
+    document.getElementById(id).focus();
+    if (document.selection) {
+        var range = document.body.createTextRange();
+        range.moveToElementText(document.getElementById(id));
+        range.select();
+    } else if (window.getSelection) {
+        var range = document.createRange();
+        range.selectNode(document.getElementById(id));
+        window.getSelection().addRange(range);
+    }
 }
   
 function copy_hidden(text) {
