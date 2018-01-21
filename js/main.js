@@ -1,11 +1,11 @@
 function invert_endian(a, inpl) {
     var t = inpl ? a : Array(a.length);
     for (var i = 0; i < a.length; ++i) {
-	var t1 = (a[i] & 0xff) << 24;
-	var t2 = ((a[i] >> 8) & 0xff) << 16;
-	var t3 = ((a[i] >> 16) & 0xff) << 8;
-	var t4 = (a[i] >> 24) & 0xff;
-	t[i] = t1 | t2 | t3 | t4;
+        var t1 = (a[i] & 0xff) << 24;
+        var t2 = ((a[i] >> 8) & 0xff) << 16;
+        var t3 = ((a[i] >> 16) & 0xff) << 8;
+        var t4 = (a[i] >> 24) & 0xff;
+        t[i] = t1 | t2 | t3 | t4;
     }
     return t;
 }
@@ -29,11 +29,11 @@ function a_to_both(a) { return a_to_6word(a) + " (" + a_to_hex(a) + ")"; }
 function a_to_hex(a) {
     var s = "";
     for (var i = 0; i < 2; ++i) {
-	for (var j = 0; j < 4; ++j) {
-	    var t = (a[i] >> (8*j)) & 0xff;
-	    t = t.toString(16).toLowerCase();
-	    s += (t.length == 1) ? ('0' + t) : t; // 1 octet = 2 hex digits
-	}
+        for (var j = 0; j < 4; ++j) {
+            var t = (a[i] >> (8*j)) & 0xff;
+            t = t.toString(16).toLowerCase();
+            s += (t.length == 1) ? ('0' + t) : t; // 1 octet = 2 hex digits
+        }
     }
     return s.trim();
 }
@@ -42,9 +42,9 @@ function a_to_dec6(h) {
     var s = "";
     var parity = 0;
     for (var i = 0; i < 2; ++i) {
-	for (var j = 0; j < 32; j += 2) {
-	    parity += (h[i] >> j) & 0x3;
-	}
+        for (var j = 0; j < 32; j += 2) {
+            parity += (h[i] >> j) & 0x3;
+        }
     }
     var ind;
     ind = (h[0] & 0xff) << 3;
@@ -73,12 +73,12 @@ function a_to_dec6(h) {
 function a_to_dec(a) {
     var s = "";
     for (var i = 0; i < 2; ++i) {
-	for (var j = 0; j < 4; ++j) {
-	    var t = (a[i] >> (8*j)) & 0xff;
-	    t = t.toString(10).toLowerCase();
+        for (var j = 0; j < 4; ++j) {
+            var t = (a[i] >> (8*j)) & 0xff;
+            t = t.toString(10).toLowerCase();
             s += t;
             if (i == 0 || j < 3) s += ' ';
-	}
+        }
     }
     return s.trim();
 }
@@ -86,10 +86,10 @@ function a_to_dec(a) {
 function a_to_b(a) {
     var s = "";
     for (var i = 0; i < 2; ++i) {
-	for (var j = 0; j < 4; ++j) {
-	    var t = (a[i] >> (8*j)) & 0xff;
+        for (var j = 0; j < 4; ++j) {
+            var t = (a[i] >> (8*j)) & 0xff;
             s += String.fromCharCode(t);
-	}
+        }
     }
     return window.btoa(s).replace('=', '').trim();
 }
@@ -99,9 +99,9 @@ function a_to_6word(h) {
     // Calculate parity by summing pairs of bits and taking two LSB's of sum.
     var parity = 0;
     for (var i = 0; i < 2; ++i) {
-	for (var j = 0; j < 32; j += 2) {
-	    parity += (h[i] >> j) & 0x3;
-	}
+        for (var j = 0; j < 32; j += 2) {
+            parity += (h[i] >> j) & 0x3;
+        }
     }
     // Now look up words in the dictionary and output to string. This manual
     // method kind of sucks, but I didn't feel like figuring out a more
@@ -162,9 +162,45 @@ function escapeHtml (string) {
   });
 }
 
+var fakeLocalStorage = {};
+function storeItem (data) {
+    window.localStorage.setItem(data, "true");
+    if (window.localStorage.getItem(data) != "true")
+        fakeLocalStorage[data] = true;
+}
+function isStored (data) {
+    if (window.localStorage.getItem(data) == "true")
+        return true;
+    return fakeLocalStorage[data] == true;
+}
+function removeStored (data) {
+    window.localStorage.removeItem(data);
+    delete fakeLocalStorage[data];
+}
+
 function now_changed() {
     restart_timer();
     reset_generated();
+    correct = document.getElementById('correct')
+    secret = document.getElementById('secret')
+    seed = document.getElementById('seed').value;
+    prefix = document.getElementById('prefix').value;
+    if (secret.value.trim() != '') {
+        secret_sha1 = binb2b64(core_sha1(str2binb(secret.value), secret.value.length * 8))
+        fulldata = seed + ":" + prefix + ":" + secret_sha1;
+        fulldata_sha1 = binb2b64(core_sha1(str2binb(fulldata), fulldata.length * 8))
+        if (isStored(fulldata_sha1) && !isStored(secret_sha1))
+            storeItem(secret_sha1);
+        if (isStored(secret_sha1)) {
+            if (isStored(fulldata_sha1))
+                secret.style.background = '#33dd33';
+            else secret.style.background = '#33dddd';
+        } else secret.style.background = '#ffffff';
+        if (isStored(fulldata_sha1)) {
+            correct.checked = true;
+            generate();
+        } else correct.checked = false;
+    }
 }
 
 function restart_timer() {
@@ -180,11 +216,21 @@ function switch_passwords() {
     pass2.value = "";
     pass.value = resn.innerHTML;
     var seed = document.getElementById('seed');
+    now_changed();
     seed.select();
     seed.selectionStart = seed.selectionEnd;
-}   
+    document.getElementById('resn').innerHTML = "";
+    document.getElementById('resm').innerHTML = "";
+    document.getElementById('resx').innerHTML = "";
+    document.getElementById('resb').innerHTML = "";
+    document.getElementById('resd').innerHTML = "";
+    document.getElementById('resd').title = "";
+}
 
+var already_in_generate = false;
 function generate() {
+    if (already_in_generate) return false;
+    already_in_generate = true;
     hide_all();
     now_changed();
     try {
@@ -250,13 +296,14 @@ function generate() {
                 }
                 resd.title = a_to_dec6(p);
                 resd.innerHTML = a_to_dec(p);
-            	document.getElementById('calc').textContent = "GENERATED";
-            	document.getElementById('show_hide').removeAttribute('disabled');
-            	document.getElementById('calc').style.background = copied_background;
-            	document.getElementById('calc').style.borderColor = copied_borderColor;
+                document.getElementById('calc').textContent = "GENERATED";
+                document.getElementById('show_hide').removeAttribute('disabled');
+                document.getElementById('calc').style.background = copied_background;
+                document.getElementById('calc').style.borderColor = copied_borderColor;
             }
         } catch (err) { resn.innerHTML = err.message; result_show();}
     } catch (err) { alert("ERROR: " + err.message); }
+    already_in_generate = false;
     return false;
 }
 
@@ -300,7 +347,7 @@ function secret_show() {
     document.getElementById('prefix').type = "text";
     /* restart the timer in order to give the user more time */
     if (document.getElementById('keep').checked == false) {
-    	restart_timer();
+        restart_timer();
     }
 }
 
@@ -356,7 +403,7 @@ function clear_passwords_after_timeout() {
         document.getElementById('keepstr').innerHTML = "";
     }
     if ((t - password_last_changed) > clear_timeout) {
-        clear_passwords();  
+        clear_passwords();
     }
 }
 
@@ -367,6 +414,24 @@ function check_clear_passwords(cb) {
     }
 }
 
+function correct_password(tb) {
+    secret_hide();
+    seed = document.getElementById('seed').value;
+    prefix = document.getElementById('prefix').value;
+    secret = document.getElementById('secret').value;
+    secret_sha1 = binb2b64(core_sha1(str2binb(secret), secret.length * 8));
+    fulldata = seed + ":" + prefix + ":" + secret_sha1;
+    fulldata_sha1 = binb2b64(core_sha1(str2binb(fulldata), fulldata.length * 8))
+    if (tb.checked == true) {
+        storeItem(secret_sha1);
+        storeItem(fulldata_sha1);
+    } else {
+        if (isStored(secret_sha1)) removeStored(secret_sha1);
+        if (isStored(fulldata_sha1)) removeStored(fulldata_sha1);
+    }
+    now_changed();
+}
+
 function clear_passwords() {
     document.getElementById('resn').innerHTML = "";
     document.getElementById('resm').innerHTML = "";
@@ -375,6 +440,7 @@ function clear_passwords() {
     document.getElementById('resd').innerHTML = "";
     document.getElementById('resd').title = "";
     document.getElementById('secret').value = "";
+    document.getElementById('secret').style.background = "#fff";
     document.getElementById('secret2').value = "";
     document.getElementById('prefix').value = "";
     document.getElementById('seed').value = "";
@@ -412,7 +478,7 @@ function store_selected(id) {
     document.getElementById(id).style.border = selected_border_style;
     document.getElementById('copy_btn').removeAttribute('disabled');
 }
-  
+
 function copy_hidden(text) {
     try {
         if (document.queryCommandSupported('copy') == true) {
@@ -460,7 +526,7 @@ function copy_content(id) {
         }
     }
 }
- 
+
 window.setInterval(clear_passwords_after_timeout, 1000);
 document.getElementById("seed").focus();
 document.getElementById('copy_btn').setAttribute('disabled', 'disabled');
