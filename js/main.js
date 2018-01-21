@@ -164,16 +164,19 @@ function escapeHtml (string) {
 
 var fakeLocalStorage = {};
 function storeItem (data) {
+    data = 'lesskey:' + data;
     window.localStorage.setItem(data, "true");
     if (window.localStorage.getItem(data) != "true")
         fakeLocalStorage[data] = true;
 }
 function isStored (data) {
+    data = 'lesskey:' + data;
     if (window.localStorage.getItem(data) == "true")
         return true;
     return fakeLocalStorage[data] == true;
 }
 function removeStored (data) {
+    data = 'lesskey:' + data;
     window.localStorage.removeItem(data);
     delete fakeLocalStorage[data];
 }
@@ -444,6 +447,7 @@ function clear_passwords() {
     document.getElementById('secret2').value = "";
     document.getElementById('prefix').value = "";
     document.getElementById('seed').value = "";
+    document.getElementById('correct').checked = false;
     document.getElementById('copy_btn').setAttribute('disabled', 'disabled');
     document.getElementById('show_hide').setAttribute('disabled', 'disabled');
     hide_all();

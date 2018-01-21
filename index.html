@@ -81,7 +81,7 @@ ifelse(about_class, `github-button', `', `divert(1)')dnl
 
       <fieldset>
         <div class="form-group">
-          <label class="col-lg-4 col-md-2 col-sm-2 col-xs-2 control-label" for="seq">seq&nbsp;#</label>
+          <label class="col-lg-3 col-md-2 col-sm-2 col-xs-2 control-label" for="seq">seq&nbsp;#</label>
           <div class="col-lg-1 col-md-1 col-sm-2 col-xs-4">
             <input id="seq" name="seq" placeholder="#" class="form-control input-md"
                    required="" value="99" onclick="deselect_obj(this)"
@@ -104,14 +104,14 @@ ifelse(show_about_url, `true', `', `divert(1)')dnl
         </div>
 
         <div class="form-group">
-          <label class="col-lg-4 col-md-2 col-sm-2 col-xs-2 control-label" for="seed" click_on_seed_label>seed</label>
-          <div class="col-lg-3 col-md-6 col-sm-7 col-xs-6">
+          <label class="col-lg-3 col-md-2 col-sm-2 col-xs-2 control-label" for="seed" click_on_seed_label>seed</label>
+          <div class="col-lg-4 col-md-5 col-sm-5 col-xs-5">
             <input id="seed" name="seed" placeholder="key name" required="" class="form-control input-md" type="text"
                    autocomplete="off" autocapitalize="none" autocorrect="off"
                    style="font-family: 'monospace';"
                    onchange="now_changed()" oninput="now_changed()"/>
           </div>
-          <div class="col-lg-1 col-md-2 col-sm-3 col-xs-4">
+          <div class="col-lg-2 col-md-3 col-sm-4 col-xs-5">
             <input id="prefix" name="prefix" placeholder="prefix (optional)"
                    class="form-control input-md" type="password"
                    style="font-family: 'monospace';"
@@ -120,23 +120,23 @@ ifelse(show_about_url, `true', `', `divert(1)')dnl
         </div>
 
         <div class="form-group">
-          <label class="col-lg-4 col-md-2 col-sm-2 col-xs-2 control-label" for="secret"
+          <label class="col-lg-3 col-md-2 col-sm-2 col-xs-2 control-label" for="secret"
                  onclick="secret_toggle()">secret</label>
-          <div class="col-lg-3 col-md-6 col-sm-8 col-xs-6">
+          <div class="col-lg-5 col-md-6 col-sm-7 col-xs-6">
             <input id="secret" name="secret" placeholder="your password" required=""
                    class="form-control input-md" type="password" value=""
                    autocomplete="off" autocapitalize="none" autocorrect="off"
                    style="font-family: 'monospace';"
                    onchange="now_changed()" oninput="now_changed()" onclick="deselect_obj(this)"/>
           </div>
-          <div class="col-lg-2 col-md-2 col-sm-2 col-xs-4 checkbox">
+          <div class="col-lg-2 col-md-3 col-sm-2 col-xs-4 checkbox">
             <label title="remember checksum of this password as correct one"><input id="correct" type="checkbox" autocomplete="off" onclick="correct_password(this)">&nbsp;correct<span id="correctstr"></span></input></label>
           </div>
         </div>
 
         <div class="form-group">
-          <label class="col-lg-4 col-md-2 col-sm-2 col-xs-2 control-label" for="secret2">&nbsp;</label>
-          <div class="col-lg-3 col-md-6 col-sm-8 col-xs-6">
+          <label class="col-lg-3 col-md-2 col-sm-2 col-xs-2 control-label" for="secret2">&nbsp;</label>
+          <div class="col-lg-5 col-md-6 col-sm-7 col-xs-6">
             <input id="secret2" name="secret2" placeholder="verify password (optional)" value=""
                    class="form-control input-md" type="password"
                    autocomplete="off" autocapitalize="none" autocorrect="off"
@@ -149,46 +149,46 @@ ifelse(show_about_url, `true', `', `divert(1)')dnl
         </div>
 
         <div class="form-group">
-          <label class="col-lg-4 col-md-2 col-sm-2 col-xs-1 control-label" for="calc">&nbsp;</label>
-          <div class="col-lg-3 col-md-5 col-sm-7 col-xs-6">
+          <label class="col-lg-3 col-md-2 col-sm-2 col-xs-1 control-label" for="calc">&nbsp;</label>
+          <div class="col-lg-4 col-md-5 col-sm-6 col-xs-6">
             <button id="calc" type="submit" name="calc" class="btn btn-primary" style="width: 100%;">generate</button>
           </div>
-          <div class="col-lg-1 col-md-3 col-sm-3 col-xs-4">
+          <div class="col-lg-2 col-md-3 col-sm-3 col-xs-4">
             <button id="switch" type="button" onclick="switch_passwords()" name="switch" class="btn btn-primary" style="width: 100%;">switch</button>
           </div>
         </div>
 
         <div class="form-group">
-          <label class="col-lg-4 col-md-2 col-sm-2 col-xs-2 control-label" for="resn" click_on_key_label>key</label>
-          <div class="col-lg-4 col-md-8 col-sm-10 col-xs-10"><div id="resn" onclick="store_selected('resn')" double_click_on_result('resn') class="form-control input-md" style="font-family: 'password'; white-space: nowrap; overflow: hidden;"></div></div>
+          <label class="col-lg-3 col-md-2 col-sm-2 col-xs-2 control-label" for="resn" click_on_key_label>key</label>
+          <div class="col-lg-6 col-md-8 col-sm-9 col-xs-10"><div id="resn" onclick="store_selected('resn')" double_click_on_result('resn') class="form-control input-md" style="font-family: 'password'; white-space: nowrap; overflow: hidden;"></div></div>
         </div>
 
         <div class="form-group">
-          <label class="col-lg-4 col-md-2 col-sm-2 col-xs-2 control-label" for="resm" style="font-family: 'password'; color: #fff;">&nbsp;</label>
-          <div class="col-lg-4 col-md-8 col-sm-10 col-xs-10"><div id="resm" onclick="store_selected('resm')" double_click_on_result('resm') class="form-control input-md" style="font-family: 'password'; white-space: nowrap; overflow: hidden;"></div></div>
+          <label class="col-lg-3 col-md-2 col-sm-2 col-xs-2 control-label" for="resm" style="font-family: 'password'; color: #fff;">&nbsp;</label>
+          <div class="col-lg-6 col-md-8 col-sm-9 col-xs-10"><div id="resm" onclick="store_selected('resm')" double_click_on_result('resm') class="form-control input-md" style="font-family: 'password'; white-space: nowrap; overflow: hidden;"></div></div>
         </div>
 
         <div class="form-group">
-          <label class="col-lg-4 col-md-2 col-sm-2 col-xs-2 control-label" for="resx"><em>hex</em></label>
-          <div class="col-lg-4 col-md-8 col-sm-10 col-xs-10"><div id="resx" onclick="store_selected('resx')" double_click_on_result('resx') class="form-control input-md" style="font-family: 'password'; white-space: nowrap; overflow: hidden;"></div></div>
+          <label class="col-lg-3 col-md-2 col-sm-2 col-xs-2 control-label" for="resx"><em>hex</em></label>
+          <div class="col-lg-6 col-md-8 col-sm-9 col-xs-10"><div id="resx" onclick="store_selected('resx')" double_click_on_result('resx') class="form-control input-md" style="font-family: 'password'; white-space: nowrap; overflow: hidden;"></div></div>
         </div>
 
         <div class="form-group">
-          <label class="col-lg-4 col-md-2 col-sm-2 col-xs-2 control-label" for="resb"><em>b64</em></label>
-          <div class="col-lg-4 col-md-8 col-sm-10 col-xs-10"><div id="resb" onclick="store_selected('resb')" double_click_on_result('resb') class="form-control input-md" style="font-family: 'password'; white-space: nowrap; overflow: hidden;"></div></div>
+          <label class="col-lg-3 col-md-2 col-sm-2 col-xs-2 control-label" for="resb"><em>b64</em></label>
+          <div class="col-lg-6 col-md-8 col-sm-9 col-xs-10"><div id="resb" onclick="store_selected('resb')" double_click_on_result('resb') class="form-control input-md" style="font-family: 'password'; white-space: nowrap; overflow: hidden;"></div></div>
         </div>
 
         <div class="form-group">
-          <label class="col-lg-4 col-md-2 col-sm-2 col-xs-2 control-label" for="resd"><em>dec</em></label>
-          <div class="col-lg-4 col-md-8 col-sm-10 col-xs-10"><div id="resd" onclick="store_selected('resd')" double_click_on_result('resd') class="form-control input-md" style="font-family: 'password'; white-space: nowrap; overflow: hidden;"></div></div>
+          <label class="col-lg-3 col-md-2 col-sm-2 col-xs-2 control-label" for="resd"><em>dec</em></label>
+          <div class="col-lg-6 col-md-8 col-sm-9 col-xs-10"><div id="resd" onclick="store_selected('resd')" double_click_on_result('resd') class="form-control input-md" style="font-family: 'password'; white-space: nowrap; overflow: hidden;"></div></div>
         </div>
  
         <div class="form-group">
-          <label class="col-lg-4 col-md-2 col-sm-2 col-xs-1 control-label" for="show">&nbsp;</label>
-          <div class="col-lg-3 col-md-5 col-sm-7 col-xs-6">
+          <label class="col-lg-3 col-md-2 col-sm-2 col-xs-1 control-label" for="show">&nbsp;</label>
+          <div class="col-lg-4 col-md-5 col-sm-6 col-xs-6">
             <button id="copy_btn" type="button" onclick="copy_selected()" name="copy selected" class="btn btn-primary" style="width: 100%;" disabled>copy selected</button>
           </div>
-          <div class="col-lg-1 col-md-3 col-sm-3 col-xs-4">
+          <div class="col-lg-2 col-md-3 col-sm-3 col-xs-4">
             <button id="show_hide" type="button" onclick="result_toggle()" name="show_hide" class="btn btn-primary" style="width: 100%;" disabled>show</button>
           </div>
         </div>
