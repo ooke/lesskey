@@ -105,13 +105,13 @@ ifelse(show_about_url, `true', `', `divert(1)')dnl
 
         <div class="form-group">
           <label class="col-lg-4 col-md-2 col-sm-2 col-xs-2 control-label" for="seed" click_on_seed_label>seed</label>
-          <div class="col-lg-2 col-md-4 col-sm-5 col-xs-7">
+          <div class="col-lg-3 col-md-6 col-sm-7 col-xs-6">
             <input id="seed" name="seed" placeholder="key name" required="" class="form-control input-md" type="text"
                    autocomplete="off" autocapitalize="none" autocorrect="off"
                    style="font-family: 'monospace';"
                    onchange="now_changed()" oninput="now_changed()"/>
           </div>
-          <div class="col-lg-1 col-md-2 col-sm-3 col-xs-3">
+          <div class="col-lg-1 col-md-2 col-sm-3 col-xs-4">
             <input id="prefix" name="prefix" placeholder="prefix (optional)"
                    class="form-control input-md" type="password"
                    style="font-family: 'monospace';"
@@ -122,12 +122,15 @@ ifelse(show_about_url, `true', `', `divert(1)')dnl
         <div class="form-group">
           <label class="col-lg-4 col-md-2 col-sm-2 col-xs-2 control-label" for="secret"
                  onclick="secret_toggle()">secret</label>
-          <div class="col-lg-4 col-md-8 col-sm-10 col-xs-10">
+          <div class="col-lg-3 col-md-6 col-sm-8 col-xs-6">
             <input id="secret" name="secret" placeholder="your password" required=""
                    class="form-control input-md" type="password" value=""
                    autocomplete="off" autocapitalize="none" autocorrect="off"
                    style="font-family: 'monospace';"
                    onchange="now_changed()" oninput="now_changed()" onclick="deselect_obj(this)"/>
+          </div>
+          <div class="col-lg-2 col-md-2 col-sm-2 col-xs-4 checkbox">
+            <label title="remember checksum of this password as correct one"><input id="correct" type="checkbox" autocomplete="off" onclick="correct_password(this)">&nbsp;correct<span id="correctstr"></span></input></label>
           </div>
         </div>
 
