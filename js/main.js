@@ -206,7 +206,10 @@ function now_changed() {
                 mcorrect.checked = true;
                 correct.checked = false;
             }
-        } else secret.style.background = '#ffffff';
+        } else {
+            secret.style.background = '#ffffff';
+            mcorrect.checked = false;
+        }
         if (isStored(fulldata_sha1)) {
             generate();
         } else correct.checked = false;
