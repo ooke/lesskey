@@ -306,6 +306,7 @@ function generate() {
                 calc.style.background = copied_background;
                 calc.style.borderColor = copied_borderColor;
                 store_selected('res');
+                test.select();
             }
         } catch (err) { res.innerHTML = err.message; result_show();}
     } catch (err) { alert("ERROR: " + err.message); }
@@ -565,13 +566,17 @@ function test_password() {
         points.innerHTML = test_points + "&nbsp;points";
     } else if (test.value.length >= res.innerHTML.length) {
         test.style.background = "#dd8888";
-        test.type = "text";
+        test.style.fontFamily = "monospace";
         test_points = 0;
         points.innerHTML = "&nbsp;";
         result_show();
+    } else if (test.value != "") {
+        test.style.background = "#ffffff";
+        test.style.fontFamily = "password";
+        result_hide();
     } else {
         test.style.background = "#ffffff";
-        test.type = "password";
+        test.style.fontFamily = "monospace";
         result_hide();
     }
 }
@@ -581,13 +586,13 @@ function test_reset() {
     var test = document.getElementById('test');
     var points = document.getElementById('points');
     test.value = "";
-    if (res.value == "") {
+    if (res.innerHTML == "") {
         test.setAttribute('disabled', 'disabled');
     } else {
         test.removeAttribute('disabled');
     }
     test.style.background = "#fff";
-    test.type = "password";
+    test.style.fontFamily = "monospace";
     test_points = 0;
     points.innerHTML = "&nbsp;";
 }
