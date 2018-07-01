@@ -184,23 +184,30 @@ function removeStored (data) {
 function now_changed() {
     restart_timer();
     reset_generated();
-    correct = document.getElementById('correct')
-    secret = document.getElementById('secret')
-    seed = document.getElementById('seed').value;
-    prefix = document.getElementById('prefix').value;
+    var mcorrect = document.getElementById('mcorrect');
+    var correct = document.getElementById('correct');
+    var secret = document.getElementById('secret');
+    var seed = document.getElementById('seed').value;
+    var prefix = document.getElementById('prefix').value;
+    var ptype = document.getElementById('ptype').value;
     if (secret.value.trim() != '') {
-        secret_sha1 = binb2b64(core_sha1(str2binb(secret.value), secret.value.length * 8))
-        fulldata = seed + ":" + prefix + ":" + secret_sha1;
-        fulldata_sha1 = binb2b64(core_sha1(str2binb(fulldata), fulldata.length * 8))
+        secret_sha1 = binb2b64(core_sha1(str2binb(secret.value), secret.value.length * 8));
+        fulldata = seed + ":" + prefix + ":" + ptype + ":" + secret_sha1;
+        fulldata_sha1 = binb2b64(core_sha1(str2binb(fulldata), fulldata.length * 8));
         if (isStored(fulldata_sha1) && !isStored(secret_sha1))
             storeItem(secret_sha1);
         if (isStored(secret_sha1)) {
-            if (isStored(fulldata_sha1))
+            if (isStored(fulldata_sha1)) {
                 secret.style.background = '#33dd33';
-            else secret.style.background = '#33dddd';
+                mcorrect.checked = true;
+                correct.checked = true;
+            } else {
+                secret.style.background = '#33dddd';
+                mcorrect.checked = true;
+                correct.checked = false;
+            }
         } else secret.style.background = '#ffffff';
         if (isStored(fulldata_sha1)) {
-            correct.checked = true;
             generate();
         } else correct.checked = false;
     }
@@ -215,19 +222,15 @@ function switch_passwords() {
     now_changed();
     var pass = document.getElementById('secret');
     var pass2 = document.getElementById('secret2');
-    var resn = document.getElementById('resn');
+    var res = document.getElementById('res');
     pass2.value = "";
-    pass.value = resn.innerHTML;
+    pass.value = res.innerHTML;
     var seed = document.getElementById('seed');
     now_changed();
     seed.select();
     seed.selectionStart = seed.selectionEnd;
-    document.getElementById('resn').innerHTML = "";
-    document.getElementById('resm').innerHTML = "";
-    document.getElementById('resx').innerHTML = "";
-    document.getElementById('resb').innerHTML = "";
-    document.getElementById('resd').innerHTML = "";
-    document.getElementById('resd').title = "";
+    document.getElementById('res').innerHTML = "";
+    document.getElementById('res').tile = "";
 }
 
 var already_in_generate = false;
@@ -237,23 +240,16 @@ function generate() {
     hide_all();
     now_changed();
     try {
-        var resn = document.getElementById('resn');
-        var resm = document.getElementById('resm');
-        var resx = document.getElementById('resx');
-        var resb = document.getElementById('resb');
-        var resd = document.getElementById('resd');
-
-        resn.innerHTML = "";
-        resm.innerHTML = "";
-        resx.innerHTML = "";
-        resb.innerHTML = "";
-        resd.innerHTML = "";
-        resd.title = "";
+        var res = document.getElementById('res');
+        res.innerHTML = "";
+        res.title = "";
 
         try {
             var pass = document.getElementById('secret');
             var pass2 = document.getElementById('secret2');
             var seed = document.getElementById('seed').value;
+            var calc = document.getElementById('calc');
+            var test = document.getElementById('test');
             var prefix = escapeHtml(document.getElementById('prefix').value);
             var iter = parseInt(document.getElementById('seq').value);
             var pw = pass.value;
@@ -261,12 +257,6 @@ function generate() {
 
             if (pw == "") throw {message: "no password given"};
 
-            /*var seednum = seed.replace(/[^0-9]/g, '');
-            if (seednum == "") {
-                seednum = Math.floor(Math.random() * 100) + "";
-                seed = seed + seednum;
-                document.getElementById('seed').value = seed;
-            }*/
             var seedname = seed.replace(/X+$/, '');
             if (seed != seedname) {
                 var tmplen = (seed.length - seedname.length);
@@ -278,33 +268,46 @@ function generate() {
             }
 
             if (pw2 != "" &&  pw != pw2) {
-                resn.innerHTML = "the passwords don't match!";
+                res.innerHTML = "the passwords don't match!";
                 result_show();
             } else if (isNaN(iter) || iter < 1) {
-                resn.innerHTML = "sequence need to be > 0";
+                res.innerHTML = "sequence need to be > 0";
                 result_show();
             } else {
                 var p = gen_otp_sha1(pw, seed, iter);
                 var pw = a_to_6word(p);
-                if (prefix == "") {
-                    resn.innerHTML = pw;
-                    resm.innerHTML = pw.replace(/ /g, '-');
-                    resx.innerHTML = a_to_hex(p);
-                    resb.innerHTML = a_to_b(p);
-                } else {
-                    resn.innerHTML = prefix + ' ' + pw;
-                    resm.innerHTML = prefix + '-' + pw.replace(/ /g, '-');
-                    resx.innerHTML = prefix + a_to_hex(p);
-                    resb.innerHTML = prefix + a_to_b(p);
+                switch (document.getElementById('ptype').value) {
+                case "dec": 
+                    res.title = a_to_dec6(p);
+                    res.innerHTML = a_to_dec(p);
+                    break;
+                case "nsp":
+                    if (prefix == "") res.innerHTML = pw.replace(/ /g, '-');
+                    else res.innerHTML = prefix + '-' + pw.replace(/ /g, '-');
+                    break;
+                case "hex":
+                    if (prefix == "") res.innerHTML = a_to_hex(p);
+                    else res.innerHTML = prefix + a_to_hex(p);
+                    break;
+                case "b64":
+                    if (prefix == "") res.innerHTML = a_to_b(p);
+                    else res.innerHTML = prefix + a_to_b(p);
+                    break;
+                default:
+                    if (prefix == "") res.innerHTML = pw;
+                    else res.innerHTML = prefix + ' ' + pw;
+                    break;
                 }
-                resd.title = a_to_dec6(p);
-                resd.innerHTML = a_to_dec(p);
-                document.getElementById('calc').textContent = "GENERATED";
+                calc.textContent = "GENERATED";
                 document.getElementById('show_hide').removeAttribute('disabled');
-                document.getElementById('calc').style.background = copied_background;
-                document.getElementById('calc').style.borderColor = copied_borderColor;
+                test.removeAttribute('disabled');
+                test.style.background = "#fff";
+                test.value = "";
+                calc.style.background = copied_background;
+                calc.style.borderColor = copied_borderColor;
+                store_selected('res');
             }
-        } catch (err) { resn.innerHTML = err.message; result_show();}
+        } catch (err) { res.innerHTML = err.message; result_show();}
     } catch (err) { alert("ERROR: " + err.message); }
     already_in_generate = false;
     return false;
@@ -312,12 +315,8 @@ function generate() {
 
 var black_color = "#000";
 function result_show() {
-    document.getElementById('resn').style.fontFamily = "monospace";
-    document.getElementById('resm').style.fontFamily = "monospace";
-    document.getElementById('resx').style.fontFamily = "monospace";
-    document.getElementById('resb').style.fontFamily = "monospace";
-    document.getElementById('resd').style.fontFamily = "monospace";
-    black_color = document.getElementById('resn').style.fontFamily;
+    document.getElementById('res').style.fontFamily = "monospace";
+    black_color = document.getElementById('res').style.fontFamily;
     document.getElementById('show_hide').textContent = "hide";
     /* restart the timer in order to give the user more time */
     if (document.getElementById('keep').checked == false) {
@@ -326,18 +325,14 @@ function result_show() {
 }
 
 function result_hide() {
-    document.getElementById('resn').style.fontFamily = "password";
-    document.getElementById('resm').style.fontFamily = "password";
-    document.getElementById('resx').style.fontFamily = "password";
-    document.getElementById('resb').style.fontFamily = "password";
-    document.getElementById('resd').style.fontFamily = "password";
+    document.getElementById('res').style.fontFamily = "password";
     document.getElementById('show_hide').textContent = "show";
 }
 
 function result_toggle() {
-    var resncolor = document.getElementById('resn').style.fontFamily;
+    var rescolor = document.getElementById('res').style.fontFamily;
     secret_hide();
-    if (resncolor == black_color) {
+    if (rescolor == black_color) {
         result_hide();
     } else {
         result_show();
@@ -355,8 +350,8 @@ function secret_show() {
 }
 
 function secret_hide() {
-    var secret = document.getElementById('secret').type = "password"
-    var secret2 = document.getElementById('secret2').type = "password"
+    var secret = document.getElementById('secret').type = "password";
+    var secret2 = document.getElementById('secret2').type = "password";
     document.getElementById('prefix').type = "password"
 }
 
@@ -417,50 +412,67 @@ function check_clear_passwords(cb) {
     }
 }
 
+function store_password(tb) {
+    secret_hide();
+    seed = document.getElementById('seed').value;
+    prefix = document.getElementById('prefix').value;
+    ptype = document.getElementById('ptype').value;
+    secret = document.getElementById('secret').value;
+    secret_sha1 = binb2b64(core_sha1(str2binb(secret), secret.length * 8));
+    fulldata = seed + ":" + prefix + ":" + ptype + ":" + secret_sha1;
+    fulldata_sha1 = binb2b64(core_sha1(str2binb(fulldata), fulldata.length * 8))
+    if (tb.checked == true) {
+        storeItem(secret_sha1);
+    } else {
+        if (isStored(secret_sha1)) removeStored(secret_sha1);
+        if (isStored(fulldata_sha1)) removeStored(fulldata_sha1);
+        document.getElementById('mcorrect').checked = false;
+    }
+    now_changed();
+}
+
 function correct_password(tb) {
     secret_hide();
     seed = document.getElementById('seed').value;
     prefix = document.getElementById('prefix').value;
+    ptype = document.getElementById('ptype').value;
     secret = document.getElementById('secret').value;
     secret_sha1 = binb2b64(core_sha1(str2binb(secret), secret.length * 8));
-    fulldata = seed + ":" + prefix + ":" + secret_sha1;
+    fulldata = seed + ":" + prefix + ":" + ptype + ":" + secret_sha1;
     fulldata_sha1 = binb2b64(core_sha1(str2binb(fulldata), fulldata.length * 8))
     if (tb.checked == true) {
-        storeItem(secret_sha1);
+        document.getElementById('correct').checked = true;
         storeItem(fulldata_sha1);
     } else {
-        if (isStored(secret_sha1)) removeStored(secret_sha1);
         if (isStored(fulldata_sha1)) removeStored(fulldata_sha1);
     }
     now_changed();
 }
 
 function clear_passwords() {
-    document.getElementById('resn').innerHTML = "";
-    document.getElementById('resm').innerHTML = "";
-    document.getElementById('resx').innerHTML = "";
-    document.getElementById('resb').innerHTML = "";
-    document.getElementById('resd').innerHTML = "";
-    document.getElementById('resd').title = "";
+    document.getElementById('res').innerHTML = "";
+    document.getElementById('res').title = "";
+    document.getElementById('test').innerHTML = "";
     document.getElementById('secret').value = "";
     document.getElementById('secret').style.background = "#fff";
     document.getElementById('secret2').value = "";
     document.getElementById('prefix').value = "";
     document.getElementById('seed').value = "";
+    document.getElementById('ptype').value = "reg";
     document.getElementById('correct').checked = false;
+    document.getElementById('mcorrect').checked = false;
     document.getElementById('copy_btn').setAttribute('disabled', 'disabled');
     document.getElementById('show_hide').setAttribute('disabled', 'disabled');
+    document.getElementById('test').value = "";
+    document.getElementById('test').setAttribute('disabled', 'disabled');
+    document.getElementById('test').style.background = "#fff";
     hide_all();
     reset_generated();
 }
 
 function reset_selected() {
     selected_id = '';
-    document.getElementById('resn').style.border = '';
-    document.getElementById('resm').style.border = '';
-    document.getElementById('resx').style.border = '';
-    document.getElementById('resb').style.border = '';
-    document.getElementById('resd').style.border = '';
+    document.getElementById('res').style.border = '';
     document.getElementById('copy_btn').textContent = "copy selected";
     document.getElementById('copy_btn').style.background = '';
     document.getElementById('copy_btn').style.borderColor = '';
@@ -541,7 +553,47 @@ function copy_content(id) {
     }
 }
 
+var test_points = 0;
+function test_password() {
+    var test = document.getElementById('test');
+    var res = document.getElementById('res');
+    var points = document.getElementById('points');
+    if (test.value == res.innerHTML) {
+        test.style.background = "#33dd33";
+        test.value = "";
+        test_points += 1;
+        points.innerHTML = test_points + "&nbsp;points";
+    } else if (test.value.length >= res.innerHTML.length) {
+        test.style.background = "#dd8888";
+        test.type = "text";
+        test_points = 0;
+        points.innerHTML = "&nbsp;";
+        result_show();
+    } else {
+        test.style.background = "#ffffff";
+        test.type = "password";
+        result_hide();
+    }
+}
+
+function test_reset() {
+    var res = document.getElementById('res');
+    var test = document.getElementById('test');
+    var points = document.getElementById('points');
+    test.value = "";
+    if (res.value == "") {
+        test.setAttribute('disabled', 'disabled');
+    } else {
+        test.removeAttribute('disabled');
+    }
+    test.style.background = "#fff";
+    test.type = "password";
+    test_points = 0;
+    points.innerHTML = "&nbsp;";
+}
+
 window.setInterval(clear_passwords_after_timeout, 1000);
 document.getElementById("seed").focus();
 document.getElementById('copy_btn').setAttribute('disabled', 'disabled');
 document.getElementById('show_hide').setAttribute('disabled', 'disabled');
+test_reset();
