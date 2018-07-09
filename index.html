@@ -87,7 +87,7 @@ ifelse(activate_new_window_button, `true', `', `divert(-1)')dnl
                  onclick="window.open(window.location.href, '_blank', 'directories=no,titlebar=no,toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no,width=400,height=600');"
                  oncontextmenu="window.open(window.prompt('URL:', window.location.href) || window.location.href, '_blank', 'directories=no,titlebar=no,toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no,width=600,height=400');"
 ifelse(activate_new_window_button, `true', `', `divert(1)')dnl
-                 >name</label>
+                 >id</label>
           <div class="col-lg-1 col-md-1 col-sm-2 col-xs-2">
             <input id="seq" name="seq" placeholder="#" class="form-control input-md"
                    required="" value="99" onclick="deselect_obj(this)"
@@ -136,7 +136,7 @@ ifelse(show_about_url, `true', `', `divert(1)')dnl
         <div class="form-group">
           <label class="col-lg-3 col-md-2 col-sm-2 col-xs-2 control-label" for="secret"
                  title="click to make the password visible"
-                 onclick="secret_toggle()">master</label>
+                 onclick="secret_toggle()">secret</label>
           <div class="col-lg-5 col-md-7 col-sm-7 col-xs-7">
             <input id="secret" name="secret" placeholder="your password" required=""
                    class="form-control input-md" type="password" value="" tabindex="4"
