@@ -46,9 +46,9 @@ Live Demo: https://ooke.github.io/sk/
 
 This is password manager and a password generator, you need a main
 password (`secret`) and you can generate a password based on a
-name (`seed`). Typical usage:
+name (`id`). Typical usage:
 
-1. Enter a name to the `seed` field, f.e. if you need a password for
+1. Enter a name to the `id` field, f.e. if you need a password for
    Amazon, than enter `amazon` here. It is also possible to enter
    `amazonXX` with any number of `X` after the name, in this case the
    system will replace all `X` characters with a random number with
@@ -59,11 +59,48 @@ name (`seed`). Typical usage:
    
 1. If the system you need a password for require a password with
    special characters, than enter a string wich required special
-   characters in `prefix` field. You can use the same prefix string in
-   all passwords, usualy something like `#A0`. This field do not
-   really add any security, it is only to give dump systems the
+   characters in `type` (`prefix`) field. You can use the same prefix
+   string in all passwords, usualy something like `#A0`. This field do
+   not really add any security, it is only to give dump systems the
    character classes they want.
    
+   In case, where the system you need the password for do not accept
+   our default password representation, you can generate a different
+   one changing the `type` field. Following representations are
+   available now:
+   
+   1. `reg (regular)`: usual 6 words S/Key representation.
+
+      If possible, please use this representation, because it is easy
+      to type, to remember and have no problems with special
+      characters.
+  
+   1. `nsp (no spaces)`: usual 6 words S/Key representation with `-`
+      (minus) character instead of space
+      
+      This representation should be used, if no space is allowed in
+      the target system.
+      
+   1. `hex (hexadecimal)`: hex representation of the password
+   
+      Use this representation, if you have length or other strange
+      constraints on allowed password.
+   
+   1. `b64 (base64)`: base64 representation without `=` character for
+      padding
+   
+      Most systems with the (officially deprecated and dangerous)
+      constraints on character classes in password will accept this
+      representation. If not enough character classes are present, use
+      the `prefix` or simply try to change the `id` (`key name`) and
+      generate again.
+   
+   1. `dec (decimal)`: decimal representation
+   
+      Some systems allow only numbers, like a PIN for tablet, an App
+      or similar. Please use so many numbers from this representation
+      you are able to enter in the target system.
+      
 1. Enter your master password in the field `secret`. If you click on
    the label `secret` then the system make the password visible,
    usually to verify that you entered the password correctly. If you
@@ -74,37 +111,8 @@ name (`seed`). Typical usage:
 
 1. Click on button `generate` (or simply press `enter` key) to
    generate the password and the password will be entered in the
-   fields at the bottom in following representations:
+   field with the name `key`.
    
-   1. Usual 6 words S/Key representation.
-
-      If possible, please use this representation, because it is easy
-      to type, to remember and have no problems with special
-      characters.
-  
-   1. Usual 6 words S/Key representation with `-` character instead of
-      space
-      
-      This representation should be used, if no space is allowed in
-      the target system.
-      
-   1. Hex representation of the password
-   
-      Use this representation, if you have length or other strange
-      constraints on allowed password.
-   
-   1. Base64 representation without `=` character for padding
-   
-      Most systems with the (officially deprecated and dangerous)
-      constraints on character classes in password will accept this
-      representation.
-   
-   1. Decimal representation
-   
-      Some systems allow only numbers, like a PIN for tablet, an App
-      or similar. Please use so many numbers from this representation
-      you are able to enter in the target system.
-      
 1. Click on the choosen represtation and on the button `copy
    selected`, if this button do not work on your browser, than simple
    select the full text in the field (f.e. through tripple click with
@@ -122,7 +130,7 @@ the app and also on the UNIX shell with the Evernote API. I store
 following information there:
 
 - URL of the web page or something else to identify the system
-- Exact `seed` I have used (e.g. with generated number)
+- Exact `id` I have used (e.g. with generated number)
 - Prefix used (I use the same prefix every where and notice only if I
   have used prefix or not, but not the prefix itself)
 - Representation I have used (type, number of digits for decimal)
@@ -130,12 +138,13 @@ following information there:
 - Login name, birthday entered and similar meta data to be able to
   login or recover password later
 
-The `seed` has no security value, so you do not need to encrypt this
+The `id` has no security value, so you do not need to encrypt this
 information, only your secret should really be secret.
 
-Usually you do not need to change the `seq #` field, it is only needed
-if you use this password manager as a S/Key calculator, playing with
-the `seq #` without knowing what you are doing is dangerous.
+Usually you do not need to change the first part of `id` field
+(usually `99`), it is only needed if you use this password manager as
+a S/Key calculator, playing with thin number without knowing what you
+are doing is dangerous.
 
 # S/Key usage
 
@@ -149,7 +158,8 @@ $> ssh karam@outer.space.unknown
 Password [ otp-sha1 45 oute52436 ]:
 ```
 
-In this example 45 is the `seq #` and `oute52436` is the seed.
+In this example 45 is the first `id` part and `oute52436` is the
+second.
 
 Warning: only SHA-1 S/Key mode is supported and S/Key is not safe to
 use, if any one could see your password. Do not use it through
@@ -159,20 +169,21 @@ this case, but trust me, you should not use unencrypted connections)
 This is usefull, if your need f.e. login to your server from a PC,
 which you do not trust (internet caffee f.e.). You could use LesS/KEY
 on your smartphone to generate the one time password and type it on
-this PC. Also if some body logs the keyboard, this password is usable
-only one single time.
+this PC. Even if some body logs the keyboard, this password is usable
+only one single time and you have already used it, so it is useless to
+an later attacker.
 
 # Hierarchical passwords
 
 It is possible to use multiple master passwords in a hierarhical way:
 
-1. Type a `seed` name for the master password
+1. Type a `id` name for the master password
 
 1. Type your mastermaster password in `secret` field
 
 1. Click on `generate` and on `switch`
 
-1. Type the name of page you need the password for in `seed`
+1. Type the name of page you need the password for in `id`
 
 1. Click on `generate` and use it as usual
 
@@ -180,7 +191,7 @@ The reason to use hierarchical passwords is to use own master
 passwords for different types of systems. Typically you memoize the
 generated master passwords and use it, instead of using the
 mastermaster password. In this way, if you loose the master password
-you need only reset the password on a bunch of services intstead of
+you need only reset the passwords on a bunch of services intstead of
 all services you have ever generated passwords for.
 
 For example I use one master password for home, one for work and one
@@ -203,7 +214,7 @@ from [RFC2289](https://tools.ietf.org/html/rfc2289). Other
 representations are simply different representations of this 64 bits.
 
 The [SHA-1](https://en.wikipedia.org/wiki/SHA-1) is considered as
-insecure, because it is possible to generate multiple documents whith
+insecure, because it is possible to generate multiple documents with
 same checksum. This weakness do not apply here, because the
 possibility to genarate multiple seed/secret combinations which
 creates same password is irrelevant for the use case here.
