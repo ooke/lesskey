@@ -578,7 +578,7 @@ function test_password() {
         test.style.fontFamily = "monospace";
         result_hide();
     }
-    now_changed();
+    restart_timer();
 }
 
 function test_reset() {
