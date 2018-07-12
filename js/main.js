@@ -246,6 +246,7 @@ function generate() {
         var res = document.getElementById('res');
         res.innerHTML = "";
         res.title = "";
+        result_hide();
 
         try {
             var pass = document.getElementById('secret');
@@ -602,3 +603,4 @@ document.getElementById("seed").focus();
 document.getElementById('copy_btn').setAttribute('disabled', 'disabled');
 document.getElementById('show_hide').setAttribute('disabled', 'disabled');
 test_reset();
+document.getElementById('res').innerHTML = "";

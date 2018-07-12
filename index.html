@@ -82,8 +82,8 @@ ifelse(about_class, `github-button', `', `divert(1)')dnl
       <fieldset>
         <div class="form-group">
           <label class="col-lg-3 col-md-2 col-sm-2 col-xs-2 control-label"
-                 title="click to open this page in a new window"
 ifelse(activate_new_window_button, `true', `', `divert(-1)')dnl
+                 title="click to open this page in a new window"
                  onclick="window.open(window.location.href, '_blank', 'directories=no,titlebar=no,toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no,width=400,height=600');"
                  oncontextmenu="window.open(window.prompt('URL:', window.location.href) || window.location.href, '_blank', 'directories=no,titlebar=no,toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no,width=600,height=400');"
 ifelse(activate_new_window_button, `true', `', `divert(1)')dnl
@@ -172,7 +172,7 @@ ifelse(show_about_url, `true', `', `divert(1)')dnl
 
         <div class="form-group">
           <label class="col-lg-3 col-md-2 col-sm-2 col-xs-2 control-label" for="res" click_on_key_label>key</label>
-          <div class="col-lg-5 col-md-7 col-sm-7 col-xs-7"><div id="res" onclick="store_selected('res')" double_click_on_result('res') class="form-control input-md" style="font-family: 'password'; white-space: nowrap; overflow: hidden;"></div></div>
+          <div class="col-lg-5 col-md-7 col-sm-7 col-xs-7"><div id="res" onclick="store_selected('res')" double_click_on_result('res') class="form-control input-md" style="font-family: 'password'; white-space: nowrap; overflow: hidden;">generated password</div></div>
           <div class="col-lg-2 col-md-3 col-sm-2 col-xs-2 checkbox">
             <label title="remember checksum of all input fields in this combination as correct"><input id="correct" type="checkbox" autocomplete="off" onclick="correct_password(this, 1)">&nbsp;correct<span id="correctstr"></span></input></label>
           </div>
