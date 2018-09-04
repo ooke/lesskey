@@ -17,5 +17,6 @@ define(`use_small_fonts', `false')
 define(`install_files', `files_web.conf')
 
 define(`m4_format', defn(`format')) undefine(`format')
+define(`m4_substr', defn(`substr')) undefine(`substr')
 
 divert(1)dnl
