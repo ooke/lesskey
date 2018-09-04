@@ -192,6 +192,7 @@ function clear_passwords() {
     document.getElementById('store').style.background = "";
     document.getElementById('show').style.background = "";
     document.getElementById('copy').style.background = '';
+    document.getElementById("fname").focus();
 }
 
 function clear_passwords_after_timeout() {
@@ -415,7 +416,6 @@ function button_keep() {
 
 function button_clear() {
     clear_passwords();
-    document.getElementById("fname").focus();
 }
 
 function is_mobile() {
