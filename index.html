@@ -71,21 +71,21 @@
 
 [prefix] <name> <mode> <seq>
 
-The name can be simply entered as string without spaces,
-default mode and seq will be added automatically.
+The name can be simply entered as string without spaces, default mode and seq will be added automatically. On pressing enter or tab, the focus will move to the master password field.
 
 prefix 
-     optional string with will be appended to the
-     generated password, this string is only
-     usefull to meet dumb policy rules.
+     Optional string which will be appended to the
+     generated password as it is. This string is
+     useful only to comply with meaningless
+     policy rules.
 
 name 
-     the name to use for generating, all uppacase
+     The name to use for generating, all uppacase
      X characters at the end will be replaced
      by a random number.
 
 mode 
-     the mode to use for generating:
+     The mode to use for generating:
           R	regular password
           U	uppercase only password
           N	password with minus (-) sign instead of spaces
@@ -96,8 +96,9 @@ mode
           D	password in decimal format
 
 seq   
-     the S/Key sequence number, default is 99 and
-     should only be changed if really needed.
+     The S/Key sequence number, default is 99 and
+     should only be changed if you really understand
+     what you do.
 " />
         </div>
         <div class="form-group">
@@ -105,25 +106,26 @@ seq
                  name="fmaster" id="fmaster" tabindex="2" placeholder="master password"
                  autocomplete="off" autocapitalize="none" autocorrect="off"
                  oninput="changed()" onchange="changed()"
-                 title="Your master password, can be any string, we have here no policies for master password."/>
+                 title="Enter here your master password, it can be any string, we have here no policies for the master password. On pressing enter or tab, the focus will move to the generated password field."/>
         </div>
         <div class="form-group">
           <input class="form-control input-md finput fpassword flarge"
                  name="fpassword" id="fpassword" tabindex="3" placeholder="generated password"
                  autocomplete="off" autocapitalize="none" autocorrect="off"
                  oninput="changed()" onchange="changed()"
-                 title="This is the generated password, simply copypaste it where ever you want." />
+                 title="This is the generated password, you can copy and paste it some where or press show button and try to memorize it. If you press enter, then the generated password will be used as next master password for a new name. With tab key you can move the focus to test field and check, if you have remembered the generated password correctly." />
         </div>
         <div class="form-group">
           <input class="form-control input-md finput fpassword flarge"
                  name="ftest" id="ftest" tabindex="4" placeholder="test your generated password"
                  autocomplete="off" autocapitalize="none" autocorrect="off"
                  oninput="testchanged()" onchange="testchanged()"
-                 title="Here you can test, if you remember the password correctly, simply type it and press enter. If the test field was cleared, than the you have typed the correct one, otherwise click on show button." />
+                 title="Here you can test whether you have remembered the password correctly, simply type it and press enter. If the test field was cleared, than you have typed the password correctly, otherwise it will stay as it is and you can click on the show button to find the error." />
         </div>
         <div class="form-group">
           <button class="btn btn-primary fbutton" type="button" name="show" id="show" tabindex="5"
-                  onclick="button_show()" oncontextmenu="button_show_master(); return false;">show</button>
+                  onclick="button_show()" oncontextmenu="button_show_master(); return false;"
+                  title="Press left mouse key on this button to show the generated password and with the right mouse key you can see the master password in clear text.">show</button>
           <button class="btn btn-primary fbutton" type="button" name="copy" id="copy" tabindex="6"
                   onclick="button_copy()">copy</button>
           <button class="btn btn-primary fbutton" type="button" name="switch" id="switch" tabindex="7"
