@@ -3,15 +3,15 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>LesS/KEY &bull; S/KEY based passwort management</title>
-
+    
     <!--[if lt IE 9]>
     <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
     <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
 
-ifelse(show_page_icon, `true', `', `divert(-1)')dnl
+    <!-- ifelse(show_page_icon, `true', `', `divert(-1)') -->
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
@@ -20,188 +20,80 @@ ifelse(show_page_icon, `true', `', `divert(-1)')dnl
     <meta name="apple-mobile-web-app-title" content="LesS/KEY">
     <meta name="application-name" content="LesS/KEY">
     <meta name="theme-color" content="#004ba0">
-ifelse(show_page_icon, `true', `', `divert(1)')dnl
-
-    <style>
-      ::-moz-selection {
-        background-color: #aaa;
-        color: #aaa;
-      }
-      ::selection {
-        background: #aaa;
-        color: #aaa;
-      }
-      body {
-        overflow-x:hidden;
-        width: 98%;
-      }
-      #button {
-        display:inline-block;
-        color:#444;
-        border:1px solid #CCC;
-        background:#DDD;
-        box-shadow: 0 0 5px -1px rgba(0,0,0,0.2);
-        cursor:pointer;
-        vertical-align:middle;
-        max-width: 100px;
-        padding: 5px;
-        text-align: center;
-      }
-      #button:active {
-        color:red;
-        box-shadow: 0 0 5px -1px rgba(0,0,0,0.6);
-      }
-      @font-face {
-          font-family: 'password';
-          src: url('fonts/password.eot');
-          src: url('fonts/password.eot') format('embedded-opentype'),
-               url('fonts/password.woff2') format('woff2'),
-               url('fonts/password.woff') format('woff'),
-               url('fonts/password.ttf') format('truetype'),
-               url('fonts/password.svg#password') format('svg');
-      }
-      password-text {
-          font-family: "password";
-      }
-    </style>
-ifelse(about_class, `github-button', `', `divert(-1)')dnl
-    <script async defer src="https://buttons.github.io/buttons.js"></script>
-ifelse(about_class, `github-button', `', `divert(1)')dnl
+    <!-- ifelse(show_page_icon, `true', `', `divert(1)') -->
+    
     <link href="css/ifelse(use_small_fonts, `true', `bootstrap.ss.min.css', `bootstrap.min.css')" rel="stylesheet">
     <link href="css/ifelse(use_small_fonts, `true', `bootstrap-theme.ss.min.css', `bootstrap-theme.min.css')" rel="stylesheet">
+  
+    <style>
+      body {
+        overflow-x: hidden;
+        overflow-y: hidden;
+        margin: 2em;
+        font-family: 'monospace';
+      }
+      @font-face {
+        font-family: 'password';
+        src: url('fonts/password.eot');
+        src: url('fonts/password.eot') format('embedded-opentype'),
+             url('fonts/password.woff2') format('woff2'),
+             url('fonts/password.woff') format('woff'),
+             url('fonts/password.ttf') format('truetype'),
+             url('fonts/password.svg#password') format('svg');
+      }
+      .finput {
+        border: 0;
+        box-shadow: none;
+      }
+      .finput::-webkit-input-placeholder { font-family: 'monospace'; }
+      .finput::-moz-placeholder { font-family: 'monospace'; }
+      .finput:-webkit-input-placeholder { font-family: 'monospace'; }
+      .finput:-moz-placeholder { font-family: 'monospace'; }
+      .fpassword {
+        font-family: 'password';
+      }
+    </style>
   </head>
   <body>
-    <form id="form"
-          class="form-horizontal"
-          onsubmit="javascript: return generate();"
-          method="post"
-          action="https://127.0.0.1:0/"
-          onmouseleave="remove_selection();"
-          style="margin: 5px; padding: 5px;" />
-
+    <form id="form" class="form-horizontal" method="post" action="https://127.0.0.1:0/"
+          onsubmin="changed()">
       <fieldset>
         <div class="form-group">
-          <label class="col-lg-3 col-md-2 col-sm-2 col-xs-2 control-label"
-ifelse(activate_new_window_button, `true', `', `divert(-1)')dnl
-                 title="click to open this page in a new window"
-                 onclick="window.open(window.location.href, '_blank', 'directories=no,titlebar=no,toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no,width=400,height=600');"
-                 oncontextmenu="window.open(window.prompt('URL:', window.location.href) || window.location.href, '_blank', 'directories=no,titlebar=no,toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no,width=600,height=400');"
-ifelse(activate_new_window_button, `true', `', `divert(1)')dnl
-                 >id</label>
-          <div class="col-lg-1 col-md-1 col-sm-2 col-xs-2">
-            <input id="seq" name="seq" placeholder="#" class="form-control input-md"
-                   required="" value="99" onclick="deselect_obj(this)"
-                   onchange="now_changed()" oninput="now_changed()"
-                   type="text"/>
-          </div>
-          <div class="col-lg-3 col-md-4 col-sm-3 col-xs-4">
-            <input id="seed" name="seed" placeholder="key name" required="" class="form-control input-md" type="text"
-                   autocomplete="off" autocapitalize="none" autocorrect="off" tabindex="1"
-                   style="font-family: 'monospace';"
-                   onchange="now_changed()" oninput="now_changed()"/>
-          </div>
-ifelse(show_about_url, `true', `', `divert(-1)')dnl
-          <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1">
-            <a class="about_class" href="about_url" aria-label="about_title">about_name</a>
-          </div>
-ifelse(show_about_url, `true', `', `divert(1)')dnl
+          <input class="form-control input-md finput" name="fname" id="fname"
+                 tabindex="1" placeholder="name of the password"
+                 autocomplete="off" autocapitalize="none" autocorrect="off"
+                 onchange="changed()" onblur="changed()"/>
         </div>
-        
         <div class="form-group">
-          <label class="col-lg-3 col-md-2 col-sm-2 col-xs-2 control-label" for="prefix"
-                 click_on_seed_label>type</label>
-          <div class="col-lg-3 col-md-4 col-sm-4 col-xs-4">
-            <input id="prefix" name="prefix" placeholder="prefix (optional)"
-                   class="form-control input-md" type="password" tabindex="2"
-                   style="font-family: 'monospace';"
-                   onchange="now_changed()" oninput="now_changed()"/>
-          </div>
-          <div class="col-lg-2 col-md-3 col-sm-3 col-xs-3">
-            <select id="ptype" name="ptype" placeholder="type" tabindex="3"
-                    class="form-control input-md" type="password"
-                    style="font-family: 'monospace';"
-                    onchange="now_changed()">
-              <option value="reg">reg (regular)</option>
-              <option value="nsp">nsp (no spaces)</option>
-              <option value="hex">hex (hexadecimal)</option>
-              <option value="b64">b64 (base64)</option>
-              <option value="dec">dec (decimal)</option>
-            </select>
-          </div>
-          <div class="col-lg-2 col-md-2 col-sm-2 col-xs-2 checkbox">
-            <label title="increase clearance timeout"><input id="keep" type="checkbox" autocomplete="off" onclick="check_clear_passwords(this)">&nbsp;keep<span id="keepstr"></span></input></label>
-          </div>
+          <input class="form-control input-md finput fpassword" name="fmaster" id="fmaster"
+                 tabindex="2" placeholder="master password"
+                 autocomplete="off" autocapitalize="none" autocorrect="off"
+                 oninput="changed()" onchange="changed()" />
         </div>
-          
         <div class="form-group">
-          <label class="col-lg-3 col-md-2 col-sm-2 col-xs-2 control-label" for="secret"
-                 title="click to make the password visible"
-                 onclick="secret_toggle()">secret</label>
-          <div class="col-lg-5 col-md-7 col-sm-7 col-xs-7">
-            <input id="secret" name="secret" placeholder="your password" required=""
-                   class="form-control input-md" type="password" value="" tabindex="4"
-                   autocomplete="off" autocapitalize="none" autocorrect="off"
-                   style="font-family: 'monospace';"
-                   onchange="now_changed()" oninput="now_changed()" onclick="deselect_obj(this)"/>
-          </div>
-          <div class="col-lg-2 col-md-3 col-sm-2 col-xs-2 checkbox">
-            <label title="remember checksum of this master password as correct"><input id="mcorrect" type="checkbox" autocomplete="off" onclick="store_password(this, 1)">&nbsp;store<span id="mcorrectstr"></span></input></label>
-          </div>
+          <input class="form-control input-md finput fpassword" name="fpassword" id="fpassword"
+                 tabindex="3" placeholder="generated password"
+                 autocomplete="off" autocapitalize="none" autocorrect="off"
+                 oninput="changed()" onchange="changed()" />
         </div>
-
         <div class="form-group">
-          <label class="col-lg-3 col-md-2 col-sm-2 col-xs-2 control-label" for="secret2">&nbsp;</label>
-          <div class="col-lg-5 col-md-7 col-sm-7 col-xs-7">
-            <input id="secret2" name="secret2" placeholder="verify password (optional)" value=""
-                   class="form-control input-md" type="password" tabindex="5"
-                   autocomplete="off" autocapitalize="none" autocorrect="off"
-                   style="font-family: 'monospace';"
-                   onchange="now_changed()" oninput="now_changed()"/>
-          </div>
+          <input class="form-control input-md finput fpassword" name="ftest" id="ftest"
+                 tabindex="4" placeholder="test your generated password"
+                 autocomplete="off" autocapitalize="none" autocorrect="off"
+                 oninput="testchanged()" onchange="testchanged()" />
         </div>
-
         <div class="form-group">
-          <label class="col-lg-3 col-md-2 col-sm-2 col-xs-1 control-label" for="calc">&nbsp;</label>
-          <div class="col-lg-3 col-md-4 col-sm-4 col-xs-6">
-            <button id="calc" type="submit" name="calc" class="btn btn-primary" style="width: 100%;">generate</button>
-          </div>
-          <div class="col-lg-2 col-md-3 col-sm-3 col-xs-4">
-            <button id="switch" type="button" onclick="switch_passwords()" name="switch" class="btn btn-primary" style="width: 100%;">switch</button>
-          </div>
+          <button class="btn btn-primary" type="button" name="show" id="show" tabindex="5"
+                  onclick="button_show()" oncontextmenu="button_show_master(); return false;">show</button>
+          <button class="btn btn-primary" type="button" name="copy" id="copy" tabindex="6"
+                  onclick="button_copy()">copy</button>
+          <button class="btn btn-primary" type="button" name="switch" id="switch" tabindex="7"
+                  onclick="button_switch()">switch</button>
+          <button class="btn btn-primary" type="button" name="store" id="store" tabindex="8"
+                  onclick="button_store()">store</button>
+          <button class="btn btn-primary" type="button" name="keep" id="keep" tabindex="9"
+                  onclick="button_keep()">keep</button>
         </div>
-
-        <div class="form-group">
-          <label class="col-lg-3 col-md-2 col-sm-2 col-xs-2 control-label" for="res" click_on_key_label>key</label>
-          <div class="col-lg-5 col-md-7 col-sm-7 col-xs-7"><div id="res" onclick="store_selected('res')" double_click_on_result('res') class="form-control input-md" style="font-family: 'password'; white-space: nowrap; overflow: hidden;">generated password</div></div>
-          <div class="col-lg-2 col-md-3 col-sm-2 col-xs-2 checkbox">
-            <label title="remember checksum of all input fields in this combination as correct"><input id="correct" type="checkbox" autocomplete="off" onclick="correct_password(this, 1)">&nbsp;correct<span id="correctstr"></span></input></label>
-          </div>
-        </div>
-        
-        <div class="form-group">
-          <label class="col-lg-3 col-md-2 col-sm-2 col-xs-2 control-label" for="rtt" click_on_test_label>test</label>
-          <div class="col-lg-5 col-md-7 col-sm-7 col-xs-7">
-            <input id="test" name="test" placeholder="test the generated key (optional)" value=""
-                   class="form-control input-md" type="text" tabindex="6"
-                   autocomplete="off" autocapitalize="none" autocorrect="off"
-                   style="font-family: 'password;"
-                   onchange="test_password()" oninput="test_password()"/>
-          </div>
-          <div class="col-lg-2 col-md-3 col-sm-2 col-xs-2 checkbox">
-            <label title="number of correct inputs in a row" id="points">&nbsp;</label>
-          </div>
-        </div>
-        
-        <div class="form-group">
-          <label class="col-lg-3 col-md-2 col-sm-2 col-xs-1 control-label" for="show">&nbsp;</label>
-          <div class="col-lg-3 col-md-4 col-sm-4 col-xs-6">
-            <button id="copy_btn" type="button" onclick="copy_selected()" name="copy selected" class="btn btn-primary" style="width: 100%;" disabled>copy selected</button>
-          </div>
-          <div class="col-lg-2 col-md-3 col-sm-3 col-xs-4">
-            <button id="show_hide" type="button" onclick="result_toggle()" name="show_hide" class="btn btn-primary" style="width: 100%;" disabled>show</button>
-          </div>
-        </div>
-       
       </fieldset>
     </form>
 
