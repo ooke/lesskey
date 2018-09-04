@@ -191,6 +191,7 @@ function clear_passwords() {
     document.getElementById('ftest').style = "password";
     document.getElementById('store').style.background = "";
     document.getElementById('show').style.background = "";
+    document.getElementById('copy').style.background = '';
 }
 
 function clear_passwords_after_timeout() {
@@ -225,6 +226,7 @@ function generate() {
         var master = fmaster.value;
 
         document.getElementById('store').style.background = '';
+        document.getElementById('copy').style.background = '';
         fmaster.placeholder = "master password";
         fpassword.value = "";
         ftest.value = "";
@@ -342,6 +344,8 @@ function button_copy() {
     password_select();
     if(!document.execCommand('copy')) {
         alert("ERROR: failed to copy");
+    } else {
+        document.getElementById('copy').style.background = activated_background;
     }
 }
 
@@ -414,6 +418,25 @@ function button_clear() {
     document.getElementById("fname").focus();
 }
 
+function resize_input_fields() {
+    if ($(window).width() <= 630) {
+        $(".flarge").removeClass("input-sm");
+        $(".flarge").removeClass("input-md");
+        $(".flarge").removeClass("input-lg");
+        $(".flarge").addClass("input-sm");
+    } else if ($(window).width() <= 1014) {
+        $(".flarge").removeClass("input-sm");
+        $(".flarge").removeClass("input-md");
+        $(".flarge").removeClass("input-lg");
+        $(".flarge").addClass("input-md");
+    } else if ($(window).width() > 1014) {
+        $(".flarge").removeClass("input-sm");
+        $(".flarge").removeClass("input-md");
+        $(".flarge").removeClass("input-lg");
+        $(".flarge").addClass("input-lg");
+    }
+}
+
 window.setInterval(clear_passwords_after_timeout, 1000);
 document.getElementById("fname").focus();
 $("#fname").on('keyup', function(e) { if (e.keyCode == 13) {
@@ -435,3 +458,6 @@ $("#ftest").on('keyup', function(e) { if (e.keyCode == 13) {
     verify_test();
     document.getElementById("ftest").focus();
 }});
+resize_input_fields();
+$(window).resize(resize_input_fields);
+        

@@ -41,6 +41,9 @@
              url('fonts/password.ttf') format('truetype'),
              url('fonts/password.svg#password') format('svg');
       }
+      .fbutton {
+        margin: 8px 0px 0px 0px;
+      }
       .finput {
         border: 0;
         box-shadow: none;
@@ -52,6 +55,7 @@
       .fpassword {
         font-family: 'password';
       }
+      .flarge { }
     </style>
   </head>
   <body>
@@ -59,23 +63,29 @@
           onsubmin="changed()">
       <fieldset>
         <div class="form-group">
-          <input class="form-control input-md finput" name="fname" id="fname"
-                 tabindex="1" placeholder="name of the password"
+          <input class="form-control input-md finput flarge"
+                 name="fname" id="fname" tabindex="1" placeholder="name of the password"
                  autocomplete="off" autocapitalize="none" autocorrect="off"
                  onchange="changed()" onblur="changed()"
-                 title="name of the password in following format:
+                 title="Name of the password in following format:
+
 [prefix] <name> <mode> <seq>
+
+The name can be simply entered as string without spaces,
+default mode and seq will be added automatically.
 
 prefix 
      optional string with will be appended to the
      generated password, this string is only
-     usefull to meet dumb policy rules
+     usefull to meet dumb policy rules.
+
 name 
      the name to use for generating, all uppacase
      X characters at the end will be replaced
-     by a random number
+     by a random number.
+
 mode 
-     the mode to use for generating
+     the mode to use for generating:
           R	regular password
           U	uppercase only password
           N	password with minus (-) sign instead of spaces
@@ -84,43 +94,45 @@ mode
           UH	like H but in uppecase
           B	password in base64 format
           D	password in decimal format
+
 seq   
      the S/Key sequence number, default is 99 and
-     should only be changed if really needed
+     should only be changed if really needed.
 " />
         </div>
         <div class="form-group">
-          <input class="form-control input-md finput fpassword" name="fmaster" id="fmaster"
-                 tabindex="2" placeholder="master password"
+          <input class="form-control input-md finput fpassword flarge"
+                 name="fmaster" id="fmaster" tabindex="2" placeholder="master password"
                  autocomplete="off" autocapitalize="none" autocorrect="off"
-                 oninput="changed()" onchange="changed()" />
+                 oninput="changed()" onchange="changed()"
+                 title="Your master password, can be any string, we have here no policies for master password."/>
         </div>
         <div class="form-group">
-          <input class="form-control input-md finput fpassword" name="fpassword" id="fpassword"
-                 tabindex="3" placeholder="generated password"
+          <input class="form-control input-md finput fpassword flarge"
+                 name="fpassword" id="fpassword" tabindex="3" placeholder="generated password"
                  autocomplete="off" autocapitalize="none" autocorrect="off"
-                 oninput="changed()" onchange="changed()" />
+                 oninput="changed()" onchange="changed()"
+                 title="This is the generated password, simply copypaste it where ever you want." />
         </div>
         <div class="form-group">
-          <input class="form-control input-md finput fpassword" name="ftest" id="ftest"
-                 tabindex="4" placeholder="test your generated password"
+          <input class="form-control input-md finput fpassword flarge"
+                 name="ftest" id="ftest" tabindex="4" placeholder="test your generated password"
                  autocomplete="off" autocapitalize="none" autocorrect="off"
-                 oninput="testchanged()" onchange="testchanged()" />
+                 oninput="testchanged()" onchange="testchanged()"
+                 title="Here you can test, if you remember the password correctly, simply type it and press enter. If the test field was cleared, than the you have typed the correct one, otherwise click on show button." />
         </div>
         <div class="form-group">
-          <button class="btn btn-primary" type="button" name="show" id="show" tabindex="5"
+          <button class="btn btn-primary fbutton" type="button" name="show" id="show" tabindex="5"
                   onclick="button_show()" oncontextmenu="button_show_master(); return false;">show</button>
-          <button class="btn btn-primary" type="button" name="copy" id="copy" tabindex="6"
+          <button class="btn btn-primary fbutton" type="button" name="copy" id="copy" tabindex="6"
                   onclick="button_copy()">copy</button>
-          <button class="btn btn-primary" type="button" name="switch" id="switch" tabindex="7"
+          <button class="btn btn-primary fbutton" type="button" name="switch" id="switch" tabindex="7"
                   onclick="button_switch()">switch</button>
-        </div>
-        <div class="form-group">
-          <button class="btn btn-primary" type="button" name="store" id="store" tabindex="8"
+          <button class="btn btn-primary fbutton" type="button" name="store" id="store" tabindex="8"
                   onclick="button_store()">store</button>
-          <button class="btn btn-primary" type="button" name="keep" id="keep" tabindex="9"
+          <button class="btn btn-primary fbutton" type="button" name="keep" id="keep" tabindex="9"
                   onclick="button_keep()">keep</button>
-          <button class="btn btn-primary" type="button" name="clear" id="clear" tabindex="10"
+          <button class="btn btn-primary fbutton" type="button" name="clear" id="clear" tabindex="10"
                   onclick="button_clear()">clear</button>
         </div>
       </fieldset>
