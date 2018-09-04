@@ -199,6 +199,11 @@ function clear_passwords_after_timeout() {
     var t = new Date().getTime();
     if ((t - password_last_changed) > clear_timeout) {
         clear_passwords();
+    } else if (clear_timeout == keep_clear_timeout) {
+        var tt = (clear_timeout - (t - password_last_changed));
+        if (tt < 61000) { tt = Math.max(0, Math.floor(tt/1000)) + "s"; }
+        else { tt = Math.max(0, Math.floor(tt/60000)) + "m"; }
+        document.getElementById('keep').innerHTML = tt;
     }
 }
 
@@ -410,6 +415,7 @@ function button_keep() {
     } else {
         clear_timeout = def_clear_timeout;
         document.getElementById("keep").style.background = '';
+        document.getElementById('keep').innerHTML = "keep";
         clear_passwords();
     }
 }
