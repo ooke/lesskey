@@ -62,7 +62,32 @@
           <input class="form-control input-md finput" name="fname" id="fname"
                  tabindex="1" placeholder="name of the password"
                  autocomplete="off" autocapitalize="none" autocorrect="off"
-                 onchange="changed()" onblur="changed()"/>
+                 onchange="changed()" onblur="changed()"
+                 title="name of the password in following format:
+[prefix] <name> <mode> <seq>
+
+prefix 
+     optional string with will be appended to the
+     generated password, this string is only
+     usefull to meet dumb policy rules
+name 
+     the name to use for generating, all uppacase
+     X characters at the end will be replaced
+     by a random number
+mode 
+     the mode to use for generating
+          R	regular password
+          U	uppercase only password
+          N	password with minus (-) sign instead of spaces
+          UN	like N but in uppecase
+          H	password as hexadecimal string
+          UH	like H but in uppecase
+          B	password in base64 format
+          D	password in decimal format
+seq   
+     the S/Key sequence number, default is 99 and
+     should only be changed if really needed
+" />
         </div>
         <div class="form-group">
           <input class="form-control input-md finput fpassword" name="fmaster" id="fmaster"
@@ -89,10 +114,14 @@
                   onclick="button_copy()">copy</button>
           <button class="btn btn-primary" type="button" name="switch" id="switch" tabindex="7"
                   onclick="button_switch()">switch</button>
+        </div>
+        <div class="form-group">
           <button class="btn btn-primary" type="button" name="store" id="store" tabindex="8"
                   onclick="button_store()">store</button>
           <button class="btn btn-primary" type="button" name="keep" id="keep" tabindex="9"
                   onclick="button_keep()">keep</button>
+          <button class="btn btn-primary" type="button" name="clear" id="clear" tabindex="10"
+                  onclick="button_clear()">clear</button>
         </div>
       </fieldset>
     </form>

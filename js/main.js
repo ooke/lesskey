@@ -181,6 +181,7 @@ var secure_fontfamily = "password";
 var activated_background = "#359335";
 
 function clear_passwords() {
+    password_last_changed = new Date().getTime();
     document.getElementById('fname').value = "";
     document.getElementById('fmaster').value = "";
     document.getElementById('fmaster').style.fontFamily = "password";
@@ -204,7 +205,6 @@ function changed() {
     generate();
 }
 
-//var re_name = /^\s*(([^\s]+)\s+)?(\S+)(\s+([uU]|[uU][rR]|[uU][nNhH]|[nN]|[hH]|[bB]|[dD]))(\s+([0-9]+))?\s*$/g;
 var already_in_generate = false;
 function generate() {
     if (already_in_generate) return false;
@@ -366,14 +366,14 @@ function button_store() {
     if (fname.value != "" && fmaster.value != "") {
         var fullval = fname.value + ":" + fmaster.value;
         secret_sha1 = binb2b64(core_sha1(str2binb(fullval), fullval.length * 8));
-        if (store.style.background == activated_background) {
+        if (store.style.background != '') {
             removeStored(secret_sha1);
         } else {
             storeItem(secret_sha1);
-            changed();
-            fpassword.focus();
-            password_select();
         }
+        changed();
+        fpassword.focus();
+        password_select();
     }
 }
 
@@ -395,6 +395,7 @@ function testchanged() {
     fpassword.style.fontFamily = secure_fontfamily;
     ftest.style.fontFamily = secure_fontfamily;
     document.getElementById("show").style.background = '';
+    password_last_changed = new Date().getTime();
 }
 
 function button_keep() {
@@ -404,7 +405,13 @@ function button_keep() {
     } else {
         clear_timeout = def_clear_timeout;
         document.getElementById("keep").style.background = '';
+        clear_passwords();
     }
+}
+
+function button_clear() {
+    clear_passwords();
+    document.getElementById("fname").focus();
 }
 
 window.setInterval(clear_passwords_after_timeout, 1000);
@@ -416,10 +423,15 @@ $("#fname").on('keyup', function(e) { if (e.keyCode == 13) {
         fpassword.focus();
         password_select();
     } else fmaster.focus();
-} });
+}});
 $("#fmaster").on('keyup', function(e) { if (e.keyCode == 13) {
     document.getElementById("fpassword").focus();
     password_select();
-} });
-$("#fpassword").on('keyup', function(e) { if (e.keyCode == 13) { document.getElementById("ftest").focus(); } });
-$("#ftest").on('keyup', function(e) { if (e.keyCode == 13) { verify_test(); document.getElementById("ftest").focus(); } });
+}});
+$("#fpassword").on('keyup', function(e) { if (e.keyCode == 13) {
+    button_switch();
+}});
+$("#ftest").on('keyup', function(e) { if (e.keyCode == 13) {
+    verify_test();
+    document.getElementById("ftest").focus();
+}});
