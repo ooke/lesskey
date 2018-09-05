@@ -66,7 +66,7 @@
           <input class="form-control input-md finput flarge"
                  name="fname" id="fname" tabindex="1" placeholder="name of the password"
                  autocomplete="off" autocapitalize="none" autocorrect="off"
-                 onchange="changed()" onblur="changed()"
+                 oninput="reset_timeout()" onfocus="reset_timeout()" onchange="changed()" onblur="changed()"
                  title="Name of the password in following format:
 
 [prefix] <name> <mode> <seq>
@@ -93,7 +93,7 @@ mode
           H	password as hexadecimal string
           UH	like H but in uppecase
           B	password in base64 format
-          D	password in decimal format
+          D	decimal format (also f.e. 4D for 4 digits)
 
 seq   
      The S/Key sequence number, default is 99 and

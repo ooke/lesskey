@@ -38,7 +38,7 @@ function a_to_hex(a) {
     return s.trim();
 }
 
-function a_to_dec6(h) {
+function a_to_dec6(h,d) {
     var s = "";
     var parity = 0;
     for (var i = 0; i < 2; ++i) {
@@ -49,20 +49,20 @@ function a_to_dec6(h) {
     var ind;
     ind = (h[0] & 0xff) << 3;
     ind |= (h[0] >> 13) & 0x7;
-    s += ind.toString(10) + " ";
+    s += ind.toString(10) + d;
     ind = ((h[0] >> 8) & 0x1f) << 6;
     ind |= (h[0] >> 18) & 0x3f;
-    s += ind.toString(10) + " ";
+    s += ind.toString(10) + d;
     ind = ((h[0] >> 16) & 0x3) << 9;
     ind |= ((h[0] >> 24) & 0xff) << 1;
     ind |= (h[1] >> 7) & 0x1;
-    s += ind.toString(10) + " ";
+    s += ind.toString(10) + d;
     ind = (h[1] & 0x7f) << 4;
     ind |= (h[1] >> 12) & 0xf;
-    s += ind.toString(10) + " ";
+    s += ind.toString(10) + d;
     ind = ((h[1] >> 8) & 0xf) << 7;
     ind |= (h[1] >> 17) & 0x7f;
-    s += ind.toString(10) + " ";
+    s += ind.toString(10) + d;
     ind = ((h[1] >> 16) & 0x1) << 10;
     ind |= ((h[1] >> 24) & 0xff) << 2;
     ind |= (parity & 0x03);
@@ -137,22 +137,6 @@ function a_to_6word(h) {
     return s;
 }
 
-var entityMap = {
-  '&': '&amp;',
-  '<': '&lt;',
-  '>': '&gt;',
-  '"': '&quot;',
-  "'": '&#39;',
-  '/': '&#x2F;',
-  '=': '&#x3D;'
-};
-
-function escapeHtml (string) {
-  return String(string).replace(/[&<>"'=\/]/g, function (s) {
-    return entityMap[s];
-  });
-}
-
 var fakeLocalStorage = {};
 function storeItem (data) {
     data = 'lesskey:' + data;
@@ -179,6 +163,10 @@ var clear_timeout = def_clear_timeout;
 var default_fontfamily = "monospace";
 var secure_fontfamily = "password";
 var activated_background = "#359335";
+
+function reset_timeout() {
+    password_last_changed = new Date().getTime();
+}
 
 function clear_passwords() {
     password_last_changed = new Date().getTime();
@@ -220,11 +208,12 @@ function generate() {
     already_in_generate = true;
     try {
         changed();
-        var re_name = /^\s*(\S+)(\s+([rR]|[uU]|[uU][rR]|[uU][nNhH]|[nNhHbBdD]))?(\s+([0-9]+))?\s*$/g;
+        var re_name = /^\s*(\S+)(\s+([rR]|[uU]|[uU][rR]|[uU][nNhHbBdD]|[345678][dD]))?(\s+([0-9]+))?\s*$/g;
         var fname = document.getElementById('fname');
         var fmaster = document.getElementById('fmaster');
         var fpassword = document.getElementById('fpassword');
         var ftest = document.getElementById('ftest');
+        var keep = document.getElementById('keep');
         var ma_name = re_name.exec(fname.value);
         var prefix = "";
         var prefixs = "";
@@ -291,7 +280,13 @@ function generate() {
             case "UN": password = (prefixs + a_to_6word(passkey).toUpperCase()).replace(/ /g, '-'); break;
             case "H": password = prefix + a_to_hex(passkey); break;
             case "B": password = prefix + a_to_b(passkey); break;
-            case "D": password = a_to_dec6(passkey); break;
+            case "D": password = a_to_dec6(passkey, " "); break;
+            case "3D": password = a_to_dec6(passkey, "").substr(0, 3); break;
+            case "4D": password = a_to_dec6(passkey, "").substr(0, 4); break;
+            case "5D": password = a_to_dec6(passkey, "").substr(0, 5); break;
+            case "6D": password = a_to_dec6(passkey, "").substr(0, 6); break;
+            case "7D": password = a_to_dec6(passkey, "").substr(0, 7); break;
+            case "8D": password = a_to_dec6(passkey, "").substr(0, 8); break;
             case "N": password = (prefixs + a_to_6word(passkey)).replace(/ /g, '-'); break;
             default: throw new SyntaxError("Unknown type '" + type + "'");
             }
@@ -301,7 +296,9 @@ function generate() {
             if (isStored(secret_sha1)) {
                 document.getElementById('store').style.background = activated_background;
             }
-            document.getElementById('keep').innerHTML = "&nbsp;&nbsp;&nbsp;";
+            if (keep.innerHTML == "keep") {
+                keep.innerHTML = "&nbsp;&nbsp;&nbsp;";
+            }
         }
     } catch (err) { alert("ERROR: " + err.message); }
     already_in_generate = false;
@@ -408,7 +405,7 @@ function testchanged() {
     fpassword.style.fontFamily = secure_fontfamily;
     ftest.style.fontFamily = secure_fontfamily;
     document.getElementById("show").style.background = '';
-    password_last_changed = new Date().getTime();
+    reset_timeout();
 }
 
 function button_keep() {
