@@ -319,6 +319,7 @@ function button_show() {
     var fmaster = document.getElementById("fmaster");
     var fpassword = document.getElementById("fpassword");
     var ftest = document.getElementById("ftest");
+    reset_timeout();
     if (fpassword.style.fontFamily == default_fontfamily || fmaster.style.fontFamily == default_fontfamily) {
         fmaster.style.fontFamily = secure_fontfamily;
         fpassword.style.fontFamily = secure_fontfamily;
@@ -335,6 +336,7 @@ function button_show_master() {
     var fmaster = document.getElementById("fmaster");
     var fpassword = document.getElementById("fpassword");
     var ftest = document.getElementById("ftest");
+    reset_timeout();
     if (fpassword.style.fontFamily == default_fontfamily || fmaster.style.fontFamily == default_fontfamily) {
         fmaster.style.fontFamily = secure_fontfamily;
         fpassword.style.fontFamily = secure_fontfamily;
@@ -348,6 +350,7 @@ function button_show_master() {
 
 function button_copy() {
     password_select();
+    reset_timeout();
     if(!document.execCommand('copy')) {
         alert("ERROR: failed to copy");
     } else {
@@ -372,7 +375,7 @@ function button_store() {
     var fmaster = document.getElementById('fmaster');
     var fpassword = document.getElementById('fpassword');
     var store = document.getElementById('store');
-
+    reset_timeout();
     if (fname.value != "" && fmaster.value != "") {
         var fullval = fname.value + ":" + fmaster.value;
         secret_sha1 = binb2b64(core_sha1(str2binb(fullval), fullval.length * 8));
@@ -390,6 +393,7 @@ function button_store() {
 function verify_test() {
     var fpassword = document.getElementById("fpassword");
     var ftest = document.getElementById("ftest");
+    reset_timeout();
     if (fpassword.value == ftest.value) {
         ftest.value = "";
     } else {
