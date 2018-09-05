@@ -208,7 +208,7 @@ function generate() {
     already_in_generate = true;
     try {
         changed();
-        var re_name = /^\s*(\S+)(\s+([rR]|[uU]|[uU][rR]|[uU][nNhHbBdD]|[345678][dD]))?(\s+([0-9]+))?\s*$/g;
+        var re_name = /^\s*(\S+)(\s+([rR]|[uU]|[uU][rR]|[uU][nNhHbBdD]|[nNhHbBdD]|[345678][dD]))?(\s+([0-9]+))?\s*$/g;
         var fname = document.getElementById('fname');
         var fmaster = document.getElementById('fmaster');
         var fpassword = document.getElementById('fpassword');
