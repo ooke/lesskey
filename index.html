@@ -65,8 +65,8 @@
         <div class="form-group">
           <input class="form-control input-md finput flarge"
                  name="fname" id="fname" tabindex="1" placeholder="name of the password"
-                 autocomplete="off" autocapitalize="none" autocorrect="off"
-                 oninput="reset_timeout()" onfocus="reset_timeout()" onchange="changed()" onblur="changed()"
+                 autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"
+                 oninput="reset_timeout()" onfocus="set_last_focus('fpassword')" onchange="changed()" onblur="changed()"
                  title="Name of the password in following format:
 
 [prefix] <name> <mode> <seq>
@@ -104,27 +104,27 @@ seq
         <div class="form-group">
           <input class="form-control input-md finput fpassword flarge"
                  name="fmaster" id="fmaster" tabindex="2" placeholder="master password"
-                 autocomplete="off" autocapitalize="none" autocorrect="off"
-                 oninput="changed()" onchange="changed()"
+                 autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"
+                 oninput="changed()" onchange="changed()" onfocus="set_last_focus('fmaster')"
                  title="Enter here your master password, it can be any string, we have here no policies for the master password. On pressing enter or tab, the focus will move to the generated password field."/>
         </div>
         <div class="form-group">
           <input class="form-control input-md finput fpassword flarge"
                  name="fpassword" id="fpassword" tabindex="3" placeholder="generated password"
-                 autocomplete="off" autocapitalize="none" autocorrect="off"
-                 oninput="changed()" onchange="changed()"
+                 autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"
+                 oninput="changed()" onchange="changed()" onfocus="set_last_focus('fpassword')"
                  title="This is the generated password, you can copy and paste it some where or press show button and try to memorize it. If you press enter, then the generated password will be used as next master password for a new name. With tab key you can move the focus to test field and check, if you have remembered the generated password correctly." />
         </div>
         <div class="form-group">
           <input class="form-control input-md finput fpassword flarge"
                  name="ftest" id="ftest" tabindex="4" placeholder="test your generated password"
-                 autocomplete="off" autocapitalize="none" autocorrect="off"
-                 oninput="testchanged()" onchange="testchanged()"
+                 autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"
+                 oninput="testchanged()" onchange="testchanged()" onfocus="set_last_focus('ftest')"
                  title="Here you can test whether you have remembered the password correctly, simply type it and press enter. If the test field was cleared, than you have typed the password correctly, otherwise it will stay as it is and you can click on the show button to find the error." />
         </div>
         <div class="form-group">
           <button class="btn btn-primary fbutton" type="button" name="show" id="show" tabindex="5"
-                  onclick="button_show()" oncontextmenu="button_show_master(); return false;"
+                  onclick="button_show()"
                   title="Press left mouse key on this button to show the generated password and with the right mouse key you can see the master password in clear text.">show</button>
           <button class="btn btn-primary fbutton" type="button" name="copy" id="copy" tabindex="6"
                   onclick="button_copy()">copy</button>

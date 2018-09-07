@@ -145,10 +145,21 @@ function storeItem (data) {
         fakeLocalStorage[data] = true;
 }
 function isStored (data) {
+    datarr = data.split(":");
     data = 'lesskey:' + data;
-    if (window.localStorage.getItem(data) == "true")
-        return true;
-    return fakeLocalStorage[data] == true;
+    if (window.localStorage.getItem(data) == "true") { return 1; }
+    for (var i = 0; i < window.localStorage.length; i++) {
+        var keyarr = window.localStorage.key(i).split(":");
+        if (datarr[0] == keyarr[1]) { return 2; }
+        if (datarr[1] == keyarr[2]) { return 3; }
+    }
+    if (fakeLocalStorage[data] == true) { return 1; }
+    for (var key in fakeLocalStorage) {
+        var keyarr = key.split(":");
+        if (datarr[0] == keyarr[1]) { return 2; }
+        if (datarr[1] == keyarr[2]) { return 3; }
+    }
+    return 0;
 }
 function removeStored (data) {
     data = 'lesskey:' + data;
@@ -163,9 +174,15 @@ var clear_timeout = def_clear_timeout;
 var default_fontfamily = "monospace";
 var secure_fontfamily = "password";
 var activated_background = "#359335";
+var lastfocus = "fpassword";
 
 function reset_timeout() {
     password_last_changed = new Date().getTime();
+}
+
+function set_last_focus(name) {
+    reset_timeout();
+    lastfocus = name;
 }
 
 function clear_passwords() {
@@ -182,6 +199,7 @@ function clear_passwords() {
     document.getElementById('copy').style.background = '';
     document.getElementById('keep').innerHTML = "keep";
     document.getElementById("fname").focus();
+    lastfocus = "fpassword";
 }
 
 function clear_passwords_after_timeout() {
@@ -291,10 +309,15 @@ function generate() {
             default: throw new SyntaxError("Unknown type '" + type + "'");
             }
             fpassword.value = password;
-            var fullval = fname.value + ":" + fmaster.value;
-            secret_sha1 = binb2b64(core_sha1(str2binb(fullval), fullval.length * 8));
-            if (isStored(secret_sha1)) {
-                document.getElementById('store').style.background = activated_background;
+            var secret_sha1 = ""
+                + binb2b64(core_sha1(str2binb(fname.value), fname.length * 8)) + ":"
+                + binb2b64(core_sha1(str2binb(fmaster.value), fmaster.length * 8));
+            switch (isStored(secret_sha1)) {
+            case 0: document.getElementById('store').style.background = ''; break;
+            case 1: document.getElementById('store').style.background = activated_background; break;
+            case 2: document.getElementById('store').style.background = "#353593"; break;
+            case 3: document.getElementById('store').style.background = "#359393"; break;
+            default: throw new SyntaxError("Unknown isStored return value");
             }
             if (keep.innerHTML == "keep") {
                 keep.innerHTML = "&nbsp;&nbsp;&nbsp;";
@@ -320,16 +343,24 @@ function button_show() {
     var fpassword = document.getElementById("fpassword");
     var ftest = document.getElementById("ftest");
     reset_timeout();
-    if (fpassword.style.fontFamily == default_fontfamily || fmaster.style.fontFamily == default_fontfamily) {
+    if (fpassword.style.fontFamily == default_fontfamily
+        || fmaster.style.fontFamily == default_fontfamily
+        || ftest.style.fontFamily == default_fontfamily)
+    {
         fmaster.style.fontFamily = secure_fontfamily;
         fpassword.style.fontFamily = secure_fontfamily;
         ftest.style.fontFamily = secure_fontfamily;
         document.getElementById("show").style.background = '';
-    } else {
+    } else if (lastfocus == "fmaster") {
+        fmaster.style.fontFamily = default_fontfamily;
+        document.getElementById("show").style.background = activated_background;
+    } else if (lastfocus == "fpassword") {
         fpassword.style.fontFamily = default_fontfamily;
+        document.getElementById("show").style.background = activated_background;
+    } else if (lastfocus == "ftest") {
         ftest.style.fontFamily = default_fontfamily;
         document.getElementById("show").style.background = activated_background;
-    }
+    } else { throw new SyntaxError("Unknow lastfocus value '" + lastfocus + "'"); }
 }
 
 function button_show_master() {
@@ -377,9 +408,10 @@ function button_store() {
     var store = document.getElementById('store');
     reset_timeout();
     if (fname.value != "" && fmaster.value != "") {
-        var fullval = fname.value + ":" + fmaster.value;
-        secret_sha1 = binb2b64(core_sha1(str2binb(fullval), fullval.length * 8));
-        if (store.style.background != '') {
+        var secret_sha1 = ""
+            + binb2b64(core_sha1(str2binb(fname.value), fname.length * 8)) + ":"
+            + binb2b64(core_sha1(str2binb(fmaster.value), fmaster.length * 8));
+        if (isStored(secret_sha1) == 1) {
             removeStored(secret_sha1);
         } else {
             storeItem(secret_sha1);
