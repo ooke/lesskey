@@ -135,6 +135,7 @@ seq
           <button class="btn btn-primary fbutton" type="button" name="keep" id="keep" tabindex="9"
                   onclick="button_keep()">keep</button>
           <button class="btn btn-primary fbutton" type="button" name="clear" id="clear" tabindex="10"
+                  oncontextmenu="window.open(window.prompt('URL:', window.location.href) || window.location.href, '_blank', 'directories=no,titlebar=no,toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no,width=600,height=400'); return false;"
                   onclick="button_clear()">clear</button>
         </div>
       </fieldset>
