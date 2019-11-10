@@ -226,7 +226,7 @@ function generate() {
     already_in_generate = true;
     try {
         changed();
-        var re_name = /^\s*(\S+)(\s+([rR]|[uU]|[uU][rR]|[uU][nNhHbBdD]|[nNhHbBdD]|[345678][dD]))?(\s+([0-9]+))?\s*$/g;
+        var re_name = /^\s*(\S+)(\s+([0-9]*)([rR]|[uU]|[uU][rR]|[uU][nNhHbB]|[nNhHbBdD]|[dD]))?(\s+([0-9]+))?\s*$/g;
         var fname = document.getElementById('fname');
         var fmaster = document.getElementById('fmaster');
         var fpassword = document.getElementById('fpassword');
@@ -239,6 +239,9 @@ function generate() {
         var type = "R";
         var seq = 99;
         var master = fmaster.value;
+        var new_name = "";
+        var maxchars = 0;
+        var maxcharsstr = "";
 
         document.getElementById('store').style.background = '';
         document.getElementById('copy').style.background = '';
@@ -251,16 +254,20 @@ function generate() {
 
         if (ma_name != null) {
             name = ma_name[1];
-            if (ma_name[3] != undefined) type = ma_name[3].toUpperCase();
-            if (ma_name[5] != undefined) seq = parseInt(ma_name[5]);
+            if (ma_name[3] != undefined) maxchars = parseInt(ma_name[3]);
+            if (maxchars < 1) maxchars = 0;
+            if (ma_name[4] != undefined) type = ma_name[4].toUpperCase();
+            if (ma_name[6] != undefined) seq = parseInt(ma_name[6]);
         } else {
-            var re_name = /^\s*((\S+)\s+)?(\S+)(\s+([rR]|[uU]|[uU][rR]|[uU][nNhH]|[nNhHbB]))?(\s+([0-9]+))?\s*$/g;
+            var re_name = /^\s*((\S+)\s+)?(\S+)(\s+([0-9]*)([rR]|[uU]|[uU][rR]|[uU][nNhHbB]|[nNhHbB]))?(\s+([0-9]+))?\s*$/g;
             var ma_name = re_name.exec(fname.value);
             if (ma_name != null) {
                 if (ma_name[2] != undefined) prefix = ma_name[2];
                 name = ma_name[3];
-                if (ma_name[5] != undefined) type = ma_name[5].toUpperCase();
-                if (ma_name[7] != undefined) seq = parseInt(ma_name[7]);
+                if (ma_name[5] != undefined) maxchars = parseInt(ma_name[5]);
+                if (maxchars < 1) maxchars = 0;
+                if (ma_name[6] != undefined) type = ma_name[6].toUpperCase();
+                if (ma_name[8] != undefined) seq = parseInt(ma_name[8]);
             }
         }
         if (prefix != "") { prefixs = prefix + " "; }
@@ -274,9 +281,10 @@ function generate() {
                 var seednum = Math.floor(Math.random() * Math.pow(10, tmplen)) + "";
                 name = seedname + seednum;
             }
-            new_name = "";
             if (prefix != "")  new_name = prefix + " ";
-            new_name = new_name + name + " " + type + " " + seq;
+            if (maxchars > 0) maxcharsstr = maxchars.toString();
+            else maxcharsstr = "";
+            new_name = new_name + name + " " + maxcharsstr + type + " " + seq;
             fname.value = new_name;
         } else {
             if (fname.value != "") {
@@ -288,40 +296,46 @@ function generate() {
             return;
         }
 
-        if (master != "") {
-            var passkey = gen_otp_sha1(master, name, seq);
-            var password = "";
-            switch (type) {
-            case "R": password = prefixs + a_to_6word(passkey); break;
-            case "U": password = prefixs + a_to_6word(passkey).toUpperCase(); break;
-            case "UH": password = prefix + a_to_hex(passkey).toUpperCase(); break;
-            case "UN": password = (prefixs + a_to_6word(passkey).toUpperCase()).replace(/ /g, '-'); break;
-            case "H": password = prefix + a_to_hex(passkey); break;
-            case "B": password = prefix + a_to_b(passkey); break;
-            case "D": password = a_to_dec6(passkey, " "); break;
-            case "3D": password = a_to_dec6(passkey, "").substr(0, 3); break;
-            case "4D": password = a_to_dec6(passkey, "").substr(0, 4); break;
-            case "5D": password = a_to_dec6(passkey, "").substr(0, 5); break;
-            case "6D": password = a_to_dec6(passkey, "").substr(0, 6); break;
-            case "7D": password = a_to_dec6(passkey, "").substr(0, 7); break;
-            case "8D": password = a_to_dec6(passkey, "").substr(0, 8); break;
-            case "N": password = (prefixs + a_to_6word(passkey)).replace(/ /g, '-'); break;
-            default: throw new SyntaxError("Unknown type '" + type + "'");
-            }
-            fpassword.value = password;
-            var secret_sha1 = ""
-                + binb2b64(core_sha1(str2binb(fname.value), fname.length * 8)) + ":"
-                + binb2b64(core_sha1(str2binb(fmaster.value), fmaster.length * 8));
-            switch (isStored(secret_sha1)) {
-            case 0: document.getElementById('store').style.background = ''; break;
-            case 1: document.getElementById('store').style.background = activated_background; break;
-            case 2: document.getElementById('store').style.background = "#353593"; break;
-            case 3: document.getElementById('store').style.background = "#359393"; break;
-            default: throw new SyntaxError("Unknown isStored return value");
-            }
-            if (keep.innerHTML == "keep") {
-                keep.innerHTML = "&nbsp;&nbsp;&nbsp;";
-            }
+        var passkey = gen_otp_sha1(master, name, seq);
+        var password = "";
+        switch (type) {
+        case "R": password = prefixs + a_to_6word(passkey); break;
+        case "U": password = prefixs + a_to_6word(passkey).toUpperCase(); break;
+        case "UR": password = prefixs + a_to_6word(passkey).toUpperCase(); break;
+        case "H": password = prefix + a_to_hex(passkey); break;
+        case "UH": password = prefix + a_to_hex(passkey).toUpperCase(); break;
+        case "B": password = prefix + a_to_b(passkey); break;
+        case "UB": password = (prefix + a_to_b(passkey)).toUpperCase(); break;
+        case "D":
+            if (maxchars > 0) password = a_to_dec6(passkey, "");
+            else password = a_to_dec6(passkey, " ");
+            break;
+        case "N":
+            if (maxchars > 0)
+                password = (prefixs + a_to_6word(passkey)).replace(/ /g, '-');
+            else password = (prefixs + a_to_6word(passkey));
+            break;
+        case "UN":
+            if (maxchars > 0)
+                password = (prefixs + a_to_6word(passkey).toUpperCase()).replace(/ /g, '-');
+            else password = (prefixs + a_to_6word(passkey).toUpperCase());
+            break;
+        default: throw new SyntaxError("Unknown type '" + type + "'");
+        }
+        if (maxchars > 0) fpassword.value = password.replace(/ /g, '').substr(0, maxchars);
+        else fpassword.value = password;
+        var secret_sha1 = ""
+            + binb2b64(core_sha1(str2binb(fname.value), fname.length * 8)) + ":"
+            + binb2b64(core_sha1(str2binb(fmaster.value), fmaster.length * 8));
+        switch (isStored(secret_sha1)) {
+        case 0: document.getElementById('store').style.background = ''; break;
+        case 1: document.getElementById('store').style.background = activated_background; break;
+        case 2: document.getElementById('store').style.background = "#353593"; break;
+        case 3: document.getElementById('store').style.background = "#359393"; break;
+        default: throw new SyntaxError("Unknown isStored return value");
+        }
+        if (keep.innerHTML == "keep") {
+            keep.innerHTML = "&nbsp;&nbsp;&nbsp;";
         }
     } catch (err) { alert("ERROR: " + err.message); }
     already_in_generate = false;
@@ -500,4 +514,3 @@ $("#ftest").on('keyup', function(e) { if (e.keyCode == 13) {
 }});
 resize_input_fields();
 $(window).resize(resize_input_fields);
-        
