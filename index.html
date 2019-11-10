@@ -40,6 +40,16 @@
              url('fonts/password.ttf') format('truetype'),
              url('fonts/password.svg#password') format('svg');
       }
+      .helppara {
+          background: white;
+          border: none;
+          padding: 0;
+      }
+      @media (max-width: 900px) {
+          .helppara {
+              font-size: 0.7em;
+          }
+      }
       .fbutton {
         margin: 8px 0px 0px 0px;
       }
@@ -117,7 +127,7 @@
     </ol>
 
     <br/>
-    <pre style="background: white; border: none; padding: 0;"><b>Name of the password should be specified as follows:</b>
+    <pre class="helppara"><b>Name of the password should be specified as follows:</b>
 
 [prefix] &lt;name&gt; [length]&lt;mode&gt; &lt;seq&gt;
 
