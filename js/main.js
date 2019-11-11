@@ -312,13 +312,13 @@ function generate() {
             break;
         case "N":
             if (maxchars > 0)
-                password = (prefixs + a_to_6word(passkey)).replace(/ /g, '-');
-            else password = (prefixs + a_to_6word(passkey));
+                password = (prefixs + a_to_6word(passkey)).replace(/ /g, '');
+            else password = (prefixs + a_to_6word(passkey)).replace(/ /g, '-');
             break;
         case "UN":
             if (maxchars > 0)
-                password = (prefixs + a_to_6word(passkey).toUpperCase()).replace(/ /g, '-');
-            else password = (prefixs + a_to_6word(passkey).toUpperCase());
+                password = (prefixs + a_to_6word(passkey).toUpperCase()).replace(/ /g, '');
+            else password = (prefixs + a_to_6word(passkey).toUpperCase()).replace(/ /g, '-');
             break;
         default: throw new SyntaxError("Unknown type '" + type + "'");
         }
