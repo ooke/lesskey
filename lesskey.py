@@ -77,6 +77,7 @@ def store(nseed, master):
     stored = readstored()
     stored.add(hashlib.sha1(nseed.encode('utf-8')).hexdigest())
     stored.add(hashlib.sha1(master.encode('utf-8')).hexdigest())
+    stored.add(hashlib.sha1((nseed + master).encode('utf-8')).hexdigest())
     with open(storefile + ".tmp", 'wb') as fd:
         for cksum in stored:
             fd.write(("%s\n" % cksum).encode('utf-8'))
@@ -84,9 +85,11 @@ def store(nseed, master):
 
 def delete(nseed, master):
     stored = readstored()
-    try: stored.remove(hashlib.sha1(nseed).hexdigest())
+    try: stored.remove(hashlib.sha1(nseed.encode('utf-8')).hexdigest())
     except: pass
-    try: stored.remove(hashlib.sha1(master).hexdigest())
+    try: stored.remove(hashlib.sha1(master.encode('utf-8')).hexdigest())
+    except: pass
+    try: stored.remove(hashlib.sha1((nseed + master).encode('utf-8')).hexdigest())
     except: pass
     with open(storefile + ".tmp", 'w') as fd:
         for cksum in stored:
@@ -208,7 +211,6 @@ def lesskey(seed, master = None):
         if maxchars < 0 or seq < 1: raise('maxchars or seq is smaller then 1')
     except Exception as err: usage('maxchars or seq is wrong %s: %s' % (repr((maxchars, seq)), repr(err)))
     if master is None: master = getpass.getpass('master> ')
-
     if maxchars == 0: nmaxchars = ''
     else: nmaxchars = str(maxchars)
     if prefix is None:
@@ -217,7 +219,9 @@ def lesskey(seed, master = None):
     stored = readstored()
     sseed = hashlib.sha1(nseed.encode('utf-8')).hexdigest()
     smaster = hashlib.sha1(master.encode('utf-8')).hexdigest()
-    if sseed in stored and smaster in stored: sstate = "stored"
+    sseedmaster = hashlib.sha1((nseed + master).encode('utf-8')).hexdigest()
+    if sseedmaster in stored: sstate = "correct"
+    elif sseed in stored and smaster in stored: sstate = "incorrect"
     elif sseed in stored: sstate = "known seed"
     elif smaster in stored: sstate = "known password"
     else: sstate = "unknown"
@@ -254,7 +258,7 @@ def lesskey(seed, master = None):
         try: next_cmd = input('command (? for help)> ')
         except: next_cmd = ''
         if next_cmd == '?':
-            print("""Available commands:
+            print("""Available commands next commands:
 
 p - print generated password
 x - copy to X11 clipboard using xclip utility
