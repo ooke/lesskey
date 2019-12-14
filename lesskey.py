@@ -202,12 +202,14 @@ def lesskey(seed, master = None):
         if next_cmd == '?':
             print("""Available commands:
 
+q - clear screen and exit
 l - exit, don't clear
 n - next name in hierarchy
-s - remember password and name (as SHA1 checksum)
-d - forget name and password
+s - store password and name (as SHA1 checksum)
+d - delete stored name and password
 """)
-        if next_cmd == 'l': pass        
+            continue
+        elif next_cmd == 'l': pass        
         elif next_cmd == 'n': lesskey(None, master = passstr)
         elif next_cmd == 's':
             store(nseed, master)
