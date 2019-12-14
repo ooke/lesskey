@@ -185,7 +185,7 @@ def lesskey(seed, master = None):
     if seed is None:
         seed = input('name> ')
     while True:
-        ma_seed = re.match(r'^\s*(\S+)(?:\s+([0-9]*)([rR]|[uU]|[uU][rR]|[uU][nNhHbB]|[nNhHbBdD]|[dD]))?(?:\s+([0-9]+))?\s*(?:[-]\s*(.*)\s*)?$', seed)
+        ma_seed = re.match(r'^\s*(\S+)(?:\s+([0-9]*)([rR]|[uU]|[uU][rR]|[uU][nNhHbB]|[nNhHbBdD]|[nN][dD]|[dD]))?(?:\s+([0-9]+))?\s*(?:[-]\s*(.*)\s*)?$', seed)
         if ma_seed is None:
             ma_seed = re.match(r'^\s*(?:(\S+)\s+)?(\S+)(?:\s+([0-9]*)([rR]|[uU]|[uU][rR]|[uU][nNhHbB]|[nNhHbB]))?(?:\s+([0-9]+))?\s*$', seed)
             if ma_seed is None:
@@ -245,6 +245,9 @@ def lesskey(seed, master = None):
     elif ntype == 'D':
         passstr = ' '.join([str(x) for x in htodec(skey)])
         if maxchars > 0: passstr = passstr.replace(' ', '')[:maxchars]
+    elif ntype == 'ND':
+        passstr = ''.join([str(x) for x in htodec(skey)])
+        if maxchars > 0: passstr = passstr[:maxchars]
     print("password is generated, how you want to get it?")
     clear_screen = False
     while True:
