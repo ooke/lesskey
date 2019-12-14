@@ -46,160 +46,143 @@ Live Demo: https://ooke.github.io/sk/
 
 This is password manager and a password generator, you need a main
 password (`secret`) and you can generate a password based on a
-name (`id`). Typical usage:
+name (`seed`). Typical usage:
 
-1. Enter a name to the `id` field, f.e. if you need a password for
+1. Enter a name to the `seed` field, f.e. if you need a password for
    Amazon, than enter `amazon` here. It is also possible to enter
    `amazonXX` with any number of `X` after the name, in this case the
    system will replace all `X` characters with a random number with
    maximum number of digits equals to number of `X` entered. This is
    usefull if you think to change the password on a regular basis,
    simply enter again `XX` and it will generate a new number and a new
-   password.
-   
-1. If the system you need a password for require a password with
-   special characters, than enter a string wich required special
-   characters in `type` (`prefix`) field. You can use the same prefix
-   string in all passwords, usualy something like `#A0`. This field do
-   not really add any security, it is only to give dump systems the
-   character classes they want.
-   
-   In case, where the system you need the password for do not accept
-   our default password representation, you can generate a different
-   one changing the `type` field. Following representations are
-   available now:
-   
-   1. `reg (regular)`: usual 6 words S/Key representation.
+   password. The format of the seed field is following:
 
-      If possible, please use this representation, because it is easy
-      to type, to remember and have no problems with special
-      characters.
-  
-   1. `nsp (no spaces)`: usual 6 words S/Key representation with `-`
-      (minus) character instead of space
+   ```
+     [prefix] <name> [length][mode] [seq]
+   ```
+   
+   Samples:
+   ```
+        amazon            (same as: amazan R 99)
+        amazon R 99       (simple name)
+        amazon4 R 99      (more unique)
+        amazon4 8B 99     (8 characters)
+        @T amazon4 B 99   (with "@T" prefix)
+   ```
+   
+   The name can be simply entered as string without spaces, default mode and seq
+   will be added automatically.
+   
+   - `<prefix>`
+     Optional string which will be appended to the generated password as it
+     is. This string is useful only to comply with meaningless policy rules.
+   
+   - `<name>`
+     The name to use for generating, all uppacase X characters at the end will
+     be replaced by a random number. Use the numbers to make the names more unique
+     and easier changable.
+   
+   - `[length]`
+     Length is optional and specifies maximal number of characters the password
+     should have.
+   
+   - `[mode]`
+     The mode to use for generating:
+          - `R` regular password
+          - `U` uppercase password (fully S/Key compatible)
+          - `N` mode `R` with `-` instead of spaces
+          - `UN` mode `N` in uppercase
+          - `H` password as hexadecimal string
+          - `UH` mode `H` in uppecase
+          - `B` password in base64 format
+          - `UB` mode `B` in uppercase
+          - `D` decimal format (digits only)
+   
+   - `[seq]`
+     The S/Key sequence number, default is 99 and should only be changed if you
+     really understand what you do.
+
       
-      This representation should be used, if no space is allowed in
-      the target system.
-      
-   1. `hex (hexadecimal)`: hex representation of the password
-   
-      Use this representation, if you have length or other strange
-      constraints on allowed password.
-   
-   1. `b64 (base64)`: base64 representation without `=` character for
-      padding
-   
-      Most systems with the (officially deprecated and dangerous)
-      constraints on character classes in password will accept this
-      representation. If not enough character classes are present, use
-      the `prefix` or simply try to change the `id` (`key name`) and
-      generate again.
-   
-   1. `dec (decimal)`: decimal representation
-   
-      Some systems allow only numbers, like a PIN for tablet, an App
-      or similar. Please use so many numbers from this representation
-      you are able to enter in the target system.
-      
-1. Enter your master password in the field `secret`. If you click on
-   the label `secret` then the system make the password visible,
-   usually to verify that you entered the password correctly. If you
-   do not want make the password visible, but you are not sure if it
-   is entered correctly, than you can enter the password in the
-   `verify` field a second time. In this case LesS/KEY will check if
-   the passwords are equal and show an error if not.
+1. Enter your master password and you can directly copy your generated password
+   from next field, after pressing enter or tab the generated password will be
+   selected and ready to copy to clipboard. If you click on the button `show`,
+   then the master password became visible. If the password was stored once, the
+   button `store` became light blue and if the password with this seed was
+   stored once, than it bacame green.
 
-1. Click on button `generate` (or simply press `enter` key) to
-   generate the password and the password will be entered in the
-   field with the name `key`.
-   
-1. Click on the choosen represtation and on the button `copy
-   selected`, if this button do not work on your browser, than simple
-   select the full text in the field (f.e. through tripple click with
-   the mouse or regular text selection). The password is not visible
-   but it is perfectly selectable, so you do not need to click on
-   `show` button to copy/paste the password.
+This password manager do not store any names or passwords and do not communicate
+with anything, all calculations are done within your browser. Common way is to
+write down the meta information about each generated password in a system, which
+you can access as easy as possible, like in a file. Personally I use
+[Evernote](http://www.evernote.com) for it, because I can access it through
+browser, on any smart phone through a app and also on the UNIX shell with the
+Evernote API. I store following information there:
 
-This password manager do not store any names or passwords and do not
-communicate with anything, all calculations are done within your
-browser. Common way is to write down the meta information about each
-generated password in a system, which you can access as easy as
-possible. Personally I use [Evernote](http://www.evernote.com) for it,
-because I can access it through browser, on any smart phone through
-the app and also on the UNIX shell with the Evernote API. I store
-following information there:
-
-- URL of the web page or something else to identify the system
-- Exact `id` I have used (e.g. with generated number)
-- Prefix used (I use the same prefix every where and notice only if I
-  have used prefix or not, but not the prefix itself)
-- Representation I have used (type, number of digits for decimal)
+- Exact `seed` I have used, with prefix and modes
 - Date on which the password was generated or changed
+- URL of the web page or something else to identify the system
 - Login name, birthday entered and similar meta data to be able to
   login or recover password later
 
-The `id` has no security value, so you do not need to encrypt this
-information, only your secret should really be secret.
+The `seed` has no security value, so you do not need to encrypt this
+information, only your secret should stay really secret.
 
-Usually you do not need to change the first part of `id` field
-(usually `99`), it is only needed if you use this password manager as
-a S/Key calculator, playing with thin number without knowing what you
-are doing is dangerous.
+Usually you do not need to change the `seq` part of the `seed` (usually `99`),
+it is only needed if you use this password manager as a real S/Key calculator,
+playing with thin number without knowing what you are doing can lead to security
+problems.
 
 # S/Key usage
 
-This password manager can also be used as a S/Key calculator, if you
-login to a system with enabled S/Key athentication method, then type
-the sequence number, seed and secret, click on `generate` and
-copy/paste your password. Usually it looks like follows:
+This password manager can also be used as a S/Key calculator, if you login to a
+system with enabled S/Key athentication method, then type the sequence number,
+seed and secret and copy/paste your password. Usually it looks like follows:
 
 ```
 $> ssh karam@outer.space.unknown
 Password [ otp-sha1 45 oute52436 ]:
 ```
 
-In this example 45 is the first `id` part and `oute52436` is the
-second.
+From this example you would need to type folowing as seed:
+```
+oute52436 U 45
+```
 
-Warning: only SHA-1 S/Key mode is supported and S/Key is not safe to
-use, if any one could see your password. Do not use it through
-unencrypted connections! (I know, S/Key was developed initally for
-this case, but trust me, you should not use unencrypted connections)
+Warning: only SHA-1 S/Key mode is supported and S/Key is not always safe to
+use. Do not use it through unencrypted connections! (I know, S/Key was developed
+initally for this case, but trust me, you should not use unencrypted
+connections at all, never!)
 
-This is usefull, if your need f.e. login to your server from a PC,
-which you do not trust (internet caffee f.e.). You could use LesS/KEY
-on your smartphone to generate the one time password and type it on
-this PC. Even if some body logs the keyboard, this password is usable
-only one single time and you have already used it, so it is useless to
-an later attacker.
+This is usefull, if your need f.e. login through SSH to your server from a PC,
+which you do not fully trust (internet caffee f.e.). You should use then
+LesS/KEY on a device you trust, like your smartphone to generate the one time
+password and type it on this PC. Even if some body logs the keyboard, this
+password became invalid and useless after you typed it in. Man in the middle
+attack is still possible but it is very hard to do and to prepare and you are
+usually safe, as long you use encrypted connections.
 
 # Hierarchical passwords
 
 It is possible to use multiple master passwords in a hierarhical way:
 
-1. Type a `id` name for the master password
+1. Type a root `seed` and your master-master password.
 
-1. Type your mastermaster password in `secret` field
+1. Press enter and type your child `seed` and copy generated password
 
-1. Click on `generate` and on `switch`
+The reason to use hierarchical passwords is to use different master passwords
+for different types of systems. Typically you memoize the generated master
+passwords and use it, instead of using the master-master password all the
+type. In this way, if you loose the master password you need only reset the
+passwords on a bunch of services instead of all services you have ever generated
+passwords for.
 
-1. Type the name of page you need the password for in `id`
-
-1. Click on `generate` and use it as usual
-
-The reason to use hierarchical passwords is to use own master
-passwords for different types of systems. Typically you memoize the
-generated master passwords and use it, instead of using the
-mastermaster password. In this way, if you loose the master password
-you need only reset the passwords on a bunch of services intstead of
-all services you have ever generated passwords for.
-
-For example I use one master password for home, one for work and one
-for regular web pages. All of the master passwords are generatable,
-but I memoize them and do typically never type the mastermaster
-password somewhere. I do also memoize the generated passwords for all
-important systems, but if I forget one (f.e. after a vacation) I can
-generate it again any time.
+For example I use one master password for home, one for work and one for regular
+web pages. All of the master passwords are still generatable, but I memoize them
+and do typically never type the master-master password somewhere. I do also
+memoize the generated passwords for all important systems, but if I forget one
+(f.e. after a vacation) I can generate it again any time. Some times I do also
+forget the master passwords, but they can also be generated, only my main
+master-master password is something I need really care about.
 
 # Security considerations
 
@@ -207,21 +190,23 @@ This password manager was inspired by the XKCD commic:
 
 [![password_strength](https://imgs.xkcd.com/comics/password_strength.png)](https://www.xkcd.com/936/)
 
-Internally it generates SHA-1 checksum chained `seq #` number of
-times from `seed` and `secret` concatenated together. The result is
-reduced to a 64 bit number and represented as 6 words, with the scheme
-from [RFC2289](https://tools.ietf.org/html/rfc2289). Other
-representations are simply different representations of this 64 bits.
+Internally it generates SHA-1 checksum chained `seq` number of times from `seed`
+and `secret` concatenated together. The result is reduced to a 64 bit number
+with bitwise XOR and represented as 6 words, with the scheme from
+[RFC2289](https://tools.ietf.org/html/rfc2289). Other representations are simply
+different representations of this 64 bit number.
 
-The [SHA-1](https://en.wikipedia.org/wiki/SHA-1) is considered as
-insecure, because it is possible to generate multiple documents with
-same checksum. This weakness do not apply here, because the
-possibility to genarate multiple seed/secret combinations which
-creates same password is irrelevant for the use case here.
+The [SHA-1](https://en.wikipedia.org/wiki/SHA-1) is considered as insecure,
+because it is possible to generate multiple documents with same checksum. This
+weakness do not apply here at all, because the possibility to genarate multiple
+seed/secret combinations which creates same password is irrelevant for the use
+case here. It is still no known possibilty to generate your master password from
+password and `seed` you have used, so `SHA-1` is absolutely safe to use here.
 
-Also S/Key is considered as insecure, because it is unsafe to use it
-on unencrypted links. Do not use unencrypted interfaces or systems,
-where some body could read your password, S/Key, OTP or this password
-manager will not help you in such cases.
+Also S/Key is considered as insecure, because it is unsafe to use it on
+unencrypted links. Do not use unencrypted links, interfaces or systems, whether
+S/Key nor OTP nor this password manager can not help you in such cases. Using
+the S/Key method for authentication is always MUCH more secure, than typing your
+real password.
 
 Do not generate passwords on devices that you do not trust!
