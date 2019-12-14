@@ -26,6 +26,16 @@ def get_otp_sha1(secret, seed, n):
     x = [int.from_bytes(x[0], 'little'), int.from_bytes(x[1], 'little')]
     return [int.to_bytes(x[0], 4, 'big'), int.to_bytes(x[1], 4, 'big')]
 
+def htob64(h):
+    h = [int.from_bytes(x, 'big') for x in h]
+    s = []
+    for i in range(2):
+        for j in range(4):
+            t = (h[i] >> (8*j)) & 0xff
+            s.append(int.to_bytes(t, 1, 'big'))
+    s = b"".join(s)
+    return base64.b64encode(s).decode('utf-8').replace('=', '').strip()
+
 def htodec(h):
     h = [int.from_bytes(x, 'big') for x in h]
     parity = 0
@@ -185,7 +195,8 @@ def lesskey(seed, master = None):
         if maxchars > 0: passstr = passstr.replace(' ', '')[:maxchars]
         if ntype in ('N', 'UN'): passstr = passstr.replace(' ', '-')
     elif ntype in ('B', 'UB'):
-        passstr = base64.b64encode(b''.join(skey)).decode('utf-8')
+        passstr = htob64(skey)
+        if prefix is not None: passstr = prefix + passstr
         if ntype == 'UB': passstr = passstr.upper()
         if maxchars > 0: passstr = passstr[:maxchars]
     elif ntype in ('H', 'UH'):
