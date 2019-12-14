@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import hashlib, sys, getpass, re, time, os, base64, random
+from subprocess import Popen, PIPE
 
 storefile = os.path.expanduser('~/.lesskey')
 
@@ -96,72 +97,104 @@ def usage(msg = None):
     if msg is not None:
         sys.stderr.write('ERROR: %s\n\n' % msg)
     sys.stderr.write('Usage: %s <seed>\n' % sys.argv[0])
-    sys.stderr.write("""
-LesS/KEY allows generate a password from master
-password and a seed name.
+    with Popen(['less', '-S'], stdin = PIPE) as fd:
+        fd.stdin.write(b"""Usage: %s [-h|-l <search term>|<seed>]
+
+LesS/KEY password manager.
+
+This is a project to build a password management tool based on the S/Key system
+described in the RFC2289. This password manager is made with following goals in
+mind:
+
+- Passwords need to be memorable, secure and easy to type on any keyboard.
+- The passwords which are generated with LesS/KEY can be easy momoized and used
+  without the generator. Generate the passwords only if you forgot a password,
+  it reduces the number of times you enter your master password and make the
+  system much more secure.
+- It should work every where.
+- In fact you even do not require this particular tool, but can use any tool
+  which is capable of generating S/Key SHA-1 passwords. So you have the
+  garantee, that you can generate the password also without access to this
+  particular tool. For most UNIX systems you can install the skey or equivalent
+  command, which also generate exactly the same passwords.
+- You should be able to use it in a safe way even if the whole time you generate
+  a password some body look on your screen.
+- With LesS/KEY you can generate your passwords securely, also if some body look
+  on your screen and you are on a foreign PC. (do not generate passwords on
+  devices that you do not trust!)
+- It should work offline and should never send anything through network.
+- Files from this repository and a browser are enought to use this tool, you do
+  not need to install something. It is also usable on any smart phone or similar
+  devices, also without permanent connection to the internet.
+- It should not store anything anywhere and should be also usable on foreign
+  systems.
+
+More information here: https://github.com/ooke/lesskey
+
+Command line arguments:
+-h|--help                  show this help
+-l|--login <search term>   call 'logins <search term>' command and use output
+                           as seed text, this command should be written by user,
+                           f.e. it can be written as 'grep "$1" ~/.my_seeds'
+<seed>                     the seed to use as string
 
 Seed should be specified as follows:
-
-[prefix] <name> [length]<mode> <seq>
+  [prefix] <name> [length][mode] [seq]
 
 Samples:
+     amazon            (same as: amazan R 99)
      amazon R 99       (simple name)
      amazon4 R 99      (more unique)
      amazon4 8B 99     (8 characters)
-     @T amazon4 8B 99  (with "@T" prefix)
+     @T amazon4 B 99   (with "@T" prefix)
 
-The name can be simply entered as string without
-spaces, default mode and seq will be added
-automatically. On pressing enter or tab, the focus
-will move to the master password field.
+The name can be simply entered as string without spaces, default mode and seq
+will be added automatically.
 
 <prefix>
+  Optional string which will be appended to the generated password as it
+  is. This string is useful only to comply with meaningless policy rules.
 
-     Optional string which will be appended to the
-     generated password as it is. This string is
-     useful only to comply with meaningless policy
-     rules.
-
-<name>
-
-     The name to use for generating, all uppacase
-     X characters at the end will be replaced by a
-     random number. Use the numbers to make the
-     names more unique.
+<name> The name to use for generating, all uppacase X characters at the end will
+  be replaced by a random number. Use the numbers to make the names more unique
+  and easier changable.
 
 [length]
+  Length is optional and specifies maximal number of characters the password
+  should have.
 
-     Length is optional and specifies maximal
-     number of characters the password should
-     have.
+[mode]
+  The mode to use for generating:
+       R	regular password
+       U	uppercase password (fully S/Key compatible)
+       N	mode R with '-' instead of spaces
+       UN	mode N in uppercase
+       H	password as hexadecimal string
+       UH	mode H in uppecase
+       B	password in base64 format
+       UB	mode B in uppercase
+       D	decimal format (digets only)
 
-<mode>
-     The mode to use for generating:
-          R	regular password
-          U	uppercase only password
-          N	no spaces
-          UN	like N but in uppecase
-          H	password as hexadecimal string
-          UH	like H but in uppecase
-          B	password in base64 format
-          D	decimal format (digets only)
-
-<seq>
-     The S/Key sequence number, default is 99 and
-     should only be changed if you really understand
-     what you do.
+[seq]
+  The S/Key sequence number, default is 99 and should only be changed if you
+  really understand what you do.
 """)
     sys.exit(1)
 
 def lesskey(seed, master = None):
     if seed is None:
         seed = input('name> ')
-    ma_seed = re.match(r'^\s*(\S+)(?:\s+([0-9]*)([rR]|[uU]|[uU][rR]|[uU][nNhHbB]|[nNhHbBdD]|[dD]))?(?:\s+([0-9]+))?\s*$', seed)
-    if ma_seed is None:
-        ma_seed = re.match(r'^\s*(?:(\S+)\s+)?(\S+)(?:\s+([0-9]*)([rR]|[uU]|[uU][rR]|[uU][nNhHbB]|[nNhHbB]))?(?:\s+([0-9]+))?\s*$', seed)
-        if ma_seed is None: usage('seed format is wrong')
-        prefix, name, maxchars, ntype, seq = ma_seed.groups()
-    else: prefix, name, maxchars, ntype, seq = (None,) + ma_seed.groups()
+    while True:
+        ma_seed = re.match(r'^\s*(\S+)(?:\s+([0-9]*)([rR]|[uU]|[uU][rR]|[uU][nNhHbB]|[nNhHbBdD]|[dD]))?(?:\s+([0-9]+))?\s*(?:[-]\s*(.*)\s*)?$', seed)
+        if ma_seed is None:
+            ma_seed = re.match(r'^\s*(?:(\S+)\s+)?(\S+)(?:\s+([0-9]*)([rR]|[uU]|[uU][rR]|[uU][nNhHbB]|[nNhHbB]))?(?:\s+([0-9]+))?\s*$', seed)
+            if ma_seed is None:
+                print("seed can not be parsed: %s" % str(seed))
+                seed = input('new seed> ')
+                continue
+            prefix, name, maxchars, ntype, seq, desc = ma_seed.groups()
+        else: prefix, name, maxchars, ntype, seq, desc = (None,) + ma_seed.groups()
+        break
     if ntype is None: ntype = 'R'
     if seq is None: seq = 99
     if maxchars == '' or maxchars is None: maxchars = 0
@@ -184,11 +217,13 @@ def lesskey(seed, master = None):
     stored = readstored()
     sseed = hashlib.sha1(nseed.encode('utf-8')).hexdigest()
     smaster = hashlib.sha1(master.encode('utf-8')).hexdigest()
-    if sseed in stored and smaster in stored: sstate = "*"
-    elif sseed in stored: sstate = "N"
-    elif smaster in stored: sstate = "M"
-    else: sstate = "-"
-    print("seed (%s): %s %d %s" % (sstate, nseed, seq, time.strftime('%Y-%m-%d')))
+    if sseed in stored and smaster in stored: sstate = "stored"
+    elif sseed in stored: sstate = "known seed"
+    elif smaster in stored: sstate = "known password"
+    else: sstate = "unknown"
+    if desc in (None, ''):
+        desc = time.strftime('%Y-%m-%d')
+    print("seed (%s): %s %d %s" % (sstate, nseed, seq, desc))
 
     skey = get_otp_sha1(master, name, seq)
     passstr = None
@@ -210,15 +245,19 @@ def lesskey(seed, master = None):
     elif ntype == 'D':
         passstr = ' '.join([str(x) for x in htodec(skey)])
         if maxchars > 0: passstr = passstr.replace(' ', '')[:maxchars]
-    print(passstr)
+    print("password is generated, how you want to get it?")
+    clear_screen = False
     while True:
-        try: next_cmd = input('next (? for help)> ')
+        try: next_cmd = input('command (? for help)> ')
         except: next_cmd = ''
         if next_cmd == '?':
             print("""Available commands:
 
+p - print generated password
+x - copy to X11 clipboard using xclip utility
+m - copy to Mac OS X paste board
 q - clear screen and exit
-l - exit, don't clear
+l - exit, don't clear screen
 n - next name in hierarchy
 s - store password and name (as SHA1 checksum)
 d - delete stored name and password
@@ -229,7 +268,26 @@ d - delete stored name and password
         elif next_cmd == 's':
             store(nseed, master)
             continue
-        else: os.system('clear');
+        elif next_cmd == 'p':
+            clear_screen = True
+            print(passstr)
+            continue
+        elif next_cmd == 'm':
+            try:
+                with Popen(['pbcopy'], stdin = PIPE) as fd:
+                    fd.stdin.write(passstr.encode('utf-8'))
+                print("password copied to pasteboard")
+            except: print("failed to copy password to pasteboard")
+            continue
+        elif next_cmd == 'x':
+            try:
+                with Popen(['xclip'], stdin = PIPE) as fd:
+                    fd.stdin.write(passstr.encode('utf-8'))
+                print("password copied to clipboard")
+            except: print("failed to copy password to clipboard")
+            continue
+        elif clear_screen:
+            os.system('clear');
         break
 
 WORDS = ["a",     "abe",   "ace",   "act",   "ad",    "ada",   "add",
@@ -491,6 +549,19 @@ WORDS = ["a",     "abe",   "ace",   "act",   "ad",    "ada",   "add",
          "yoke"]
 
 if len(sys.argv) > 1 and sys.argv[1] in ('-h', '--help'): usage()
+elif len(sys.argv) == 3 and sys.argv[1] in ('-l', '--logins'):
+    with Popen(['logins', sys.argv[2]], stdout = PIPE) as fd:
+        print("output of the logins command:")
+        for line in fd.stdout:
+            seed = line.decode('utf-8').strip()
+            print(seed)
+        ma_seed = re.match(r'^[^ :]+:\s+[0-9]+\s+(.*)$', seed)
+        if ma_seed: seed = ma_seed.group(1)
+        print("using %s as seed" % repr(seed))
+    if fd.returncode != 0:
+        sys.stderr.write("ERROR: Failed to call command 'logins'!\n")
+        sys.exit(0)
+    lesskey(seed, master = None)
 elif len(sys.argv) == 1: lesskey(None, master = None)
 elif len(sys.argv) == 2: lesskey(sys.argv[1], master = None)
 else: usage()                 
