@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import hashlib, sys, getpass, re, time, os, base64
+import hashlib, sys, getpass, re, time, os, base64, random
 
 storefile = os.path.expanduser('~/.lesskey')
 
@@ -165,6 +165,10 @@ def lesskey(seed, master = None):
     if ntype is None: ntype = 'R'
     if seq is None: seq = 99
     if maxchars == '' or maxchars is None: maxchars = 0
+    sa_xxx = re.search(r'(X+)$', name)
+    if sa_xxx:
+        num = random.randint(0, 10**len(sa_xxx.group(1))-1)
+        name = re.sub(r'(X+)$', str(num), name)
     name = name.lower(); ntype = ntype.upper()
     try:
         maxchars, seq = int(maxchars), int(seq)
