@@ -5,42 +5,40 @@ S/Key system described in the
 [RFC2289](https://tools.ietf.org/html/rfc2289). This password manager
 is made with following goals in mind:
 
-1. Passwords need to be memorable, secure and easy to type on any
-   keyboard.
+1. Passwords need to be memorable, secure and easy to type on any keyboard.
    
-   The passwords which are generated with LesS/KEY can be easy
-   momoized and used without the generator. Generate the passwords
-   only if you forgot a password, it reduces the number of times you
-   enter your master password dramatically.
+   The passwords which are generated with LesS/KEY can be easy momoized and used
+   without the generator. Generate the passwords only if you forgot a password,
+   it reduces the number of times you enter your master password dramatically.
 
 1. It should work every where.
 
-   In fact you even do not require this particular tool, but can use
-   any tool which is capable of generating S/Key SHA-1 passwords. So
-   you have the garantee, that you can generate the password also
-   without access to this particular tool. For most UNIX systems you
-   can install the `skey` or equivalent command, which also generate
-   exactly the same passwords.
+   In fact you even do not require this particular tool, but can use any tool
+   which is capable of generating S/Key SHA-1 passwords. So you have the
+   garantee, that you can generate the password also without access to this
+   particular tool. For most UNIX systems you can install the `skey` or
+   equivalent command, which also generate exactly the same passwords.
    
-1. You should be able to use it in a safe way even if the whole time
-   you generate a password some body look on your screen.
+1. You should be able to use it in a safe way even if the whole time you
+   generate a password some body look on your screen.
    
-   With LesS/KEY you can generate your passwords securely, also if
-   some body look on your screen and you are on a foreign PC. (do not
-   generate passwords on devices that you do not trust!)
+   With LesS/KEY you can generate your passwords securely, also if some body
+   look on your screen and you are on a foreign PC. (do not generate passwords
+   on devices that you do not trust!)
    
-1. It should work offline and should never send anything through
-   network.
+1. It should work offline and should never send anything through network.
    
-   Files from this repository and a browser are enought to use this
-   tool, you do not need to install something. It is also usable on
-   any smart phone or similar devices, also without permanent
-   connection to the internet.
+   Files from this repository and a browser are enought to use this tool, you do
+   not need to install something. It is also usable on any smart phone or
+   similar devices, also without permanent connection to the internet.
    
-1. It should not store anything anywhere and should be also usable on
-   foreign systems.
+1. It should not store anything anywhere and should be also usable on foreign
+   systems.
 
 Live Demo: https://ooke.github.io/sk/
+
+To use it in the shell, you can take the pure Python implementation here:
+https://github.com/ooke/lesskey/blob/master/lesskey.py
 
 # General use case
 
