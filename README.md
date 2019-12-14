@@ -35,7 +35,9 @@ is made with following goals in mind:
 1. It should not store anything anywhere and should be also usable on foreign
    systems.
 
-Live Demo: https://ooke.github.io/sk/
+Fully usable installation:
+
+https://ooke.github.io/sk/
 
 To use it in the shell, you can take the pure Python implementation here:
 
