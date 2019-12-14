@@ -340,8 +340,13 @@ function generate() {
         var secret_sha1_old = ""
             + binb2b64(core_sha1(str2binb(sname), NaN)) + ":"
             + binb2b64(core_sha1(str2binb(fmaster.value), NaN));
+        var is_stored_old = isStored(secret_sha1_old);
+        if (is_stored_old == 1) {
+            removeStored(secret_sha1_old);
+            storeItem(secret_sha1);
+        }
         var is_stored = isStored(secret_sha1);
-        if (is_stored == 0) is_stored = isStored(secret_sha1_old);
+        if (is_stored == 0) is_stored = is_stored_old;
         switch (is_stored) {
         case 0: document.getElementById('store').style.background = ''; break;
         case 1: document.getElementById('store').style.background = activated_background; break;
@@ -454,6 +459,9 @@ function button_store() {
         var secret_sha1 = ""
             + binb2b64(core_sha1(str2binb(sname), sname.length * 8)) + ":"
             + binb2b64(core_sha1(str2binb(fmaster.value), fmaster.value.length * 8));
+        var secret_sha1_old = ""
+            + binb2b64(core_sha1(str2binb(sname), NaN)) + ":"
+            + binb2b64(core_sha1(str2binb(fmaster.value), NaN));
         if (isStored(secret_sha1) == 1) {
             removeStored(secret_sha1);
         } else {
