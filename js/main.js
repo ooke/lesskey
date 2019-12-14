@@ -305,6 +305,7 @@ function generate() {
 
         var passkey = gen_otp_sha1(master, name, seq);
         var password = "";
+        var sname = "";
         switch (type) {
         case "R": password = prefixs + a_to_6word(passkey); break;
         case "U": password = prefixs + a_to_6word(passkey).toUpperCase(); break;
@@ -331,8 +332,10 @@ function generate() {
         }
         if (maxchars > 0) fpassword.value = password.replace(/ /g, '').substr(0, maxchars);
         else fpassword.value = password;
+        if (maxchars > 0) sname = prefixs + name + " " + maxchars + type + " " + seq;
+        else sname = prefixs + name + " " + type + " " + seq;
         var secret_sha1 = ""
-            + binb2b64(core_sha1(str2binb(fname.value), fname.length * 8)) + ":"
+            + binb2b64(core_sha1(str2binb(sname), sname.length * 8)) + ":"
             + binb2b64(core_sha1(str2binb(fmaster.value), fmaster.length * 8));
         switch (isStored(secret_sha1)) {
         case 0: document.getElementById('store').style.background = ''; break;
@@ -429,8 +432,22 @@ function button_store() {
     var store = document.getElementById('store');
     reset_timeout();
     if (fname.value != "" && fmaster.value != "") {
+        var re_name = /^\s*(\S+)(\s+([0-9]*)([rR]|[uU]|[uU][rR]|[uU][nNhHbB]|[nNhHbBdD]|[dD]))?(\s+([0-9]+))?(\s+[-]?\s*(.*))?\s*$/g;
+        var re_name2 = /^\s*((\S+)\s+)?(\S+)(\s+([0-9]*)([rR]|[uU]|[uU][rR]|[uU][nNhHbB]|[nNhHbB]))?(\s+([0-9]+))?(\s+[-]?\s*(.*))?\s*$/g;
+        var sname = "";
+        var ma_name = re_name.exec(fname.value);
+        if (ma_name != null) {
+            sname = ma_name[1] + ' ' + ma_name[4] + ' ' + ma_name[6];
+        } else {
+            ma_name = re_name2.exec(fname.value);
+            if (ma_name != null) {
+                sname = ma_name[2] + ' ' + ma_name[3] + ' ' + ma_name[5] + ma_name[6] + ' ' + ma_name[8];
+            } else {
+                sname = fname.value;
+            }
+        }
         var secret_sha1 = ""
-            + binb2b64(core_sha1(str2binb(fname.value), fname.length * 8)) + ":"
+            + binb2b64(core_sha1(str2binb(sname), fname.length * 8)) + ":"
             + binb2b64(core_sha1(str2binb(fmaster.value), fmaster.length * 8));
         if (isStored(secret_sha1) == 1) {
             removeStored(secret_sha1);
