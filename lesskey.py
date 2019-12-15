@@ -222,7 +222,7 @@ use the specified seed instead of the last one.
     sys.exit(1)
 
 clear_screen = False
-def lesskey(seed, master = None, logins = None):
+def lesskey(seed, master = None, logins = None, choose = False):
     global clear_screen
     if seed is None and logins is not None:
         counter = 1
@@ -234,14 +234,14 @@ def lesskey(seed, master = None, logins = None):
                 counter += 1
                 found_seeds[seedkey] = seed
                 print("%s: %s" % (seedkey, seed))
-            ma_seed = re.match(r'^[^ :]+:\s+[0-9]+\s+(.*)$', seed)
-            if ma_seed: seed = ma_seed.group(1)
-            print("using %s as seed" % repr(seed))
         if fd.returncode != 0:
             sys.stderr.write("ERROR: Failed to call command 'logins'!\n")
             sys.exit(0)
+        ma_seed = re.match(r'^[^ :]+:\s+[0-9]+\s+(.*)$', seed)
+        if ma_seed: seed = ma_seed.group(1)
     if seed is None:
-        seed = input('name> ')
+        try: seed = input('name> ')
+        except: print(""); sys.exit(1)
     while True:
         ma_seed = re.match(r'^\s*(\S+)(?:\s+([0-9]*)([rR]|[uU]|[uU][rR]|[uU][nNhHbB]|[nNhHbBdD]|[nN][dD]|[dD]))?(?:\s+([0-9]+))?\s*(?:[-]?\s*(.*)\s*)?$', seed)
         if ma_seed is None:
@@ -266,11 +266,11 @@ def lesskey(seed, master = None, logins = None):
         maxchars, seq = int(maxchars), int(seq)
         if maxchars < 0 or seq < 1: raise('maxchars or seq is smaller then 1')
     except Exception as err: usage('maxchars or seq is wrong %s: %s' % (repr((maxchars, seq)), repr(err)))
+    print("using %s as seed" % repr(seed))
     if master is None:
         try: master = getpass.getpass('master> ')
         except: print(""); sys.exit(1)
         if len(master) < 4 and re.match(r'^[0-9a-f]+$', master) and master in found_seeds:
-            print("using %s as seed" % repr(found_seeds[master]))
             return lesskey(found_seeds[master], logins = logins)
         elif master == 'n':
             return lesskey(None, master = None)
@@ -330,7 +330,8 @@ m - copy to Mac OS X paste board
 S - copy seed with all avaible methods
 q - clear screen and exit
 l - exit, don't clear screen
-n - next name in hierarchy
+n - next name in hierarchy (give next seed as optional argument)
+o - other seed with same master (give seed as optional argument)
 s - store password and name (as SHA1 checksum)
 d - delete stored name and password
 """)
@@ -338,6 +339,22 @@ d - delete stored name and password
         elif next_cmd == 'l': pass        
         elif next_cmd == 'n':
             return lesskey(None, master = passstr, logins = logins)
+        elif next_cmd.startswith('n '):
+            next_seed = next_cmd[2:].strip()
+            if next_seed != '' and next_seed not in found_seeds:
+                return lesskey(None, master = passstr, logins = next_seed)
+            elif next_seed in found_seeds:
+                return lesskey(found_seeds[next_seed], master = passstr, logins = logins)
+            return lesskey(None, master = passstr, logins = logins)
+        elif next_cmd == 'o':
+            return lesskey(None, master = master, logins = logins)
+        elif next_cmd.startswith('o '):
+            next_seed = next_cmd[2:].strip()
+            if next_seed != '' and next_seed not in found_seeds:
+                return lesskey(None, master = master, logins = next_seed)
+            elif next_seed in found_seeds:
+                return lesskey(found_seeds[next_seed], master = master, logins = logins)
+            return lesskey(None, master = master, logins = logins)
         elif next_cmd == 's':
             store(nseed, master)
             continue
