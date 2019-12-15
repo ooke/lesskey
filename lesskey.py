@@ -4,6 +4,7 @@ import hashlib, sys, getpass, re, time, os, base64, random
 from subprocess import Popen, PIPE
 
 storefile = os.path.expanduser('~/.lesskey')
+found_seeds = {}
 
 def sign(x):
     if x > 2147483647:
@@ -136,12 +137,11 @@ More information here: https://github.com/ooke/lesskey
 
 Command line arguments:
 -h|--help                  show this help
--l|--login <search term>   call 'logins <search term>' command and use output
-                           as seed text, this command should be written by user,
-                           f.e. it can be written as 'grep "$1" ~/.my_seeds'
+-l|--login <search term>   call 'logins <search term>' command for seed
 <seed>                     the seed to use as string
 
-Seed should be specified as follows:
+
+<seed> should be specified as a single string with following format:
   [prefix] <name> [length][mode] [seq]
 
 Samples:
@@ -181,19 +181,48 @@ will be added automatically.
 [seq]
   The S/Key sequence number, default is 99 and should only be changed if you
   really understand what you do.
+
+If <search term> is used, than a hardcoded script named 'logins' is used, to
+find stored seeds text, this command should be written by user, f.e. it can be
+written as follows:
+
+#!/bin/sh
+exec grep "$1" ~/.my_seeds
+
+In this mode the master also accepts the id of the found seeds to restart and
+use the specified seed instead of the last one.
 """)
     sys.exit(1)
 
-def lesskey(seed, master = None):
+clear_screen = False
+def lesskey(seed, master = None, logins = None):
+    global clear_screen
+    if seed is None and logins is not None:
+        counter = 1
+        with Popen(['logins', logins], stdout = PIPE) as fd:
+            print("output of the logins command:")
+            for line in fd.stdout:
+                seed = line.decode('utf-8').strip()
+                seedkey = hex(counter)[2:]
+                counter += 1
+                found_seeds[seedkey] = seed
+                print("%s: %s" % (seedkey, seed))
+            ma_seed = re.match(r'^[^ :]+:\s+[0-9]+\s+(.*)$', seed)
+            if ma_seed: seed = ma_seed.group(1)
+            print("using %s as seed" % repr(seed))
+        if fd.returncode != 0:
+            sys.stderr.write("ERROR: Failed to call command 'logins'!\n")
+            sys.exit(0)
     if seed is None:
         seed = input('name> ')
     while True:
-        ma_seed = re.match(r'^\s*(\S+)(?:\s+([0-9]*)([rR]|[uU]|[uU][rR]|[uU][nNhHbB]|[nNhHbBdD]|[nN][dD]|[dD]))?(?:\s+([0-9]+))?\s*(?:[-]\s*(.*)\s*)?$', seed)
+        ma_seed = re.match(r'^\s*(\S+)(?:\s+([0-9]*)([rR]|[uU]|[uU][rR]|[uU][nNhHbB]|[nNhHbBdD]|[nN][dD]|[dD]))?(?:\s+([0-9]+))?\s*(?:[-]?\s*(.*)\s*)?$', seed)
         if ma_seed is None:
-            ma_seed = re.match(r'^\s*(?:(\S+)\s+)?(\S+)(?:\s+([0-9]*)([rR]|[uU]|[uU][rR]|[uU][nNhHbB]|[nNhHbB]))?(?:\s+([0-9]+))?\s*$', seed)
+            ma_seed = re.match(r'^\s*(?:(\S+)\s+)?(\S+)(?:\s+([0-9]*)([rR]|[uU]|[uU][rR]|[uU][nNhHbB]|[nNhHbB]))?(?:\s+([0-9]+))?\s*(?:[-]?\s*(.*)\s*)?$', seed)
             if ma_seed is None:
                 print("seed can not be parsed: %s" % str(seed))
-                seed = input('new seed> ')
+                try: seed = input('new seed> ')
+                except: print(""); sys.exit(1)
                 continue
             prefix, name, maxchars, ntype, seq, desc = ma_seed.groups()
         else: prefix, name, maxchars, ntype, seq, desc = (None,) + ma_seed.groups()
@@ -210,7 +239,14 @@ def lesskey(seed, master = None):
         maxchars, seq = int(maxchars), int(seq)
         if maxchars < 0 or seq < 1: raise('maxchars or seq is smaller then 1')
     except Exception as err: usage('maxchars or seq is wrong %s: %s' % (repr((maxchars, seq)), repr(err)))
-    if master is None: master = getpass.getpass('master> ')
+    if master is None:
+        try: master = getpass.getpass('master> ')
+        except: print(""); sys.exit(1)
+        if len(master) < 4 and re.match(r'^[0-9a-f]+$', master) and master in found_seeds:
+            print("using %s as seed" % repr(found_seeds[master]))
+            return lesskey(found_seeds[master], logins = logins)
+        elif master == 'n':
+            return lesskey(None, master = None)
     if maxchars == 0: nmaxchars = ''
     else: nmaxchars = str(maxchars)
     if prefix is None:
@@ -253,7 +289,6 @@ def lesskey(seed, master = None):
         passstr = ''.join([str(x) for x in htodec(skey)])
         if maxchars > 0: passstr = passstr[:maxchars]
     print("password is generated, how you want to get it?")
-    clear_screen = False
     while True:
         try: next_cmd = input('command (? for help)> ')
         except: next_cmd = ''
@@ -271,7 +306,8 @@ d - delete stored name and password
 """)
             continue
         elif next_cmd == 'l': pass        
-        elif next_cmd == 'n': lesskey(None, master = passstr)
+        elif next_cmd == 'n':
+            return lesskey(None, master = passstr, logins = logins)
         elif next_cmd == 's':
             store(nseed, master)
             continue
@@ -557,18 +593,7 @@ WORDS = ["a",     "abe",   "ace",   "act",   "ad",    "ada",   "add",
 
 if len(sys.argv) > 1 and sys.argv[1] in ('-h', '--help'): usage()
 elif len(sys.argv) == 3 and sys.argv[1] in ('-l', '--logins'):
-    with Popen(['logins', sys.argv[2]], stdout = PIPE) as fd:
-        print("output of the logins command:")
-        for line in fd.stdout:
-            seed = line.decode('utf-8').strip()
-            print(seed)
-        ma_seed = re.match(r'^[^ :]+:\s+[0-9]+\s+(.*)$', seed)
-        if ma_seed: seed = ma_seed.group(1)
-        print("using %s as seed" % repr(seed))
-    if fd.returncode != 0:
-        sys.stderr.write("ERROR: Failed to call command 'logins'!\n")
-        sys.exit(0)
-    lesskey(seed, master = None)
+    lesskey(None, master = None, logins = sys.argv[2])
 elif len(sys.argv) == 1: lesskey(None, master = None)
 elif len(sys.argv) == 2: lesskey(sys.argv[1], master = None)
 else: usage()                 
