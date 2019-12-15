@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import hashlib, sys, getpass, re, time, os, base64, random
-from subprocess import Popen, PIPE
+from subprocess import run, Popen, PIPE, DEVNULL
 
 storefile = os.path.expanduser('~/.lesskey')
 found_seeds = {}
@@ -62,6 +62,33 @@ def htohex(h):
         for j in range(4):
             s.append("%02x" % h[i][j])
     return ''.join(s)
+
+def copy_mac(data, verbose = True, name = 'password'):
+    try:
+        with Popen(['pbcopy'], stdin = PIPE, stdout = DEVNULL, stderr = DEVNULL) as fd:
+            fd.stdin.write(data.encode('utf-8'))
+        print("%s copied to Mac OS X pasteboard" % name)
+    except:
+        if verbose:
+            print("failed to copy %s to Mac OS X pasteboard" % name)
+
+def copy_x11(data, verbose = True, name = 'password'):
+    try:
+        with Popen(['xclip'], stdin = PIPE, stdout = DEVNULL, stderr = DEVNULL) as fd:
+            fd.stdin.write(data.encode('utf-8'))
+        print("%s copied to X11 clipboard" % name)
+    except:
+        if verbose:
+            print("failed to copy %s to X11 clipboard" % name)
+
+def copy_tmux(data, verbose = True, name = 'password'):
+    try:
+        with Popen(['tmux', 'set-buffer', data], stdin = None, stderr = DEVNULL) as fd:
+            pass
+        print("%s copied to tmux buffer" % name)
+    except Exception as err:
+        if verbose:
+            print("failed to copy %s to tmux buffer" % name)
 
 def readstored():
     stored = set()
@@ -263,7 +290,8 @@ def lesskey(seed, master = None, logins = None):
     else: sstate = "unknown"
     if desc in (None, ''):
         desc = time.strftime('%Y-%m-%d')
-    print("seed (%s): %s %d %s" % (sstate, nseed, seq, desc))
+    full_seed = "%s %d %s" % (nseed, seq, desc)
+    print("seed (%s): %s" % (sstate, full_seed))
 
     skey = get_otp_sha1(master, name, seq)
     passstr = None
@@ -296,8 +324,10 @@ def lesskey(seed, master = None, logins = None):
             print("""Available commands next commands:
 
 p - print generated password
+t - copy to tmux buffer
 x - copy to X11 clipboard using xclip utility
 m - copy to Mac OS X paste board
+S - copy seed with all avaible methods
 q - clear screen and exit
 l - exit, don't clear screen
 n - next name in hierarchy
@@ -316,18 +346,18 @@ d - delete stored name and password
             print(passstr)
             continue
         elif next_cmd == 'm':
-            try:
-                with Popen(['pbcopy'], stdin = PIPE) as fd:
-                    fd.stdin.write(passstr.encode('utf-8'))
-                print("password copied to pasteboard")
-            except: print("failed to copy password to pasteboard")
+            copy_mac(passstr)
             continue
         elif next_cmd == 'x':
-            try:
-                with Popen(['xclip'], stdin = PIPE) as fd:
-                    fd.stdin.write(passstr.encode('utf-8'))
-                print("password copied to clipboard")
-            except: print("failed to copy password to clipboard")
+            copy_x11(passstr)
+            continue
+        elif next_cmd == 't':
+            copy_tmux(passstr)
+            continue
+        elif next_cmd == 'S':
+            copy_mac(full_seed, False, name = 'seed')
+            copy_x11(full_seed, False, name = 'seed')
+            copy_tmux(full_seed, False, name = 'seed')
             continue
         elif clear_screen:
             os.system('clear');
