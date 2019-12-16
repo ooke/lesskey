@@ -380,6 +380,7 @@ function button_show() {
     reset_timeout();
     if (fpassword.style.fontFamily == default_fontfamily
         || fmaster.style.fontFamily == default_fontfamily
+        || fmaster.type == "text"
         || ftest.style.fontFamily == default_fontfamily)
     {
         fmaster.style.fontFamily = secure_fontfamily;
@@ -405,7 +406,7 @@ function button_show_master() {
     var fpassword = document.getElementById("fpassword");
     var ftest = document.getElementById("ftest");
     reset_timeout();
-    if (fpassword.style.fontFamily == default_fontfamily || fmaster.style.fontFamily == default_fontfamily) {
+    if (fpassword.style.fontFamily == default_fontfamily || fmaster.style.fontFamily == default_fontfamily || fmaster.type == "text") {
         fmaster.style.fontFamily = secure_fontfamily;
         fmaster.type = "password";
         fpassword.style.fontFamily = secure_fontfamily;
