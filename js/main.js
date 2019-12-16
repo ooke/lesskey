@@ -226,7 +226,7 @@ function generate() {
     already_in_generate = true;
     try {
         changed();
-        var re_name = /^\s*(\S+)(\s+([0-9]*)([rR]|[uU]|[uU][rR]|[uU][nNhHbB]|[nNhHbBdD]|[dD])(\s+([0-9]+)(\s+[-]?\s*(.*))?)?)?\s*$/g;
+        var re_name = /^\s*(\S+)(\s+([0-9]*)([rR]|[uU]|[uU][rR]|[uU][nNhHbB]|[nNhHbBdD]|[dD]))?(\s+([0-9]+)(\s+[-]?\s*(.*))?)?\s*$/g;
         var fname = document.getElementById('fname');
         var fmaster = document.getElementById('fmaster');
         var fpassword = document.getElementById('fpassword');
@@ -261,7 +261,7 @@ function generate() {
             if (ma_name[6] != undefined) seq = parseInt(ma_name[6]);
             if (ma_name[8] != undefined) desc = ma_name[8];
         } else {
-            var re_name = /^\s*((\S+)\s+(\S+)(\s+([0-9]*)([rR]|[uU]|[uU][rR]|[uU][nNhHbB]|[nNhHbB])(\s+([0-9]+)(\s+[-]?\s*(.*))?)?)?)\s*$/g;
+            var re_name = /^\s*((\S+)\s+(\S+)(\s+([0-9]*)([rR]|[uU]|[uU][rR]|[uU][nNhHbB]|[nNhHbB]))?(\s+([0-9]+)(\s+[-]?\s*(.*))?)?)\s*$/g;
             var ma_name = re_name.exec(fname.value);
             if (ma_name != null) {
                 if (ma_name[2] != undefined) prefix = ma_name[2];

@@ -243,9 +243,9 @@ def lesskey(seed, master = None, logins = None, choose = False):
         try: seed = input('name> ')
         except: print(""); sys.exit(1)
     while True:
-        ma_seed = re.match(r'^\s*(\S+)(?:\s+([0-9]*)([rR]|[uU]|[uU][rR]|[uU][nNhHbB]|[nNhHbBdD]|[nN][dD]|[dD])(?:\s+([0-9]+)\s*(?:[-]?\s*(.*))?)?)?\s*$', seed)
+        ma_seed = re.match(r'^\s*(\S+)(?:\s+([0-9]*)([rR]|[uU]|[uU][rR]|[uU][nNhHbB]|[nNhHbBdD]|[nN][dD]|[dD]))?(?:\s+([0-9]+)\s*(?:[-]?\s*(.*))?)?\s*$', seed)
         if ma_seed is None:
-            ma_seed = re.match(r'^\s*(?:(\S+)\s+(\S+)(?:\s+([0-9]*)([rR]|[uU]|[uU][rR]|[uU][nNhHbB]|[nNhHbB])(?:\s+([0-9]+)\s*(?:[-]?\s*(.*))?)?)?)?\s*$', seed)
+            ma_seed = re.match(r'^\s*(?:(\S+)\s+(\S+)(?:\s+([0-9]*)([rR]|[uU]|[uU][rR]|[uU][nNhHbB]|[nNhHbB]))?(?:\s+([0-9]+)\s*(?:[-]?\s*(.*))?)?)?\s*$', seed)
             if ma_seed is None:
                 print("seed can not be parsed: %s" % str(seed))
                 try: seed = input('new seed> ')
