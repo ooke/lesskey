@@ -251,6 +251,7 @@ function generate() {
         ftest.value = "";
         document.getElementById("show").style.background = '';
         fmaster.style.fontFamily = secure_fontfamily;
+        fmaster.type = "password";
         fpassword.style.fontFamily = secure_fontfamily;
 
         if (ma_name != null) {
@@ -382,11 +383,13 @@ function button_show() {
         || ftest.style.fontFamily == default_fontfamily)
     {
         fmaster.style.fontFamily = secure_fontfamily;
+        fmaster.type = "password";
         fpassword.style.fontFamily = secure_fontfamily;
         ftest.style.fontFamily = secure_fontfamily;
         document.getElementById("show").style.background = '';
     } else if (lastfocus == "fmaster") {
         fmaster.style.fontFamily = default_fontfamily;
+        fmaster.type = "text";
         document.getElementById("show").style.background = activated_background;
     } else if (lastfocus == "fpassword") {
         fpassword.style.fontFamily = default_fontfamily;
@@ -404,11 +407,13 @@ function button_show_master() {
     reset_timeout();
     if (fpassword.style.fontFamily == default_fontfamily || fmaster.style.fontFamily == default_fontfamily) {
         fmaster.style.fontFamily = secure_fontfamily;
+        fmaster.type = "password";
         fpassword.style.fontFamily = secure_fontfamily;
         ftest.style.fontFamily = secure_fontfamily;
         document.getElementById("show").style.background = '';
     } else {
         fmaster.style.fontFamily = default_fontfamily;
+        fmaster.type = "text";
         document.getElementById("show").style.background = activated_background;
     }
 }
@@ -489,6 +494,7 @@ function testchanged() {
     var fpassword = document.getElementById("fpassword");
     var ftest = document.getElementById("ftest");
     fmaster.style.fontFamily = secure_fontfamily;
+    fmaster.type = "password";
     fpassword.style.fontFamily = secure_fontfamily;
     ftest.style.fontFamily = secure_fontfamily;
     document.getElementById("show").style.background = '';
