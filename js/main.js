@@ -454,8 +454,8 @@ function button_store() {
     var store = document.getElementById('store');
     reset_timeout();
     if (fname.value != "" && fmaster.value != "") {
-        var re_name = /^\s*(\S+)(\s+([0-9]*)([rR]|[uU]|[uU][rR]|[uU][nNhHbB]|[nNhHbBdD]|[dD]))?(\s+([0-9]+))?(\s+[-]?\s*(.*))?\s*$/g;
-        var re_name2 = /^\s*((\S+)\s+)?(\S+)(\s+([0-9]*)([rR]|[uU]|[uU][rR]|[uU][nNhHbB]|[nNhHbB]))?(\s+([0-9]+))?(\s+[-]?\s*(.*))?\s*$/g;
+        var re_name = /^\s*(\S+)(\s+([0-9]*)([rR]|[uU]|[uU][rR]|[uU][nNhHbB]|[nNhHbBdD]|[dD]))?(\s+([0-9]+)(\s+[-]?\s*(.*))?)?\s*$/g;
+        var re_name2 = /^\s*((\S+)\s+(\S+)(\s+([0-9]*)([rR]|[uU]|[uU][rR]|[uU][nNhHbB]|[nNhHbB]))?(\s+([0-9]+)(\s+[-]?\s*(.*))?)?)\s*$/g;
         var sname = "";
         var ma_name = re_name.exec(fname.value);
         if (ma_name != null) {
