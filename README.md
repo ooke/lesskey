@@ -5,7 +5,7 @@ S/Key system described in the
 [RFC2289](https://tools.ietf.org/html/rfc2289). This password manager
 is made with following goals in mind:
 
-1. Passwords need to be memorable, secure and easy to type on any keyboard.
+1. **Passwords need to be memorable, secure and easy to type on any keyboard.**
 
    The passwords which are generated with LesS/KEY can be easily memorized and
    used without the generator. Generate the passwords only if you forgot a
@@ -15,7 +15,7 @@ is made with following goals in mind:
    passwords with this password manager for years now and I memorized
    approximately 10 of often used used passwords.
 
-1. It should work everywhere.
+1. **It should work everywhere.**
 
    In fact, you even do not require this particular tool, but can use any tool
    which is capable of generating S/Key SHA-1 passwords. So you have the
@@ -23,21 +23,21 @@ is made with following goals in mind:
    particular tool. For most UNIX systems you can install the `skey` or
    equivalent command, which also generate exactly the same passwords.
    
-1. You should be able to use it in a safe way, even if the whole time you
-   generate a password somebody look on your screen.
+1. **You should be able to use it in a safe way, even if the whole time you
+   generate a password somebody look on your screen.**
    
    With LesS/KEY you can generate your passwords securely, also if somebody
    looks on your screen and you are on a foreign PC. (do not generate passwords
    on devices that you do not trust!)
    
-1. It should work offline and should never send anything through the network.
+1. **It should work offline and should never send anything through the network.**
    
    Files from this repository and a browser are enough to use this tool, you do
    not need to install something. It is also usable on any smart phone or
    similar devices, also without permanent connection to the internet.
    
-1. It should not store anything anywhere and should be also usable on foreign
-   systems.
+1. **It should not store anything anywhere and should be also usable on foreign
+   systems.**
    
    This password manager doesn't store your passwords or the names somewhere, so
    you should write your password names down and it is safe to do so, names have
@@ -54,7 +54,8 @@ https://github.com/ooke/lesskey/blob/master/lesskey.py
 
 On *BSD systems you could also just use `skey -t sha1 99 test3`, it is usually
 preinstalled, but does not support different modes. For some strange reason, on
-Linux systems it is no easy way to install this tool.
+Linux systems it is no easy way to install this tool, please use `lesskey.py`
+script from this repository instead.
 
 # General use case
 
@@ -122,12 +123,13 @@ name (`seed`). Typical usage:
      date, to know later the date I have generated the password on.
 
       
-1. Enter your master password and you can directly copy your generated password
-   from next field, after pressing enter or tab the generated password will be
-   selected and ready to copy to clipboard. If you click on the button `show`,
-   then the master password became visible. If the password was stored once, the
-   button `store` became light blue and if the password with this seed was
-   stored once, than it bacame green.
+1. Enter your master password, press enter and you can directly copy your
+   generated password from next field. After pressing enter or tab the generated
+   password will be selected and ready to copy to clipboard. If you click on the
+   button `show`, then the master password respective the generated password
+   became visible. If the password was stored once, the button `store` became
+   light blue and if the password with this seed was stored once, than it bacame
+   green.
 
 This password manager do not store any names or passwords and do not communicate
 with anything, all calculations are done within your browser. Common way is to
