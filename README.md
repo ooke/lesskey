@@ -6,42 +6,55 @@ S/Key system described in the
 is made with following goals in mind:
 
 1. Passwords need to be memorable, secure and easy to type on any keyboard.
-   
-   The passwords which are generated with LesS/KEY can be easy momoized and used
-   without the generator. Generate the passwords only if you forgot a password,
-   it reduces the number of times you enter your master password dramatically.
 
-1. It should work every where.
+   The passwords which are generated with LesS/KEY can be easily memorized and
+   used without the generator. Generate the passwords only if you forgot a
+   password, it reduces the number of times you enter your master password
+   dramatically. You also don't need to remember all of your passwords, remember
+   those you really use, for the rest use LesS/KEY. I have managed over 500
+   passwords with this password manager for years now and I memorized
+   approximately 10 of often used used passwords.
 
-   In fact you even do not require this particular tool, but can use any tool
+1. It should work everywhere.
+
+   In fact, you even do not require this particular tool, but can use any tool
    which is capable of generating S/Key SHA-1 passwords. So you have the
-   garantee, that you can generate the password also without access to this
+   guarantee, that you can generate the password also without access to this
    particular tool. For most UNIX systems you can install the `skey` or
    equivalent command, which also generate exactly the same passwords.
    
-1. You should be able to use it in a safe way even if the whole time you
-   generate a password some body look on your screen.
+1. You should be able to use it in a safe way, even if the whole time you
+   generate a password somebody look on your screen.
    
-   With LesS/KEY you can generate your passwords securely, also if some body
-   look on your screen and you are on a foreign PC. (do not generate passwords
+   With LesS/KEY you can generate your passwords securely, also if somebody
+   looks on your screen and you are on a foreign PC. (do not generate passwords
    on devices that you do not trust!)
    
-1. It should work offline and should never send anything through network.
+1. It should work offline and should never send anything through the network.
    
-   Files from this repository and a browser are enought to use this tool, you do
+   Files from this repository and a browser are enough to use this tool, you do
    not need to install something. It is also usable on any smart phone or
    similar devices, also without permanent connection to the internet.
    
 1. It should not store anything anywhere and should be also usable on foreign
    systems.
+   
+   This password manager doesn't store your passwords or the names somewhere, so
+   you should write your password names down and it is safe to do so, names have
+   no security value. You have here a store button, it stores the checksum of
+   your password name and the checksum of the master password in your
+   browser. If you use this feature, the system will show you whether you typed
+   an already used name or already used master password. It helps avoiding typos
+   in master passwords a lot.
 
-Fully usable installation:
+Fully usable installation: https://ooke.github.io/sk/
 
-https://ooke.github.io/sk/
-
-To use it in the shell, you can take the pure Python implementation here:
-
+To use it in a shell, you can take the Python implementation here: <br/>
 https://github.com/ooke/lesskey/blob/master/lesskey.py
+
+On *BSD systems you could also just use `skey -t sha1 99 test3`, it is usually
+preinstalled, but does not support different modes. For some strange reason, on
+Linux systems it is no easy way to install this tool.
 
 # General use case
 
@@ -50,7 +63,7 @@ password (`secret`) and you can generate a password based on a
 name (`seed`). Typical usage:
 
 1. Enter a name to the `seed` field, f.e. if you need a password for
-   Amazon, than enter `amazon` here. It is also possible to enter
+   Amazon, just type `amazon` there. It is also possible to enter
    `amazonXX` with any number of `X` after the name, in this case the
    system will replace all `X` characters with a random number with
    maximum number of digits equals to number of `X` entered. This is
@@ -59,7 +72,7 @@ name (`seed`). Typical usage:
    password. The format of the seed field is following:
 
    ```
-     [prefix] <name> [length][mode] [seq]
+     [prefix] <name> [length][mode] [seq] [desc]
    ```
    
    Samples:
@@ -102,6 +115,11 @@ name (`seed`). Typical usage:
    - `[seq]`
      The S/Key sequence number, default is 99 and should only be changed if you
      really understand what you do.
+     
+   - `[desc]`
+     Description of the name, if nothing entered, then the system will put the
+     current date in there automatically. I copy paste new names always with the
+     date, to know later the date I have generated the password on.
 
       
 1. Enter your master password and you can directly copy your generated password
