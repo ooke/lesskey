@@ -3,6 +3,7 @@
 import hashlib, sys, getpass, re, time, os, base64, random
 from subprocess import run, Popen, PIPE, DEVNULL
 
+sys.setrecursionlimit(99999)
 storefile = os.path.expanduser('~/.lesskey')
 found_seeds = {}
 
@@ -185,9 +186,11 @@ will be added automatically.
   Optional string which will be appended to the generated password as it
   is. This string is useful only to comply with meaningless policy rules.
 
-<name> The name to use for generating, all uppacase X characters at the end will
-  be replaced by a random number. Use the numbers to make the names more unique
-  and easier changable.
+<name> The name to use for generating, all uppercase X characters at the end
+  will be replaced by a random number. Use the numbers to make the names more
+  unique and easier changable. If the name contains one or several uppercase G
+  characters, then the system will generate passwords for all possible numbers
+  of the given length to choose from.
 
 [length]
   Length is optional and specifies maximal number of characters the password
@@ -222,7 +225,7 @@ use the specified seed instead of the last one.
     sys.exit(1)
 
 clear_screen = False
-def lesskey(seed, master = None, logins = None, choose = False):
+def lesskey(seed, master = None, logins = None, choose = False, generate = None):
     global clear_screen
     if seed is None and logins is not None:
         counter = 1
@@ -260,14 +263,20 @@ def lesskey(seed, master = None, logins = None, choose = False):
     if maxchars == '' or maxchars is None: maxchars = 0
     sa_xxx = re.search(r'(X+)$', name)
     if sa_xxx:
-        num = random.randint(0, 10**len(sa_xxx.group(1))-1)
+        num = random.randint(1, 10**len(sa_xxx.group(1))-1)
         name = re.sub(r'(X+)$', str(num), name)
+    sa_ggg = re.search(r'(G+)$', name)
+    ggg_maxnum = 0
+    if sa_ggg:
+        ggg_maxnum = 10**len(sa_ggg.group(1))-1
+        name = re.sub(r'(G+)$', '', name)
     name = name.lower(); ntype = ntype.upper()
     try:
         maxchars, seq = int(maxchars), int(seq)
         if maxchars < 0 or seq < 1: raise('maxchars or seq is smaller then 1')
     except Exception as err: usage('maxchars or seq is wrong %s: %s' % (repr((maxchars, seq)), repr(err)))
-    print("using %s as seed" % repr(seed))
+    if generate is None:
+        print("using %s as seed" % repr(seed))
     if master is None:
         try: master = getpass.getpass('master> ')
         except: print(""); sys.exit(1)
@@ -277,6 +286,11 @@ def lesskey(seed, master = None, logins = None, choose = False):
             return lesskey(None, master = None)
     if maxchars == 0: nmaxchars = ''
     else: nmaxchars = str(maxchars)
+
+    if ggg_maxnum > 0:
+        if generate is None:
+            generate = ggg_maxnum
+
     if prefix is None:
         nseed = "%s %s%s" % (name, nmaxchars, ntype)
     else: nseed = "%s %s %s%s" % (prefix, name, nmaxchars, ntype)
@@ -292,9 +306,12 @@ def lesskey(seed, master = None, logins = None, choose = False):
     if desc in (None, ''):
         desc = time.strftime('%Y-%m-%d')
     full_seed = "%s %d %s" % (nseed, seq, desc)
-    print("seed (%s): %s" % (sstate, full_seed))
+    if generate is None:
+        print("seed (%s): %s" % (sstate, full_seed))
 
-    skey = get_otp_sha1(master, name, seq)
+    if generate != None:
+        skey = get_otp_sha1(master, name + str(generate), seq)
+    else: skey = get_otp_sha1(master, name, seq)
     passstr = None
     if ntype in ('R', 'U', 'UR', 'N', 'UN'):
         passstr = ' '.join(htowords(skey))
@@ -317,6 +334,17 @@ def lesskey(seed, master = None, logins = None, choose = False):
     elif ntype == 'ND':
         passstr = ''.join([str(x) for x in htodec(skey)])
         if maxchars > 0: passstr = passstr[:maxchars]
+
+    if generate is not None:
+        if generate > 0:
+            if prefix is None: seedpref = ''
+            else: seedpref = '%s ' % prefix
+            gggseed = '%s%s%d %s%s %d' % (seedpref, name, generate, nmaxchars, ntype, seq)
+            print("% 2d/% 4d % 20s: %s" % (len(passstr), generate, gggseed, passstr))
+            return lesskey(full_seed, master, None, False, generate - 1)
+        if generate == 0:
+            return 0
+
     print("password is generated, how you want to get it?")
     while True:
         try: next_cmd = input('command (? for help)> ')
