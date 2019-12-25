@@ -237,8 +237,9 @@ def lesskey(seed, master = None, logins = None, choose = False):
         if fd.returncode != 0:
             sys.stderr.write("ERROR: Failed to call command 'logins'!\n")
             sys.exit(0)
-        ma_seed = re.match(r'^[^ :]+:\s+[0-9]+\s+(.*)$', seed)
-        if ma_seed: seed = ma_seed.group(1)
+        if seed is not None:
+            ma_seed = re.match(r'^[^ :]+:\s+[0-9]+\s+(.*)$', seed)
+            if ma_seed: seed = ma_seed.group(1)
     if seed is None:
         try: seed = input('name> ')
         except: print(""); sys.exit(1)
