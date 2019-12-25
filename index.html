@@ -53,15 +53,31 @@
           border: none;
           padding: 0;
       }
-      @media (max-width: 900px) {
+      @media (min-width: 1020px) {
           .finput {
-              font-size: 0.95em;
+              font-size: 1.4em;
+          }
+      }
+      @media (max-width: 1019px) and (min-width: 413px) {
+          .finput {
+              font-size: 1.3em;
+          }
+          .helppara {
+              font-size: 0.9em;
+          }
+          .fbutton {
+              font-size: 0.9em;
+          }
+      }
+      @media (max-width: 412px) {
+          .finput {
+              font-size: 1.3em;
           }
           .helppara {
               font-size: 0.7em;
           }
           .fbutton {
-              font-size: 0.85em;
+              font-size: 0.80em;
           }
       }
       .fbutton {
