@@ -150,56 +150,20 @@ class SKey(object):
                 s.append("%02x" % self._h[i][j])
         return ''.join(s)
 
-class LesSKEY(object):
-    def __init__(self, seed, uio, storage, master = None, logins = None, generate = None):
+class Seed(object):
+    def __init__(self, seed, generate = None):
         self._seed = seed
-        self._uio = uio
-        self._storage = storage
-        self._master = master
-        self._logins = logins
         self._generate = generate
-        self._clear_screen = False
-        self._found_seeds = {}
+        self._parse_seed()
 
-    def get_logins_seed(self):
-        if self._seed is None and self._logins is not None:
-            counter = 1
-            with Popen(['logins', self._logins], stdout = PIPE) as fd:
-                self._uio.output("output of the logins command:")
-                for line in fd.stdout:
-                    self._seed = line.decode('utf-8').strip()
-                    seedkey = hex(counter)[2:]
-                    counter += 1
-                    self._found_seeds[seedkey] = self._seed
-                    self._uio.output("%s: %s" % (seedkey, self._seed))
-            if fd.returncode != 0:
-                self._uio.output("ERROR: Failed to call command 'logins'!")
-                return False
-            if self._seed is not None:
-                ma_seed = re.match(r'^[^ :]+:\s+[0-9]+\s+(.*)$', self._seed)
-                if ma_seed: self._seed = ma_seed.group(1)
-        if self._seed is None:
-            try: self._seed = self._uio.input('name> ')
-            except:
-                self._uio.output("")
-                return False
-        return True
-
-    def parse_seed(self):
-        while True:
-            ma_seed = re.match(r'^\s*(\S+)(?:\s+([0-9]*)([rR]|[uU]|[uU][rR]|[uU][nNhHbB]|[nNhHbBdD]|[nN][dD]|[dD]))?(?:\s+([0-9]+)\s*(?:[-]?\s*(.*))?)?\s*$', self._seed)
+    def _parse_seed(self):
+        ma_seed = re.match(r'^\s*(\S+)(?:\s+([0-9]*)([rR]|[uU]|[uU][rR]|[uU][nNhHbB]|[nNhHbBdD]|[nN][dD]|[dD]))?(?:\s+([0-9]+)\s*(?:[-]?\s*(.*))?)?\s*$', self._seed)
+        if ma_seed is None:
+            ma_seed = re.match(r'^\s*(?:(\S+)\s+(\S+)(?:\s+([0-9]*)([rR]|[uU]|[uU][rR]|[uU][nNhHbB]|[nNhHbB]))?(?:\s+([0-9]+)\s*(?:[-]?\s*(.*))?)?)?\s*$', self._seed)
             if ma_seed is None:
-                ma_seed = re.match(r'^\s*(?:(\S+)\s+(\S+)(?:\s+([0-9]*)([rR]|[uU]|[uU][rR]|[uU][nNhHbB]|[nNhHbB]))?(?:\s+([0-9]+)\s*(?:[-]?\s*(.*))?)?)?\s*$', self._seed)
-                if ma_seed is None:
-                    self._uio.output("seed can not be parsed: %s" % str(self._seed))
-                    try: self._seed = self._uio.input('new seed> ')
-                    except:
-                        self._uio.output("")
-                        return False
-                    continue
-                prefix, name, maxchars, ntype, seq, desc = ma_seed.groups()
-            else: prefix, name, maxchars, ntype, seq, desc = (None,) + ma_seed.groups()
-            break
+                raise SyntaxError("seed can not be parsed: %s" % str(self._seed))
+            prefix, name, maxchars, ntype, seq, desc = ma_seed.groups()
+        else: prefix, name, maxchars, ntype, seq, desc = (None,) + ma_seed.groups()
         if ntype is None: ntype = 'R'
         if seq is None: seq = 99
         if maxchars == '' or maxchars is None: maxchars = 0
@@ -217,12 +181,7 @@ class LesSKEY(object):
             maxchars, seq = int(maxchars), int(seq)
             if maxchars < 0 or seq < 1: raise('maxchars or seq is smaller then 1')
         except Exception as err:
-            usage('maxchars or seq is wrong %s: %s' % (repr((maxchars, seq)), repr(err)))
-            return False
-        if self._generate is None:
-            self._uio.output("using %s as seed" % repr(self._seed))
-        if maxchars == 0: nmaxchars = ''
-        else: nmaxchars = str(maxchars)
+            raise SyntaxError('maxchars or seq is wrong %s: %s' % (repr((maxchars, seq)), repr(err)))
         if desc in (None, ''):
             desc = time.strftime('%Y-%m-%d')
         if ggg_maxnum > 0:
@@ -231,24 +190,69 @@ class LesSKEY(object):
         self._prefix = prefix
         self._name = name
         self._maxchars = maxchars
-        self._nmaxchars = nmaxchars
         self._ntype = ntype
         self._seq = seq
         self._desc = desc
+
+    def prefix(self): return self._prefix
+    def name(self): return self._name
+    def maxchars(self): return self._maxchars
+    def nmaxchars(self): return '' if self._maxchars == 0 else str(self._maxchars)
+    def ntype(self): return self._ntype
+    def seq(self): return self._seq
+    def desc(self): return self._desc
+    def generate(self): return self._generate
+
+    def short(self):
+        if self._prefix is None:
+            return "%s %s%s" % (self._name, self.nmaxchars(), self._ntype)
+        return "%s %s %s%s" % (self._prefix, self._name, self.nmaxchars(), self._ntype)
+
+    def regular(self):
+        return "%s %d" % (self.short(), self._seq)
+
+    def full(self):
+        return "%s %s" % (self.regular(), self._desc)
+        
+class LesSKEY(object):
+    def __init__(self, seed, uio, storage, master = None, logins = None, generate = None):
+        self._seed_str = seed
+        self._uio = uio
+        self._storage = storage
+        self._master = master
+        self._logins = logins
+        self._generate = generate
+        self._clear_screen = False
+        self._found_seeds = {}
+
+    def get_logins_seed(self):
+        if self._seed_str is None and self._logins is not None:
+            counter = 1
+            with Popen(['logins', self._logins], stdout = PIPE) as fd:
+                self._uio.output("output of the logins command:")
+                for line in fd.stdout:
+                    self._seed_str = line.decode('utf-8').strip()
+                    seedkey = hex(counter)[2:]
+                    counter += 1
+                    self._found_seeds[seedkey] = self._seed_str
+                    self._uio.output("%s: %s" % (seedkey, self._seed_str))
+            if fd.returncode != 0:
+                self._uio.output("ERROR: Failed to call command 'logins'!")
+                return False
+            if self._seed_str is not None:
+                ma_seed = re.match(r'^[^ :]+:\s+[0-9]+\s+(.*)$', self._seed_str)
+                if ma_seed: self._seed_str = ma_seed.group(1)
+        if self._seed_str is None:
+            try: self._seed_str = self._uio.input('name> ')
+            except:
+                self._uio.output("")
+                return False
         return True
 
-    def nseed(self):
-        if self._prefix is None:
-            return "%s %s%s" % (self._name, self._nmaxchars, self._ntype)
-        return "%s %s %s%s" % (self._prefix, self._name, self._nmaxchars, self._ntype)
-
-    def full_seed(self):
-        return "%s %d %s" % (self.nseed(), self._seq, self._desc)
-
     def storage_state(self):
-        sseed = hashlib.sha1(self.nseed().encode('utf-8')).hexdigest()
+        sseed = hashlib.sha1(self._seed.short().encode('utf-8')).hexdigest()
         smaster = hashlib.sha1(self._master.encode('utf-8')).hexdigest()
-        sseedmaster = hashlib.sha1((self.nseed() + self._master).encode('utf-8')).hexdigest()
+        sseedmaster = hashlib.sha1((self._seed.short() + self._master).encode('utf-8')).hexdigest()
         with self._storage as stored:
             if sseedmaster in stored: sstate = "correct"
             elif sseed in stored and smaster in stored: sstate = "incorrect"
@@ -258,40 +262,40 @@ class LesSKEY(object):
         return sstate
 
     def passstr(self):
-        skey = SKey(self._master, self._name, self._seq)
+        skey = SKey(self._master, self._seed.name(), self._seed.seq())
         passstr = None
-        if self._ntype in ('R', 'U', 'UR', 'N', 'UN'):
+        if self._seed.ntype() in ('R', 'U', 'UR', 'N', 'UN'):
             passstr = ' '.join(skey.towords())
-            if self._prefix is not None: passstr = self._prefix + ' ' + passstr
-            if self._ntype in ('U', 'UR', 'UN'): passstr = passstr.upper()
-            if self._maxchars > 0: passstr = passstr.replace(' ', '')[:self._maxchars]
-            if self._ntype in ('N', 'UN'): passstr = passstr.replace(' ', '-')
-        elif self._ntype in ('B', 'UB'):
+            if self._seed.prefix() is not None: passstr = self._seed.prefix() + ' ' + passstr
+            if self._seed.ntype() in ('U', 'UR', 'UN'): passstr = passstr.upper()
+            if self._seed.maxchars() > 0: passstr = passstr.replace(' ', '')[:self._seed.maxchars()]
+            if self._seed.ntype() in ('N', 'UN'): passstr = passstr.replace(' ', '-')
+        elif self._seed.ntype() in ('B', 'UB'):
             passstr = skey.tob64()
-            if self._prefix is not None: passstr = self._prefix + passstr
-            if self._ntype == 'UB': passstr = passstr.upper()
-            if self._maxchars > 0: passstr = passstr[:self._maxchars]
-        elif self._ntype in ('H', 'UH'):
+            if self._seed.prefix() is not None: passstr = self._seed.prefix() + passstr
+            if self._seed.ntype() == 'UB': passstr = passstr.upper()
+            if self._seed.maxchars() > 0: passstr = passstr[:self._seed.maxchars()]
+        elif self._seed.ntype() in ('H', 'UH'):
             passstr = skey.tohex()
-            if self._prefix is not None: passstr = self._prefix + passstr
-            if self._ntype == 'UH': passstr = passstr.upper()
-            if self._maxchars > 0: passstr = passstr[:self._maxchars]
-        elif self._ntype == 'D':
+            if self._seed.prefix() is not None: passstr = self._seed.prefix() + passstr
+            if self._seed.ntype() == 'UH': passstr = passstr.upper()
+            if self._seed.maxchars() > 0: passstr = passstr[:self._seed.maxchars()]
+        elif self._seed.ntype() == 'D':
             passstr = ' '.join([str(x) for x in skey.todec()])
-            if self._maxchars > 0: passstr = passstr.replace(' ', '')[:self._maxchars]
-        elif self._ntype == 'ND':
+            if self._seed.maxchars() > 0: passstr = passstr.replace(' ', '')[:self._seed.maxchars()]
+        elif self._seed.ntype() == 'ND':
             passstr = ''.join([str(x) for x in skey.todec()])
-            if self._maxchars > 0: passstr = passstr[:self._maxchars]
+            if self._seed.maxchars() > 0: passstr = passstr[:self._seed.maxchars()]
         return passstr
 
     def genarate(self):
-        if self._generate > 0:
-            if self._prefix is None: seedpref = ''
+        if self._seed.generate() > 0:
+            if self._seed.prefix() is None: seedpref = ''
             else: seedpref = '%s ' % prefix
-            gggseed = '%s%s%d %s%s %d' % (seedpref, self._name, self._generate, self._nmaxchars, self._ntype, self._seq)
+            gggseed = '%s%s%d %s%s %d' % (seedpref, self._name, self._seed.generate(), self._nmaxchars, self._ntype, self._seq)
             passstring = self.passstr()
-            self._uio.output("% 2d/% 4d % 20s: %s" % (len(passstring), self._generate, gggseed, passstring))
-            return LesSKEY(self.full_seed(), uio, storage, master = self._master, logins = None, generate = self._generate - 1)
+            self._uio.output("% 2d/% 4d % 20s: %s" % (len(passstring), self._seed.generate(), gggseed, passstring))
+            return LesSKEY(self._seed.full(), uio, storage, master = self._master, logins = None, generate = self._seed.generate() - 1)
         return None
 
     def initialize_master(self):
@@ -305,15 +309,27 @@ class LesSKEY(object):
         return None
 
     def __call__(self):
-        if not self.get_logins_seed(): return None
-        if not self.parse_seed(): return None
+        if not self.get_logins_seed():
+            return None
+        while True:
+            try:
+                self._seed = Seed(self._seed_str, self._generate)
+                break
+            except SyntaxError as err:
+                self._io.output('failed to parse seed: %s' % err.msg)
+                try: self._seed_str = self._uio.input('new seed> ')
+                except:
+                    self._uio.output("")
+                    return None
+        if self._seed.generate() is None:
+            self._uio.output("using %s as seed" % repr(self._seed.regular()))
         next_master = self.initialize_master()
         if next_master is not None:
             return next_master
-        if self._generate is not None:
+        if self._seed.generate() is not None:
             return self.generate()
 
-        self._uio.output("seed (%s): %s" % (self.storage_state(), self.full_seed()))
+        self._uio.output("seed (%s): %s" % (self.storage_state(), self._seed.full()))
         self._uio.output("password is generated, how you want to get it?")
         while True:
             try: next_cmd = self._uio.input('command (? for help)> ')
@@ -354,10 +370,10 @@ d - delete stored name and password
                     return LesSKEY(self._found_seeds[next_seed], uio, storage, master = self._master, logins = self._logins)
                 return LesSKEY(None, uio, storage, master = self._master, logins = self._logins)
             elif next_cmd == 's':
-                self._storage.store(self.nseed(), self._master)
+                self._storage.store(self._seed.short(), self._master)
                 continue
             elif next_cmd == 'd':
-                self._storage.delete(self.nseed(), self._master)
+                self._storage.delete(self._seed.short(), self._master)
                 continue
             elif next_cmd == 'p':
                 self._clear_screen = True
@@ -373,9 +389,10 @@ d - delete stored name and password
                 self._uio.copy_tmux(self.passstr())
                 continue
             elif next_cmd == 'S':
-                self._uio.copy_mac(self.full_seed(), name = 'seed')
-                self._uio.copy_x11(self.full_seed(), name = 'seed')
-                self._uio.copy_tmux(self.full_seed(), name = 'seed')
+                full_seed = self._seed.full()
+                self._uio.copy_mac(full_seed, name = 'seed')
+                self._uio.copy_x11(full_seed, name = 'seed')
+                self._uio.copy_tmux(full_seed, name = 'seed')
                 continue
             elif self._clear_screen:
                 self._uio.clear()
