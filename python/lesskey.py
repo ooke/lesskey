@@ -52,6 +52,48 @@ class UserIO(object):
             if verbose:
                 self.output("failed to copy %s to tmux buffer" % name)
 
+class Storage(object):
+    def __init__(self, storefile):
+        self._storefile = storefile
+        
+    def _readstored(self):
+        stored = set()
+        try:
+            with open(self._storefile, 'rb') as fd:
+                for line in fd:
+                    line = line.decode('utf-8').strip()
+                    if line == '': continue
+                    stored.add(line)
+        except: pass
+        return stored
+
+    def store(self, nseed, master):
+        stored = self._readstored()
+        stored.add(hashlib.sha1(nseed.encode('utf-8')).hexdigest())
+        stored.add(hashlib.sha1(master.encode('utf-8')).hexdigest())
+        stored.add(hashlib.sha1((nseed + master).encode('utf-8')).hexdigest())
+        with open(self._storefile + ".tmp", 'wb') as fd:
+            for cksum in stored:
+                fd.write(("%s\n" % cksum).encode('utf-8'))
+        os.rename(self._storefile + ".tmp", self._storefile)
+
+    def delete(self, nseed, master):
+        stored = self._readstored()
+        try: stored.remove(hashlib.sha1(nseed.encode('utf-8')).hexdigest())
+        except: pass
+        try: stored.remove(hashlib.sha1(master.encode('utf-8')).hexdigest())
+        except: pass
+        try: stored.remove(hashlib.sha1((nseed + master).encode('utf-8')).hexdigest())
+        except: pass
+        with open(self._storefile + ".tmp", 'w') as fd:
+            for cksum in stored:
+                fd.write("%s\n" % cksum)
+        os.rename(self._storefile + ".tmp", self._storefile)
+
+    def __enter__(self):
+        return self._readstored()
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        pass
     
 def sign(x):
     if x > 2147483647:
@@ -110,40 +152,6 @@ def htohex(h):
             s.append("%02x" % h[i][j])
     return ''.join(s)
 
-def readstored():
-    stored = set()
-    try:
-        with open(storefile, 'rb') as fd:
-            for line in fd:
-                line = line.decode('utf-8').strip()
-                if line == '': continue
-                stored.add(line)
-    except: pass
-    return stored
-
-def store(nseed, master):
-    stored = readstored()
-    stored.add(hashlib.sha1(nseed.encode('utf-8')).hexdigest())
-    stored.add(hashlib.sha1(master.encode('utf-8')).hexdigest())
-    stored.add(hashlib.sha1((nseed + master).encode('utf-8')).hexdigest())
-    with open(storefile + ".tmp", 'wb') as fd:
-        for cksum in stored:
-            fd.write(("%s\n" % cksum).encode('utf-8'))
-    os.rename(storefile + ".tmp", storefile)
-
-def delete(nseed, master):
-    stored = readstored()
-    try: stored.remove(hashlib.sha1(nseed.encode('utf-8')).hexdigest())
-    except: pass
-    try: stored.remove(hashlib.sha1(master.encode('utf-8')).hexdigest())
-    except: pass
-    try: stored.remove(hashlib.sha1((nseed + master).encode('utf-8')).hexdigest())
-    except: pass
-    with open(storefile + ".tmp", 'w') as fd:
-        for cksum in stored:
-            fd.write("%s\n" % cksum)
-    os.rename(storefile + ".tmp", storefile)
-    
 def usage(msg = None):
     if msg is not None:
         sys.stderr.write('ERROR: %s\n\n' % msg)
@@ -244,7 +252,7 @@ use the specified seed instead of the last one.
     sys.exit(1)
 
 clear_screen = False
-def lesskey(seed, uio, master = None, logins = None, choose = False, generate = None):
+def lesskey(seed, uio, storage, master = None, logins = None, choose = False, generate = None):
     global clear_screen
     if seed is None and logins is not None:
         counter = 1
@@ -313,15 +321,15 @@ def lesskey(seed, uio, master = None, logins = None, choose = False, generate = 
     if prefix is None:
         nseed = "%s %s%s" % (name, nmaxchars, ntype)
     else: nseed = "%s %s %s%s" % (prefix, name, nmaxchars, ntype)
-    stored = readstored()
     sseed = hashlib.sha1(nseed.encode('utf-8')).hexdigest()
     smaster = hashlib.sha1(master.encode('utf-8')).hexdigest()
     sseedmaster = hashlib.sha1((nseed + master).encode('utf-8')).hexdigest()
-    if sseedmaster in stored: sstate = "correct"
-    elif sseed in stored and smaster in stored: sstate = "incorrect"
-    elif sseed in stored: sstate = "known seed"
-    elif smaster in stored: sstate = "known password"
-    else: sstate = "unknown"
+    with storage as stored:
+        if sseedmaster in stored: sstate = "correct"
+        elif sseed in stored and smaster in stored: sstate = "incorrect"
+        elif sseed in stored: sstate = "known seed"
+        elif smaster in stored: sstate = "known password"
+        else: sstate = "unknown"
     if desc in (None, ''):
         desc = time.strftime('%Y-%m-%d')
     full_seed = "%s %d %s" % (nseed, seq, desc)
@@ -405,7 +413,10 @@ d - delete stored name and password
                 return lesskey(found_seeds[next_seed], master = master, logins = logins)
             return lesskey(None, master = master, logins = logins)
         elif next_cmd == 's':
-            store(nseed, master)
+            storage.store(nseed, master)
+            continue
+        elif next_cmd == 'd':
+            storage.delete(nseed, master)
             continue
         elif next_cmd == 'p':
             clear_screen = True
@@ -689,9 +700,10 @@ WORDS = ["a",     "abe",   "ace",   "act",   "ad",    "ada",   "add",
 
 if __name__ == '__main__':
     uio = UserIO()
+    storage = Storage(storefile)
     if len(sys.argv) > 1 and sys.argv[1] in ('-h', '--help'): usage()
     elif len(sys.argv) == 3 and sys.argv[1] in ('-l', '--logins'):
-        lesskey(None, uio, master = None, logins = sys.argv[2])
-    elif len(sys.argv) == 1: lesskey(None, uio, master = None)
-    elif len(sys.argv) == 2: lesskey(sys.argv[1], uio, master = None)
+        lesskey(None, uio, storage, master = None, logins = sys.argv[2])
+    elif len(sys.argv) == 1: lesskey(None, uio, storage, master = None)
+    elif len(sys.argv) == 2: lesskey(sys.argv[1], uio, storage, master = None)
     else: usage()                 

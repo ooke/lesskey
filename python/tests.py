@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
-import lesskey
-import unittest
+import lesskey, unittest, hashlib
 
 class TestUIO(lesskey.UserIO):
     def __init__(self, verbose = False):
@@ -41,16 +40,38 @@ class TestUIO(lesskey.UserIO):
     def pop(self):
         return self.output_data.pop()
 
+class Storage(lesskey.Storage):
+    def __init__(self):
+        super().__init__('/nonexistent')
+        self.stored = set()
+    def store(self, nseed, master):
+        self.stored.add(hashlib.sha1(nseed.encode('utf-8')).hexdigest())
+        self.stored.add(hashlib.sha1(master.encode('utf-8')).hexdigest())
+        self.stored.add(hashlib.sha1((nseed + master).encode('utf-8')).hexdigest())
+    def delete(self, nseed, master):
+        try: self.stored.remove(hashlib.sha1(nseed.encode('utf-8')).hexdigest())
+        except: pass
+        try: self.stored.remove(hashlib.sha1(master.encode('utf-8')).hexdigest())
+        except: pass
+        try: self.stored.remove(hashlib.sha1((nseed + master).encode('utf-8')).hexdigest())
+        except: pass
+    def __enter__(self):
+        return self.stored
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        pass
+
 class TestLesskey(unittest.TestCase):
-    def _regularTest(self, seed, seed2, result, callback = None):
+    def _regularTest(self, seed, seed2, result, callback = None, store = None, seed_state = 'unknown', password = 'mypasswd1'):
         uio = TestUIO()
-        uio.push('mypasswd1', password = True)
+        if store is None:
+            store = Storage()
+        uio.push(password, password = True)
         uio.push('p')
         if callback:
             callback(uio)
-        lesskey.lesskey(seed, uio)
+        lesskey.lesskey(seed, uio, store)
         self.assertEqual(uio.pop(), "using '%s' as seed" % seed)
-        self.assertRegex(uio.pop(), r"seed \(unknown\): %s .*" % seed2)
+        self.assertRegex(uio.pop(), r"seed \(%s\): %s .*" % (seed_state, seed2))
         self.assertEqual(uio.pop(), "password is generated, how you want to get it?")
         self.assertEqual(uio.pop(), result)
         self.assertEqual(uio.pop(), None)
@@ -101,6 +122,33 @@ class TestLesskey(unittest.TestCase):
         self.assertEqual(uio.clipboard, {'mac': ('#P3 test R 99 comment', 'seed'),
                                          'x11': ('#P3 test R 99 comment', 'seed'),
                                          'tmux': ('#P3 test R 99 comment', 'seed')})
+
+    def test_storage(self):
+        store = Storage()
+        self._regularTest('test R 99', 'test R 99', 'cork buck neon lock ross abe',
+                          callback = lambda uio: uio.push('s'),
+                          store = store, seed_state = 'unknown')
+        self._regularTest('test R 99', 'test R 99', 'cork buck neon lock ross abe',
+                          store = store, seed_state = 'correct')
+        self._regularTest('test R 99', 'test R 99', 'comb took been swat muff fund',
+                          password = 'myotherpasswd',
+                          store = store, seed_state = 'known seed')
+        self._regularTest('test2 R 99', 'test2 R 99', 'bawd kick oral ames beer find',
+                          store = store, seed_state = 'known password')
+        self._regularTest('test3 R 99', 'test3 R 99', 'alp swam swan kent grey tow',
+                          callback = lambda uio: uio.push('s'),
+                          password = 'mywrongpassword1',
+                          store = store, seed_state = 'unknown')
+        self._regularTest('test R 99', 'test R 99', 'kurd bury aura bits alia bane',
+                          password = 'mywrongpassword1',
+                          store = store, seed_state = 'incorrect')
+        self._regularTest('test3 R 99', 'test3 R 99', 'alp swam swan kent grey tow',
+                          callback = lambda uio: uio.push('d'),
+                          password = 'mywrongpassword1',
+                          store = store, seed_state = 'correct')
+        self._regularTest('test3 R 99', 'test3 R 99', 'alp swam swan kent grey tow',
+                          password = 'mywrongpassword1',
+                          store = store, seed_state = 'unknown')
         
 if __name__ == '__main__':
     unittest.main()
