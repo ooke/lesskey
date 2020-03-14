@@ -334,23 +334,8 @@ class LesSKEY(object):
         while True:
             try: next_cmd = self._uio.input('command (? for help)> ')
             except: next_cmd = ''
-            if next_cmd == '?':
-                self._uio.output("""Available commands next commands:
-
-p - print generated password
-t - copy to tmux buffer
-x - copy to X11 clipboard using xclip utility
-m - copy to Mac OS X paste board
-S - copy seed with all avaible methods
-q - clear screen and exit
-l - exit, don't clear screen
-n - next name in hierarchy (give next seed as optional argument)
-o - other seed with same master (give seed as optional argument)
-s - store password and name (as SHA1 checksum)
-d - delete stored name and password
-""")
-                continue
-            elif next_cmd == 'l': pass
+            if next_cmd == 'l':
+                break
             elif next_cmd == 'n':
                 return LesSKEY(None, uio, storage, master = self.passstr(), logins = self._logins)
             elif next_cmd.startswith('n '):
@@ -362,6 +347,8 @@ d - delete stored name and password
                 return LesSKEY(None, uio, storage, master = self.passstr(), logins = self._logins)
             elif next_cmd == 'o':
                 return LesSKEY(None, uio, storage, master = self._master, logins = self._logins)
+            elif next_cmd == 'r':
+                return LesSKEY(self._seed.full(), uio, storage, master = None, logins = self._logins)
             elif next_cmd.startswith('o '):
                 next_seed = next_cmd[2:].strip()
                 if next_seed != '' and next_seed not in self._found_seeds:
@@ -371,32 +358,42 @@ d - delete stored name and password
                 return LesSKEY(None, uio, storage, master = self._master, logins = self._logins)
             elif next_cmd == 's':
                 self._storage.store(self._seed.short(), self._master)
-                continue
             elif next_cmd == 'd':
                 self._storage.delete(self._seed.short(), self._master)
-                continue
             elif next_cmd == 'p':
                 self._clear_screen = True
                 self._uio.output(self.passstr())
-                continue
             elif next_cmd == 'm':
                 self._uio.copy_mac(self.passstr())
-                continue
             elif next_cmd == 'x':
                 self._uio.copy_x11(self.passstr())
-                continue
             elif next_cmd == 't':
                 self._uio.copy_tmux(self.passstr())
-                continue
             elif next_cmd == 'S':
                 full_seed = self._seed.full()
                 self._uio.copy_mac(full_seed, name = 'seed')
                 self._uio.copy_x11(full_seed, name = 'seed')
                 self._uio.copy_tmux(full_seed, name = 'seed')
-                continue
-            elif self._clear_screen:
-                self._uio.clear()
-            break
+            elif next_cmd == 'q':
+                if self._clear_screen:
+                    self._uio.clear()
+                break
+            else:
+                self._uio.output("""
+Available commands next commands:
+p - print generated password
+t - copy to tmux buffer
+x - copy to X11 clipboard using xclip utility
+m - copy to Mac OS X paste board
+S - copy seed with all avaible methods
+q - clear screen and exit
+l - exit, don't clear screen
+n - next name in hierarchy (give next seed as optional argument)
+o - other seed with same master (give seed as optional argument)
+r - retype master with current seed
+s - store password and name (as SHA1 checksum)
+d - delete stored name and password
+""")
         return None
 
 def usage(msg = None):

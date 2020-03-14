@@ -60,6 +60,20 @@ class Storage(lesskey.Storage):
     def __exit__(self, exc_type, exc_val, exc_tb):
         pass
 
+class TestSeed(unittest.TestCase):
+    def test_parser(self):
+        self.assertEqual(lesskey.Seed('test').regular(), 'test R 99')
+        self.assertEqual(lesskey.Seed('#P0 test').regular(), '#P0 test R 99')
+        self.assertEqual(lesskey.Seed('#P0 test R 99').regular(), '#P0 test R 99')
+        self.assertEqual(lesskey.Seed('#P0 test R 98').regular(), '#P0 test R 98')
+        self.assertEqual(lesskey.Seed('#P0 test 5R 98').regular(), '#P0 test 5R 98')
+        self.assertEqual(lesskey.Seed('test UR 98').regular(), 'test UR 98')
+        self.assertEqual(lesskey.Seed('test UR').regular(), 'test UR 99')
+        self.assertEqual(lesskey.Seed('test D').regular(), 'test D 99')
+        self.assertEqual(lesskey.Seed('test 4D').regular(), 'test 4D 99')
+        self.assertEqual(lesskey.Seed('test R 99 comment').full(), 'test R 99 comment')
+        self.assertEqual(lesskey.Seed('test N 99 comment').full(), 'test N 99 comment')
+
 class TestLesskey(unittest.TestCase):
     def _regularTest(self, seed, seed2, result, callback = None, store = None, seed_state = 'unknown', password = 'mypasswd1'):
         uio = TestUIO()
@@ -69,6 +83,7 @@ class TestLesskey(unittest.TestCase):
         uio.push('p')
         if callback:
             callback(uio)
+        uio.push('q')
         lk = lesskey.LesSKEY(seed, uio, store)
         while lk is not None:
             lk = lk()
