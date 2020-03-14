@@ -116,7 +116,7 @@ class SKey(object):
         x = [int.from_bytes(x[0], 'little'), int.from_bytes(x[1], 'little')]
         return [int.to_bytes(x[0], 4, 'big'), int.to_bytes(x[1], 4, 'big')]
 
-    def htob64(self):
+    def tob64(self):
         h = [int.from_bytes(x, 'big') for x in self._h]
         s = []
         for i in range(2):
@@ -126,7 +126,7 @@ class SKey(object):
         s = b"".join(s)
         return base64.b64encode(s).decode('utf-8').replace('=', '').strip()
 
-    def htodec(self):
+    def todec(self):
         h = [int.from_bytes(x, 'big') for x in self._h]
         parity = 0
         for i in range(2):
@@ -141,10 +141,10 @@ class SKey(object):
         s.append(((h[1] >> 16) & 0x1) << 10 | ((h[1] >> 24) & 0xff) << 2 | (parity & 0x03))
         return s
 
-    def htowords(self):
-        return [WORDS[n] for n in self.htodec()]
+    def towords(self):
+        return [WORDS[n] for n in self.todec()]
 
-    def htohex(self):
+    def tohex(self):
         s = []
         for i in range(2):
             for j in range(4):
@@ -241,26 +241,26 @@ def lesskey(seed, uio, storage, master = None, logins = None, choose = False, ge
     else: skey = SKey(master, name, seq)
     passstr = None
     if ntype in ('R', 'U', 'UR', 'N', 'UN'):
-        passstr = ' '.join(skey.htowords())
+        passstr = ' '.join(skey.towords())
         if prefix is not None: passstr = prefix + ' ' + passstr
         if ntype in ('U', 'UR', 'UN'): passstr = passstr.upper()
         if maxchars > 0: passstr = passstr.replace(' ', '')[:maxchars]
         if ntype in ('N', 'UN'): passstr = passstr.replace(' ', '-')
     elif ntype in ('B', 'UB'):
-        passstr = skey.htob64()
+        passstr = skey.tob64()
         if prefix is not None: passstr = prefix + passstr
         if ntype == 'UB': passstr = passstr.upper()
         if maxchars > 0: passstr = passstr[:maxchars]
     elif ntype in ('H', 'UH'):
-        passstr = skey.htohex()
+        passstr = skey.tohex()
         if prefix is not None: passstr = prefix + passstr
         if ntype == 'UH': passstr = passstr.upper()
         if maxchars > 0: passstr = passstr[:maxchars]
     elif ntype == 'D':
-        passstr = ' '.join([str(x) for x in skey.htodec()])
+        passstr = ' '.join([str(x) for x in skey.todec()])
         if maxchars > 0: passstr = passstr.replace(' ', '')[:maxchars]
     elif ntype == 'ND':
-        passstr = ''.join([str(x) for x in skey.htodec()])
+        passstr = ''.join([str(x) for x in skey.todec()])
         if maxchars > 0: passstr = passstr[:maxchars]
 
     if generate is not None:
