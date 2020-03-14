@@ -76,7 +76,7 @@ class TestSeed(unittest.TestCase):
         self.assertEqual(lesskey.Seed('testGG N 99 comment').full(plain = True), 'test N 99 comment')
         self.assertEqual(lesskey.Seed('testGG N 99 comment').full(plain = False), 'test99 N 99 comment')
         self.assertEqual(lesskey.Seed('testGGG N 99 comment').full(plain = False), 'test999 N 99 comment')
-        self.assertRegex(lesskey.Seed('testXXX N 99 comment').full(plain = False), 'test[0-9]{3,3} N 99 comment')
+        self.assertRegex(lesskey.Seed('testXXX N 99 comment').full(plain = False), 'test[0-9]{1,3} N 99 comment')
 
 class TestLesskey(unittest.TestCase):
     def _regularTest(self, seed, seed2, result, callback = None, store = None, seed_state = 'unknown', password = 'mypasswd1'):
