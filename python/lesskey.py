@@ -7,6 +7,52 @@ sys.setrecursionlimit(99999)
 storefile = os.path.expanduser('~/.lesskey')
 found_seeds = {}
 
+class UserIO(object):
+    def __init__(self):
+        pass
+
+    def clear(self):
+        os.system('clear');
+
+    def output(self, data):
+        print(data)
+
+    def input(self, prompt, password = False):
+        if password:
+            return getpass.getpass(prompt)
+        return input(prompt)
+
+    def copy_mac(self, data, verbose = True, name = 'password'):
+        try:
+            with Popen(['pbcopy'], stdin = PIPE, stdout = DEVNULL, stderr = DEVNULL) as fd:
+                fd.stdin.write(data.encode('utf-8'))
+            if verbose:
+                self.output("%s copied to Mac OS X pasteboard" % name)
+        except:
+            if verbose:
+                self.output("failed to copy %s to Mac OS X pasteboard" % name)
+
+    def copy_x11(self, data, verbose = True, name = 'password'):
+        try:
+            with Popen(['xclip'], stdin = PIPE, stdout = DEVNULL, stderr = DEVNULL) as fd:
+                fd.stdin.write(data.encode('utf-8'))
+            if verbose:
+                self.output("%s copied to X11 clipboard" % name)
+        except:
+            if verbose:
+                self.output("failed to copy %s to X11 clipboard" % name)
+
+    def copy_tmux(self, data, verbose = True, name = 'password'):
+        try:
+            with Popen(['tmux', 'set-buffer', data], stdin = None, stderr = DEVNULL) as fd:
+                pass
+            if verbose:
+                self.output("%s copied to tmux buffer" % name)
+        except Exception as err:
+            if verbose:
+                self.output("failed to copy %s to tmux buffer" % name)
+
+    
 def sign(x):
     if x > 2147483647:
         return (4294967296 - x) * (-1)
@@ -63,33 +109,6 @@ def htohex(h):
         for j in range(4):
             s.append("%02x" % h[i][j])
     return ''.join(s)
-
-def copy_mac(data, verbose = True, name = 'password'):
-    try:
-        with Popen(['pbcopy'], stdin = PIPE, stdout = DEVNULL, stderr = DEVNULL) as fd:
-            fd.stdin.write(data.encode('utf-8'))
-        print("%s copied to Mac OS X pasteboard" % name)
-    except:
-        if verbose:
-            print("failed to copy %s to Mac OS X pasteboard" % name)
-
-def copy_x11(data, verbose = True, name = 'password'):
-    try:
-        with Popen(['xclip'], stdin = PIPE, stdout = DEVNULL, stderr = DEVNULL) as fd:
-            fd.stdin.write(data.encode('utf-8'))
-        print("%s copied to X11 clipboard" % name)
-    except:
-        if verbose:
-            print("failed to copy %s to X11 clipboard" % name)
-
-def copy_tmux(data, verbose = True, name = 'password'):
-    try:
-        with Popen(['tmux', 'set-buffer', data], stdin = None, stderr = DEVNULL) as fd:
-            pass
-        print("%s copied to tmux buffer" % name)
-    except Exception as err:
-        if verbose:
-            print("failed to copy %s to tmux buffer" % name)
 
 def readstored():
     stored = set()
@@ -225,18 +244,18 @@ use the specified seed instead of the last one.
     sys.exit(1)
 
 clear_screen = False
-def lesskey(seed, master = None, logins = None, choose = False, generate = None):
+def lesskey(seed, uio, master = None, logins = None, choose = False, generate = None):
     global clear_screen
     if seed is None and logins is not None:
         counter = 1
         with Popen(['logins', logins], stdout = PIPE) as fd:
-            print("output of the logins command:")
+            uio.output("output of the logins command:")
             for line in fd.stdout:
                 seed = line.decode('utf-8').strip()
                 seedkey = hex(counter)[2:]
                 counter += 1
                 found_seeds[seedkey] = seed
-                print("%s: %s" % (seedkey, seed))
+                uio.output("%s: %s" % (seedkey, seed))
         if fd.returncode != 0:
             sys.stderr.write("ERROR: Failed to call command 'logins'!\n")
             sys.exit(0)
@@ -244,16 +263,16 @@ def lesskey(seed, master = None, logins = None, choose = False, generate = None)
             ma_seed = re.match(r'^[^ :]+:\s+[0-9]+\s+(.*)$', seed)
             if ma_seed: seed = ma_seed.group(1)
     if seed is None:
-        try: seed = input('name> ')
-        except: print(""); sys.exit(1)
+        try: seed = uio.input('name> ')
+        except: uio.output(""); sys.exit(1)
     while True:
         ma_seed = re.match(r'^\s*(\S+)(?:\s+([0-9]*)([rR]|[uU]|[uU][rR]|[uU][nNhHbB]|[nNhHbBdD]|[nN][dD]|[dD]))?(?:\s+([0-9]+)\s*(?:[-]?\s*(.*))?)?\s*$', seed)
         if ma_seed is None:
             ma_seed = re.match(r'^\s*(?:(\S+)\s+(\S+)(?:\s+([0-9]*)([rR]|[uU]|[uU][rR]|[uU][nNhHbB]|[nNhHbB]))?(?:\s+([0-9]+)\s*(?:[-]?\s*(.*))?)?)?\s*$', seed)
             if ma_seed is None:
-                print("seed can not be parsed: %s" % str(seed))
-                try: seed = input('new seed> ')
-                except: print(""); sys.exit(1)
+                uio.output("seed can not be parsed: %s" % str(seed))
+                try: seed = uio.input('new seed> ')
+                except: uio.output(""); sys.exit(1)
                 continue
             prefix, name, maxchars, ntype, seq, desc = ma_seed.groups()
         else: prefix, name, maxchars, ntype, seq, desc = (None,) + ma_seed.groups()
@@ -276,10 +295,10 @@ def lesskey(seed, master = None, logins = None, choose = False, generate = None)
         if maxchars < 0 or seq < 1: raise('maxchars or seq is smaller then 1')
     except Exception as err: usage('maxchars or seq is wrong %s: %s' % (repr((maxchars, seq)), repr(err)))
     if generate is None:
-        print("using %s as seed" % repr(seed))
+        uio.output("using %s as seed" % repr(seed))
     if master is None:
-        try: master = getpass.getpass('master> ')
-        except: print(""); sys.exit(1)
+        try: master = uio.input('master> ', password = True)
+        except: uio.output(""); sys.exit(1)
         if len(master) < 4 and re.match(r'^[0-9a-f]+$', master) and master in found_seeds:
             return lesskey(found_seeds[master], logins = logins)
         elif master == 'n':
@@ -307,7 +326,7 @@ def lesskey(seed, master = None, logins = None, choose = False, generate = None)
         desc = time.strftime('%Y-%m-%d')
     full_seed = "%s %d %s" % (nseed, seq, desc)
     if generate is None:
-        print("seed (%s): %s" % (sstate, full_seed))
+        uio.output("seed (%s): %s" % (sstate, full_seed))
 
     if generate != None:
         skey = get_otp_sha1(master, name + str(generate), seq)
@@ -326,6 +345,7 @@ def lesskey(seed, master = None, logins = None, choose = False, generate = None)
         if maxchars > 0: passstr = passstr[:maxchars]
     elif ntype in ('H', 'UH'):
         passstr = htohex(skey)
+        if prefix is not None: passstr = prefix + passstr
         if ntype == 'UH': passstr = passstr.upper()
         if maxchars > 0: passstr = passstr[:maxchars]
     elif ntype == 'D':
@@ -340,17 +360,17 @@ def lesskey(seed, master = None, logins = None, choose = False, generate = None)
             if prefix is None: seedpref = ''
             else: seedpref = '%s ' % prefix
             gggseed = '%s%s%d %s%s %d' % (seedpref, name, generate, nmaxchars, ntype, seq)
-            print("% 2d/% 4d % 20s: %s" % (len(passstr), generate, gggseed, passstr))
+            uio.output("% 2d/% 4d % 20s: %s" % (len(passstr), generate, gggseed, passstr))
             return lesskey(full_seed, master, None, False, generate - 1)
         if generate == 0:
             return 0
 
-    print("password is generated, how you want to get it?")
+    uio.output("password is generated, how you want to get it?")
     while True:
-        try: next_cmd = input('command (? for help)> ')
+        try: next_cmd = uio.input('command (? for help)> ')
         except: next_cmd = ''
         if next_cmd == '?':
-            print("""Available commands next commands:
+            uio.output("""Available commands next commands:
 
 p - print generated password
 t - copy to tmux buffer
@@ -389,24 +409,24 @@ d - delete stored name and password
             continue
         elif next_cmd == 'p':
             clear_screen = True
-            print(passstr)
+            uio.output(passstr)
             continue
         elif next_cmd == 'm':
-            copy_mac(passstr)
+            uio.copy_mac(passstr)
             continue
         elif next_cmd == 'x':
-            copy_x11(passstr)
+            uio.copy_x11(passstr)
             continue
         elif next_cmd == 't':
-            copy_tmux(passstr)
+            uio.copy_tmux(passstr)
             continue
         elif next_cmd == 'S':
-            copy_mac(full_seed, False, name = 'seed')
-            copy_x11(full_seed, False, name = 'seed')
-            copy_tmux(full_seed, False, name = 'seed')
+            uio.copy_mac(full_seed, name = 'seed')
+            uio.copy_x11(full_seed, name = 'seed')
+            uio.copy_tmux(full_seed, name = 'seed')
             continue
         elif clear_screen:
-            os.system('clear');
+            uio.clear()
         break
 
 WORDS = ["a",     "abe",   "ace",   "act",   "ad",    "ada",   "add",
@@ -667,9 +687,11 @@ WORDS = ["a",     "abe",   "ace",   "act",   "ad",    "ada",   "add",
          "yard",  "yarn",  "yawl",  "yawn",  "yeah",  "year",  "yell",  "yoga",
          "yoke"]
 
-if len(sys.argv) > 1 and sys.argv[1] in ('-h', '--help'): usage()
-elif len(sys.argv) == 3 and sys.argv[1] in ('-l', '--logins'):
-    lesskey(None, master = None, logins = sys.argv[2])
-elif len(sys.argv) == 1: lesskey(None, master = None)
-elif len(sys.argv) == 2: lesskey(sys.argv[1], master = None)
-else: usage()                 
+if __name__ == '__main__':
+    uio = UserIO()
+    if len(sys.argv) > 1 and sys.argv[1] in ('-h', '--help'): usage()
+    elif len(sys.argv) == 3 and sys.argv[1] in ('-l', '--logins'):
+        lesskey(None, uio, master = None, logins = sys.argv[2])
+    elif len(sys.argv) == 1: lesskey(None, uio, master = None)
+    elif len(sys.argv) == 2: lesskey(sys.argv[1], uio, master = None)
+    else: usage()                 
