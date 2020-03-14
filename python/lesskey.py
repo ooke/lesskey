@@ -95,7 +95,7 @@ class Storage(object):
         pass
 
 class SKey(object):
-    def __init__(self, secret, seed, n):
+    def __init__(self, seed, secret, n):
         self._h = self._get_otp_sha1(secret, seed, n)
 
     def _sha1(self, x):
@@ -265,7 +265,7 @@ class LesSKEY(object):
         return sstate
 
     def password(self):
-        skey = SKey(self._master, self._seed.name(), self._seed.seq())
+        skey = SKey(self._seed.name(), self._master, self._seed.seq())
         passstr = None
         if self._seed.ntype() in ('R', 'U', 'UR', 'N', 'UN'):
             passstr = ' '.join(skey.towords())
