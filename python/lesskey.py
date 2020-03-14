@@ -266,24 +266,24 @@ class LesSKEY(object):
 
     def password(self):
         skey = SKey(self._seed.name(), self._master, self._seed.seq())
-        passstr = None
+        passstr, sep = None, ' '
 
         if self._seed.ntype() in ('R', 'U', 'UR'):
-            passstr = self._seed.prefix(sep = ' ') + ' '.join(skey.towords())
+            passstr = self._seed.prefix(sep = sep) + sep.join(skey.towords())
         elif self._seed.ntype().endswith('N'):
-            passstr = self._seed.prefix(sep = '-') + '-'.join(skey.towords())
+            sep = '-'; passstr = self._seed.prefix(sep = sep) + sep.join(skey.towords())
         elif self._seed.ntype().endswith('B'):
             passstr = self._seed.prefix() + skey.tob64()
         elif self._seed.ntype().endswith('H'):
             passstr = self._seed.prefix() + skey.tohex()
         elif self._seed.ntype() == 'D':
-            passstr = ' '.join([str(x) for x in skey.todec()])
+            passstr = sep.join([str(x) for x in skey.todec()])
         elif self._seed.ntype() == 'ND':
             passstr = ''.join([str(x) for x in skey.todec()])
         else: raise RuntimeError('Unknown type: %s' % repr(self._seed.ntype()))
 
         if self._seed.maxchars() > 0:
-            passstr = passstr.replace(' ', '')[:self._seed.maxchars()]
+            passstr = passstr.replace(sep, '')[:self._seed.maxchars()]
         if self._seed.ntype().startswith('U'):
             passstr = passstr.upper()
         return passstr
