@@ -195,7 +195,10 @@ class Seed(object):
         self._desc = desc
 
     def prefix(self): return self._prefix
-    def name(self): return self._name
+    def name(self, plain = False):
+        if self._generate is not None and not plain:
+            return "%s%d" % (self._name, self._generate)
+        return self._name
     def maxchars(self): return self._maxchars
     def nmaxchars(self): return '' if self._maxchars == 0 else str(self._maxchars)
     def ntype(self): return self._ntype
@@ -203,16 +206,16 @@ class Seed(object):
     def desc(self): return self._desc
     def generate(self): return self._generate
 
-    def short(self):
+    def short(self, plain = False):
         if self._prefix is None:
-            return "%s %s%s" % (self._name, self.nmaxchars(), self._ntype)
-        return "%s %s %s%s" % (self._prefix, self._name, self.nmaxchars(), self._ntype)
+            return "%s %s%s" % (self.name(plain), self.nmaxchars(), self._ntype)
+        return "%s %s %s%s" % (self._prefix, self.name(plain), self.nmaxchars(), self._ntype)
 
-    def regular(self):
-        return "%s %d" % (self.short(), self._seq)
+    def regular(self, plain = False):
+        return "%s %d" % (self.short(plain), self._seq)
 
-    def full(self):
-        return "%s %s" % (self.regular(), self._desc)
+    def full(self, plain = False):
+        return "%s %s" % (self.regular(plain), self._desc)
         
 class LesSKEY(object):
     def __init__(self, seed, uio, storage, master = None, logins = None, generate = None):
@@ -288,14 +291,13 @@ class LesSKEY(object):
             if self._seed.maxchars() > 0: passstr = passstr[:self._seed.maxchars()]
         return passstr
 
-    def genarate(self):
+    def generate(self):
         if self._seed.generate() > 0:
             if self._seed.prefix() is None: seedpref = ''
             else: seedpref = '%s ' % prefix
-            gggseed = '%s%s%d %s%s %d' % (seedpref, self._name, self._seed.generate(), self._nmaxchars, self._ntype, self._seq)
             passstring = self.passstr()
-            self._uio.output("% 2d/% 4d % 20s: %s" % (len(passstring), self._seed.generate(), gggseed, passstring))
-            return LesSKEY(self._seed.full(), uio, storage, master = self._master, logins = None, generate = self._seed.generate() - 1)
+            self._uio.output("% 2d/% 4d % 20s: %s" % (len(passstring), self._seed.generate(), self._seed.regular(), passstring))
+            return LesSKEY(self._seed.regular(plain = True), uio, storage, master = self._master, logins = None, generate = self._seed.generate() - 1)
         return None
 
     def initialize_master(self):
