@@ -180,7 +180,9 @@ class LesSKEY(object):
                 if ma_seed: seed = ma_seed.group(1)
         if self._seed is None:
             try: self._seed = self._uio.input('name> ')
-            except: self._uio.output(""); sys.exit(1)
+            except:
+                self._uio.output("")
+                return None
         while True:
             ma_seed = re.match(r'^\s*(\S+)(?:\s+([0-9]*)([rR]|[uU]|[uU][rR]|[uU][nNhHbB]|[nNhHbBdD]|[nN][dD]|[dD]))?(?:\s+([0-9]+)\s*(?:[-]?\s*(.*))?)?\s*$', self._seed)
             if ma_seed is None:
