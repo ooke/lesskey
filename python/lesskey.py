@@ -94,63 +94,251 @@ class Storage(object):
         return self._readstored()
     def __exit__(self, exc_type, exc_val, exc_tb):
         pass
+
+class SKey(object):
+    def __init__(self, secret, seed, n):
+        self._h = self._get_otp_sha1(secret, seed, n)
     
-def sign(x):
-    if x > 2147483647:
-        return (4294967296 - x) * (-1)
-    return x
+    def _sha1(self, x):
+        h = hashlib.sha1()
+        for w in x:
+            h.update(w)
+        h = h.digest()
+        r = [int.from_bytes(h[i:i+4], 'little') for i in range(0, 20, 4)]
+        x, y = (r[0] ^ r[2] ^ r[4]), (r[1] ^ r[3])
+        z = [int.to_bytes(x, 4, 'big'), int.to_bytes(y, 4, 'big')]
+        return z
 
-def sha1(x):
-    h = hashlib.sha1()
-    for w in x:
-        h.update(w)
-    h = h.digest()
-    r = [int.from_bytes(h[i:i+4], 'little') for i in range(0, 20, 4)]
-    x, y = (r[0] ^ r[2] ^ r[4]), (r[1] ^ r[3])
-    z = [int.to_bytes(x, 4, 'big'), int.to_bytes(y, 4, 'big')]
-    return z
+    def _get_otp_sha1(self, secret, seed, n):
+        x = [(seed.lower() + secret).encode()]
+        for _ in range(n+1):
+            x = self._sha1(x)
+        x = [int.from_bytes(x[0], 'little'), int.from_bytes(x[1], 'little')]
+        return [int.to_bytes(x[0], 4, 'big'), int.to_bytes(x[1], 4, 'big')]
 
-def get_otp_sha1(secret, seed, n):
-    x = [(seed.lower() + secret).encode()]
-    for _ in range(n+1):
-        x = sha1(x)
-    x = [int.from_bytes(x[0], 'little'), int.from_bytes(x[1], 'little')]
-    return [int.to_bytes(x[0], 4, 'big'), int.to_bytes(x[1], 4, 'big')]
+    def htob64(self):
+        h = [int.from_bytes(x, 'big') for x in self._h]
+        s = []
+        for i in range(2):
+            for j in range(4):
+                t = (h[i] >> (8*j)) & 0xff
+                s.append(int.to_bytes(t, 1, 'big'))
+        s = b"".join(s)
+        return base64.b64encode(s).decode('utf-8').replace('=', '').strip()
 
-def htob64(h):
-    h = [int.from_bytes(x, 'big') for x in h]
-    s = []
-    for i in range(2):
-        for j in range(4):
-            t = (h[i] >> (8*j)) & 0xff
-            s.append(int.to_bytes(t, 1, 'big'))
-    s = b"".join(s)
-    return base64.b64encode(s).decode('utf-8').replace('=', '').strip()
+    def htodec(self):
+        h = [int.from_bytes(x, 'big') for x in self._h]
+        parity = 0
+        for i in range(2):
+            for j in range(0, 32, 2):
+                parity += (h[i] >> j) & 0x3
+        s = []
+        s.append((h[0] & 0xff) << 3 | (h[0] >> 13) & 0x7)
+        s.append(((h[0] >> 8) & 0x1f) << 6 | (h[0] >> 18) & 0x3f)
+        s.append(((h[0] >> 16) & 0x3) << 9 | ((h[0] >> 24) & 0xff) << 1 | (h[1] >> 7) & 0x1)
+        s.append((h[1] & 0x7f) << 4 | (h[1] >> 12) & 0xf)
+        s.append(((h[1] >> 8) & 0xf) << 7 | (h[1] >> 17) & 0x7f)
+        s.append(((h[1] >> 16) & 0x1) << 10 | ((h[1] >> 24) & 0xff) << 2 | (parity & 0x03))
+        return s
 
-def htodec(h):
-    h = [int.from_bytes(x, 'big') for x in h]
-    parity = 0
-    for i in range(2):
-        for j in range(0, 32, 2):
-            parity += (h[i] >> j) & 0x3
-    s = []
-    s.append((h[0] & 0xff) << 3 | (h[0] >> 13) & 0x7)
-    s.append(((h[0] >> 8) & 0x1f) << 6 | (h[0] >> 18) & 0x3f)
-    s.append(((h[0] >> 16) & 0x3) << 9 | ((h[0] >> 24) & 0xff) << 1 | (h[1] >> 7) & 0x1)
-    s.append((h[1] & 0x7f) << 4 | (h[1] >> 12) & 0xf)
-    s.append(((h[1] >> 8) & 0xf) << 7 | (h[1] >> 17) & 0x7f)
-    s.append(((h[1] >> 16) & 0x1) << 10 | ((h[1] >> 24) & 0xff) << 2 | (parity & 0x03))
-    return s
+    def htowords(self):
+        return [WORDS[n] for n in self.htodec()]
 
-def htowords(h):
-    return [WORDS[n] for n in htodec(h)]
+    def htohex(self):
+        s = []
+        for i in range(2):
+            for j in range(4):
+                s.append("%02x" % self._h[i][j])
+        return ''.join(s)
 
-def htohex(h):
-    s = []
-    for i in range(2):
-        for j in range(4):
-            s.append("%02x" % h[i][j])
-    return ''.join(s)
+clear_screen = False
+def lesskey(seed, uio, storage, master = None, logins = None, choose = False, generate = None):
+    global clear_screen
+    if seed is None and logins is not None:
+        counter = 1
+        with Popen(['logins', logins], stdout = PIPE) as fd:
+            uio.output("output of the logins command:")
+            for line in fd.stdout:
+                seed = line.decode('utf-8').strip()
+                seedkey = hex(counter)[2:]
+                counter += 1
+                found_seeds[seedkey] = seed
+                uio.output("%s: %s" % (seedkey, seed))
+        if fd.returncode != 0:
+            sys.stderr.write("ERROR: Failed to call command 'logins'!\n")
+            sys.exit(0)
+        if seed is not None:
+            ma_seed = re.match(r'^[^ :]+:\s+[0-9]+\s+(.*)$', seed)
+            if ma_seed: seed = ma_seed.group(1)
+    if seed is None:
+        try: seed = uio.input('name> ')
+        except: uio.output(""); sys.exit(1)
+    while True:
+        ma_seed = re.match(r'^\s*(\S+)(?:\s+([0-9]*)([rR]|[uU]|[uU][rR]|[uU][nNhHbB]|[nNhHbBdD]|[nN][dD]|[dD]))?(?:\s+([0-9]+)\s*(?:[-]?\s*(.*))?)?\s*$', seed)
+        if ma_seed is None:
+            ma_seed = re.match(r'^\s*(?:(\S+)\s+(\S+)(?:\s+([0-9]*)([rR]|[uU]|[uU][rR]|[uU][nNhHbB]|[nNhHbB]))?(?:\s+([0-9]+)\s*(?:[-]?\s*(.*))?)?)?\s*$', seed)
+            if ma_seed is None:
+                uio.output("seed can not be parsed: %s" % str(seed))
+                try: seed = uio.input('new seed> ')
+                except: uio.output(""); sys.exit(1)
+                continue
+            prefix, name, maxchars, ntype, seq, desc = ma_seed.groups()
+        else: prefix, name, maxchars, ntype, seq, desc = (None,) + ma_seed.groups()
+        break
+    if ntype is None: ntype = 'R'
+    if seq is None: seq = 99
+    if maxchars == '' or maxchars is None: maxchars = 0
+    sa_xxx = re.search(r'(X+)$', name)
+    if sa_xxx:
+        num = random.randint(1, 10**len(sa_xxx.group(1))-1)
+        name = re.sub(r'(X+)$', str(num), name)
+    sa_ggg = re.search(r'(G+)$', name)
+    ggg_maxnum = 0
+    if sa_ggg:
+        ggg_maxnum = 10**len(sa_ggg.group(1))-1
+        name = re.sub(r'(G+)$', '', name)
+    name = name.lower(); ntype = ntype.upper()
+    try:
+        maxchars, seq = int(maxchars), int(seq)
+        if maxchars < 0 or seq < 1: raise('maxchars or seq is smaller then 1')
+    except Exception as err: usage('maxchars or seq is wrong %s: %s' % (repr((maxchars, seq)), repr(err)))
+    if generate is None:
+        uio.output("using %s as seed" % repr(seed))
+    if master is None:
+        try: master = uio.input('master> ', password = True)
+        except: uio.output(""); sys.exit(1)
+        if len(master) < 4 and re.match(r'^[0-9a-f]+$', master) and master in found_seeds:
+            return lesskey(found_seeds[master], logins = logins)
+        elif master == 'n':
+            return lesskey(None, master = None)
+    if maxchars == 0: nmaxchars = ''
+    else: nmaxchars = str(maxchars)
+
+    if ggg_maxnum > 0:
+        if generate is None:
+            generate = ggg_maxnum
+
+    if prefix is None:
+        nseed = "%s %s%s" % (name, nmaxchars, ntype)
+    else: nseed = "%s %s %s%s" % (prefix, name, nmaxchars, ntype)
+    sseed = hashlib.sha1(nseed.encode('utf-8')).hexdigest()
+    smaster = hashlib.sha1(master.encode('utf-8')).hexdigest()
+    sseedmaster = hashlib.sha1((nseed + master).encode('utf-8')).hexdigest()
+    with storage as stored:
+        if sseedmaster in stored: sstate = "correct"
+        elif sseed in stored and smaster in stored: sstate = "incorrect"
+        elif sseed in stored: sstate = "known seed"
+        elif smaster in stored: sstate = "known password"
+        else: sstate = "unknown"
+    if desc in (None, ''):
+        desc = time.strftime('%Y-%m-%d')
+    full_seed = "%s %d %s" % (nseed, seq, desc)
+    if generate is None:
+        uio.output("seed (%s): %s" % (sstate, full_seed))
+
+    if generate != None:
+        skey = SKey(master, name + str(generate), seq)
+    else: skey = SKey(master, name, seq)
+    passstr = None
+    if ntype in ('R', 'U', 'UR', 'N', 'UN'):
+        passstr = ' '.join(skey.htowords())
+        if prefix is not None: passstr = prefix + ' ' + passstr
+        if ntype in ('U', 'UR', 'UN'): passstr = passstr.upper()
+        if maxchars > 0: passstr = passstr.replace(' ', '')[:maxchars]
+        if ntype in ('N', 'UN'): passstr = passstr.replace(' ', '-')
+    elif ntype in ('B', 'UB'):
+        passstr = skey.htob64()
+        if prefix is not None: passstr = prefix + passstr
+        if ntype == 'UB': passstr = passstr.upper()
+        if maxchars > 0: passstr = passstr[:maxchars]
+    elif ntype in ('H', 'UH'):
+        passstr = skey.htohex()
+        if prefix is not None: passstr = prefix + passstr
+        if ntype == 'UH': passstr = passstr.upper()
+        if maxchars > 0: passstr = passstr[:maxchars]
+    elif ntype == 'D':
+        passstr = ' '.join([str(x) for x in skey.htodec()])
+        if maxchars > 0: passstr = passstr.replace(' ', '')[:maxchars]
+    elif ntype == 'ND':
+        passstr = ''.join([str(x) for x in skey.htodec()])
+        if maxchars > 0: passstr = passstr[:maxchars]
+
+    if generate is not None:
+        if generate > 0:
+            if prefix is None: seedpref = ''
+            else: seedpref = '%s ' % prefix
+            gggseed = '%s%s%d %s%s %d' % (seedpref, name, generate, nmaxchars, ntype, seq)
+            uio.output("% 2d/% 4d % 20s: %s" % (len(passstr), generate, gggseed, passstr))
+            return lesskey(full_seed, master, None, False, generate - 1)
+        if generate == 0:
+            return 0
+
+    uio.output("password is generated, how you want to get it?")
+    while True:
+        try: next_cmd = uio.input('command (? for help)> ')
+        except: next_cmd = ''
+        if next_cmd == '?':
+            uio.output("""Available commands next commands:
+
+p - print generated password
+t - copy to tmux buffer
+x - copy to X11 clipboard using xclip utility
+m - copy to Mac OS X paste board
+S - copy seed with all avaible methods
+q - clear screen and exit
+l - exit, don't clear screen
+n - next name in hierarchy (give next seed as optional argument)
+o - other seed with same master (give seed as optional argument)
+s - store password and name (as SHA1 checksum)
+d - delete stored name and password
+""")
+            continue
+        elif next_cmd == 'l': pass        
+        elif next_cmd == 'n':
+            return lesskey(None, master = passstr, logins = logins)
+        elif next_cmd.startswith('n '):
+            next_seed = next_cmd[2:].strip()
+            if next_seed != '' and next_seed not in found_seeds:
+                return lesskey(None, master = passstr, logins = next_seed)
+            elif next_seed in found_seeds:
+                return lesskey(found_seeds[next_seed], master = passstr, logins = logins)
+            return lesskey(None, master = passstr, logins = logins)
+        elif next_cmd == 'o':
+            return lesskey(None, master = master, logins = logins)
+        elif next_cmd.startswith('o '):
+            next_seed = next_cmd[2:].strip()
+            if next_seed != '' and next_seed not in found_seeds:
+                return lesskey(None, master = master, logins = next_seed)
+            elif next_seed in found_seeds:
+                return lesskey(found_seeds[next_seed], master = master, logins = logins)
+            return lesskey(None, master = master, logins = logins)
+        elif next_cmd == 's':
+            storage.store(nseed, master)
+            continue
+        elif next_cmd == 'd':
+            storage.delete(nseed, master)
+            continue
+        elif next_cmd == 'p':
+            clear_screen = True
+            uio.output(passstr)
+            continue
+        elif next_cmd == 'm':
+            uio.copy_mac(passstr)
+            continue
+        elif next_cmd == 'x':
+            uio.copy_x11(passstr)
+            continue
+        elif next_cmd == 't':
+            uio.copy_tmux(passstr)
+            continue
+        elif next_cmd == 'S':
+            uio.copy_mac(full_seed, name = 'seed')
+            uio.copy_x11(full_seed, name = 'seed')
+            uio.copy_tmux(full_seed, name = 'seed')
+            continue
+        elif clear_screen:
+            uio.clear()
+        break
 
 def usage(msg = None):
     if msg is not None:
@@ -250,195 +438,6 @@ In this mode the master also accepts the id of the found seeds to restart and
 use the specified seed instead of the last one.
 """)
     sys.exit(1)
-
-clear_screen = False
-def lesskey(seed, uio, storage, master = None, logins = None, choose = False, generate = None):
-    global clear_screen
-    if seed is None and logins is not None:
-        counter = 1
-        with Popen(['logins', logins], stdout = PIPE) as fd:
-            uio.output("output of the logins command:")
-            for line in fd.stdout:
-                seed = line.decode('utf-8').strip()
-                seedkey = hex(counter)[2:]
-                counter += 1
-                found_seeds[seedkey] = seed
-                uio.output("%s: %s" % (seedkey, seed))
-        if fd.returncode != 0:
-            sys.stderr.write("ERROR: Failed to call command 'logins'!\n")
-            sys.exit(0)
-        if seed is not None:
-            ma_seed = re.match(r'^[^ :]+:\s+[0-9]+\s+(.*)$', seed)
-            if ma_seed: seed = ma_seed.group(1)
-    if seed is None:
-        try: seed = uio.input('name> ')
-        except: uio.output(""); sys.exit(1)
-    while True:
-        ma_seed = re.match(r'^\s*(\S+)(?:\s+([0-9]*)([rR]|[uU]|[uU][rR]|[uU][nNhHbB]|[nNhHbBdD]|[nN][dD]|[dD]))?(?:\s+([0-9]+)\s*(?:[-]?\s*(.*))?)?\s*$', seed)
-        if ma_seed is None:
-            ma_seed = re.match(r'^\s*(?:(\S+)\s+(\S+)(?:\s+([0-9]*)([rR]|[uU]|[uU][rR]|[uU][nNhHbB]|[nNhHbB]))?(?:\s+([0-9]+)\s*(?:[-]?\s*(.*))?)?)?\s*$', seed)
-            if ma_seed is None:
-                uio.output("seed can not be parsed: %s" % str(seed))
-                try: seed = uio.input('new seed> ')
-                except: uio.output(""); sys.exit(1)
-                continue
-            prefix, name, maxchars, ntype, seq, desc = ma_seed.groups()
-        else: prefix, name, maxchars, ntype, seq, desc = (None,) + ma_seed.groups()
-        break
-    if ntype is None: ntype = 'R'
-    if seq is None: seq = 99
-    if maxchars == '' or maxchars is None: maxchars = 0
-    sa_xxx = re.search(r'(X+)$', name)
-    if sa_xxx:
-        num = random.randint(1, 10**len(sa_xxx.group(1))-1)
-        name = re.sub(r'(X+)$', str(num), name)
-    sa_ggg = re.search(r'(G+)$', name)
-    ggg_maxnum = 0
-    if sa_ggg:
-        ggg_maxnum = 10**len(sa_ggg.group(1))-1
-        name = re.sub(r'(G+)$', '', name)
-    name = name.lower(); ntype = ntype.upper()
-    try:
-        maxchars, seq = int(maxchars), int(seq)
-        if maxchars < 0 or seq < 1: raise('maxchars or seq is smaller then 1')
-    except Exception as err: usage('maxchars or seq is wrong %s: %s' % (repr((maxchars, seq)), repr(err)))
-    if generate is None:
-        uio.output("using %s as seed" % repr(seed))
-    if master is None:
-        try: master = uio.input('master> ', password = True)
-        except: uio.output(""); sys.exit(1)
-        if len(master) < 4 and re.match(r'^[0-9a-f]+$', master) and master in found_seeds:
-            return lesskey(found_seeds[master], logins = logins)
-        elif master == 'n':
-            return lesskey(None, master = None)
-    if maxchars == 0: nmaxchars = ''
-    else: nmaxchars = str(maxchars)
-
-    if ggg_maxnum > 0:
-        if generate is None:
-            generate = ggg_maxnum
-
-    if prefix is None:
-        nseed = "%s %s%s" % (name, nmaxchars, ntype)
-    else: nseed = "%s %s %s%s" % (prefix, name, nmaxchars, ntype)
-    sseed = hashlib.sha1(nseed.encode('utf-8')).hexdigest()
-    smaster = hashlib.sha1(master.encode('utf-8')).hexdigest()
-    sseedmaster = hashlib.sha1((nseed + master).encode('utf-8')).hexdigest()
-    with storage as stored:
-        if sseedmaster in stored: sstate = "correct"
-        elif sseed in stored and smaster in stored: sstate = "incorrect"
-        elif sseed in stored: sstate = "known seed"
-        elif smaster in stored: sstate = "known password"
-        else: sstate = "unknown"
-    if desc in (None, ''):
-        desc = time.strftime('%Y-%m-%d')
-    full_seed = "%s %d %s" % (nseed, seq, desc)
-    if generate is None:
-        uio.output("seed (%s): %s" % (sstate, full_seed))
-
-    if generate != None:
-        skey = get_otp_sha1(master, name + str(generate), seq)
-    else: skey = get_otp_sha1(master, name, seq)
-    passstr = None
-    if ntype in ('R', 'U', 'UR', 'N', 'UN'):
-        passstr = ' '.join(htowords(skey))
-        if prefix is not None: passstr = prefix + ' ' + passstr
-        if ntype in ('U', 'UR', 'UN'): passstr = passstr.upper()
-        if maxchars > 0: passstr = passstr.replace(' ', '')[:maxchars]
-        if ntype in ('N', 'UN'): passstr = passstr.replace(' ', '-')
-    elif ntype in ('B', 'UB'):
-        passstr = htob64(skey)
-        if prefix is not None: passstr = prefix + passstr
-        if ntype == 'UB': passstr = passstr.upper()
-        if maxchars > 0: passstr = passstr[:maxchars]
-    elif ntype in ('H', 'UH'):
-        passstr = htohex(skey)
-        if prefix is not None: passstr = prefix + passstr
-        if ntype == 'UH': passstr = passstr.upper()
-        if maxchars > 0: passstr = passstr[:maxchars]
-    elif ntype == 'D':
-        passstr = ' '.join([str(x) for x in htodec(skey)])
-        if maxchars > 0: passstr = passstr.replace(' ', '')[:maxchars]
-    elif ntype == 'ND':
-        passstr = ''.join([str(x) for x in htodec(skey)])
-        if maxchars > 0: passstr = passstr[:maxchars]
-
-    if generate is not None:
-        if generate > 0:
-            if prefix is None: seedpref = ''
-            else: seedpref = '%s ' % prefix
-            gggseed = '%s%s%d %s%s %d' % (seedpref, name, generate, nmaxchars, ntype, seq)
-            uio.output("% 2d/% 4d % 20s: %s" % (len(passstr), generate, gggseed, passstr))
-            return lesskey(full_seed, master, None, False, generate - 1)
-        if generate == 0:
-            return 0
-
-    uio.output("password is generated, how you want to get it?")
-    while True:
-        try: next_cmd = uio.input('command (? for help)> ')
-        except: next_cmd = ''
-        if next_cmd == '?':
-            uio.output("""Available commands next commands:
-
-p - print generated password
-t - copy to tmux buffer
-x - copy to X11 clipboard using xclip utility
-m - copy to Mac OS X paste board
-S - copy seed with all avaible methods
-q - clear screen and exit
-l - exit, don't clear screen
-n - next name in hierarchy (give next seed as optional argument)
-o - other seed with same master (give seed as optional argument)
-s - store password and name (as SHA1 checksum)
-d - delete stored name and password
-""")
-            continue
-        elif next_cmd == 'l': pass        
-        elif next_cmd == 'n':
-            return lesskey(None, master = passstr, logins = logins)
-        elif next_cmd.startswith('n '):
-            next_seed = next_cmd[2:].strip()
-            if next_seed != '' and next_seed not in found_seeds:
-                return lesskey(None, master = passstr, logins = next_seed)
-            elif next_seed in found_seeds:
-                return lesskey(found_seeds[next_seed], master = passstr, logins = logins)
-            return lesskey(None, master = passstr, logins = logins)
-        elif next_cmd == 'o':
-            return lesskey(None, master = master, logins = logins)
-        elif next_cmd.startswith('o '):
-            next_seed = next_cmd[2:].strip()
-            if next_seed != '' and next_seed not in found_seeds:
-                return lesskey(None, master = master, logins = next_seed)
-            elif next_seed in found_seeds:
-                return lesskey(found_seeds[next_seed], master = master, logins = logins)
-            return lesskey(None, master = master, logins = logins)
-        elif next_cmd == 's':
-            storage.store(nseed, master)
-            continue
-        elif next_cmd == 'd':
-            storage.delete(nseed, master)
-            continue
-        elif next_cmd == 'p':
-            clear_screen = True
-            uio.output(passstr)
-            continue
-        elif next_cmd == 'm':
-            uio.copy_mac(passstr)
-            continue
-        elif next_cmd == 'x':
-            uio.copy_x11(passstr)
-            continue
-        elif next_cmd == 't':
-            uio.copy_tmux(passstr)
-            continue
-        elif next_cmd == 'S':
-            uio.copy_mac(full_seed, name = 'seed')
-            uio.copy_x11(full_seed, name = 'seed')
-            uio.copy_tmux(full_seed, name = 'seed')
-            continue
-        elif clear_screen:
-            uio.clear()
-        break
 
 WORDS = ["a",     "abe",   "ace",   "act",   "ad",    "ada",   "add",
          "ago",   "aid",   "aim",   "air",   "all",   "alp",   "am",    "amy",
