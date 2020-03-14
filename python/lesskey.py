@@ -151,9 +151,9 @@ class SKey(object):
         return ''.join(s)
 
 class Seed(object):
-    def __init__(self, seed, generate = None):
+    def __init__(self, seed, genstate = None):
         self._seed = seed
-        self._generate = generate
+        self._genstate = genstate
         self._parse_seed()
 
     def _parse_seed(self):
@@ -185,8 +185,8 @@ class Seed(object):
         if desc in (None, ''):
             desc = time.strftime('%Y-%m-%d')
         if ggg_maxnum > 0:
-            if self._generate is None:
-                self._generate = ggg_maxnum
+            if self._genstate is None:
+                self._genstate = ggg_maxnum
         self._prefix = prefix
         self._name = name
         self._maxchars = maxchars
@@ -196,15 +196,15 @@ class Seed(object):
 
     def prefix(self): return self._prefix
     def name(self, plain = False):
-        if self._generate is not None and not plain:
-            return "%s%d" % (self._name, self._generate)
+        if self._genstate is not None and not plain:
+            return "%s%d" % (self._name, self._genstate)
         return self._name
     def maxchars(self): return self._maxchars
     def nmaxchars(self): return '' if self._maxchars == 0 else str(self._maxchars)
     def ntype(self): return self._ntype
     def seq(self): return self._seq
     def desc(self): return self._desc
-    def generate(self): return self._generate
+    def genstate(self): return self._genstate
 
     def short(self, plain = False):
         if self._prefix is None:
@@ -218,13 +218,13 @@ class Seed(object):
         return "%s %s" % (self.regular(plain), self._desc)
         
 class LesSKEY(object):
-    def __init__(self, seed, uio, storage, master = None, logins = None, generate = None):
+    def __init__(self, seed, uio, storage, master = None, logins = None, genstate = None):
         self._seed_str = seed
         self._uio = uio
         self._storage = storage
         self._master = master
         self._logins = logins
-        self._generate = generate
+        self._genstate = genstate
         self._clear_screen = False
         self._found_seeds = {}
 
@@ -264,7 +264,7 @@ class LesSKEY(object):
             else: sstate = "unknown"
         return sstate
 
-    def passstr(self):
+    def password(self):
         skey = SKey(self._master, self._seed.name(), self._seed.seq())
         passstr = None
         if self._seed.ntype() in ('R', 'U', 'UR', 'N', 'UN'):
@@ -291,13 +291,13 @@ class LesSKEY(object):
             if self._seed.maxchars() > 0: passstr = passstr[:self._seed.maxchars()]
         return passstr
 
-    def generate(self):
-        if self._seed.generate() > 0:
+    def next_genstate(self):
+        if self._seed.genstate() > 0:
             if self._seed.prefix() is None: seedpref = ''
             else: seedpref = '%s ' % prefix
-            passstring = self.passstr()
-            self._uio.output("% 2d/% 4d % 20s: %s" % (len(passstring), self._seed.generate(), self._seed.regular(), passstring))
-            return LesSKEY(self._seed.regular(plain = True), uio, storage, master = self._master, logins = None, generate = self._seed.generate() - 1)
+            passstring = self.password()
+            self._uio.output("% 2d/% 4d % 20s: %s" % (len(passstring), self._seed.genstate(), self._seed.regular(), passstring))
+            return LesSKEY(self._seed.regular(plain = True), uio, storage, master = self._master, logins = None, genstate = self._seed.genstate() - 1)
         return None
 
     def initialize_master(self):
@@ -315,7 +315,7 @@ class LesSKEY(object):
             return None
         while True:
             try:
-                self._seed = Seed(self._seed_str, self._generate)
+                self._seed = Seed(self._seed_str, self._genstate)
                 break
             except SyntaxError as err:
                 self._io.output('failed to parse seed: %s' % err.msg)
@@ -323,13 +323,13 @@ class LesSKEY(object):
                 except:
                     self._uio.output("")
                     return None
-        if self._seed.generate() is None:
+        if self._seed.genstate() is None:
             self._uio.output("using %s as seed" % repr(self._seed.regular()))
         next_master = self.initialize_master()
         if next_master is not None:
             return next_master
-        if self._seed.generate() is not None:
-            return self.generate()
+        if self._seed.genstate() is not None:
+            return self.next_genstate()
 
         self._uio.output("seed (%s): %s" % (self.storage_state(), self._seed.full()))
         self._uio.output("password is generated, how you want to get it?")
@@ -339,14 +339,14 @@ class LesSKEY(object):
             if next_cmd == 'l':
                 break
             elif next_cmd == 'n':
-                return LesSKEY(None, uio, storage, master = self.passstr(), logins = self._logins)
+                return LesSKEY(None, uio, storage, master = self.password(), logins = self._logins)
             elif next_cmd.startswith('n '):
                 next_seed = next_cmd[2:].strip()
                 if next_seed != '' and next_seed not in self._found_seeds:
-                    return LesSKEY(None, uio, storage, master = self.passstr(), logins = next_seed)
+                    return LesSKEY(None, uio, storage, master = self.password(), logins = next_seed)
                 elif next_seed in self._found_seeds:
-                    return LesSKEY(self._found_seeds[next_seed], uio, storage, master = self.passstr(), logins = self._logins)
-                return LesSKEY(None, uio, storage, master = self.passstr(), logins = self._logins)
+                    return LesSKEY(self._found_seeds[next_seed], uio, storage, master = self.password(), logins = self._logins)
+                return LesSKEY(None, uio, storage, master = self.password(), logins = self._logins)
             elif next_cmd == 'o':
                 return LesSKEY(None, uio, storage, master = self._master, logins = self._logins)
             elif next_cmd == 'r':
@@ -364,13 +364,13 @@ class LesSKEY(object):
                 self._storage.delete(self._seed.short(), self._master)
             elif next_cmd == 'p':
                 self._clear_screen = True
-                self._uio.output(self.passstr())
+                self._uio.output(self.password())
             elif next_cmd == 'm':
-                self._uio.copy_mac(self.passstr())
+                self._uio.copy_mac(self.password())
             elif next_cmd == 'x':
-                self._uio.copy_x11(self.passstr())
+                self._uio.copy_x11(self.password())
             elif next_cmd == 't':
-                self._uio.copy_tmux(self.passstr())
+                self._uio.copy_tmux(self.password())
             elif next_cmd == 'S':
                 full_seed = self._seed.full()
                 self._uio.copy_mac(full_seed, name = 'seed')
