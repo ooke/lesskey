@@ -194,7 +194,9 @@ class Seed(object):
         self._seq = seq
         self._desc = desc
 
-    def prefix(self): return self._prefix
+    def prefix(self, sep = ''):
+        if self._prefix is None: return ''
+        return self._prefix + sep
     def name(self, plain = False):
         if self._genstate is not None and not plain:
             return "%s%d" % (self._name, self._genstate)
@@ -207,16 +209,14 @@ class Seed(object):
     def genstate(self): return self._genstate
 
     def short(self, plain = False):
-        if self._prefix is None:
-            return "%s %s%s" % (self.name(plain), self.nmaxchars(), self._ntype)
-        return "%s %s %s%s" % (self._prefix, self.name(plain), self.nmaxchars(), self._ntype)
+        return "%s%s %s%s" % (self.prefix(sep = ' '), self.name(plain), self.nmaxchars(), self._ntype)
 
     def regular(self, plain = False):
         return "%s %d" % (self.short(plain), self._seq)
 
     def full(self, plain = False):
         return "%s %s" % (self.regular(plain), self._desc)
-        
+
 class LesSKEY(object):
     def __init__(self, seed, uio, storage, master = None, logins = None, genstate = None):
         self._seed_str = seed
@@ -267,34 +267,29 @@ class LesSKEY(object):
     def password(self):
         skey = SKey(self._seed.name(), self._master, self._seed.seq())
         passstr = None
-        if self._seed.ntype() in ('R', 'U', 'UR', 'N', 'UN'):
-            passstr = ' '.join(skey.towords())
-            if self._seed.prefix() is not None: passstr = self._seed.prefix() + ' ' + passstr
-            if self._seed.ntype() in ('U', 'UR', 'UN'): passstr = passstr.upper()
-            if self._seed.maxchars() > 0: passstr = passstr.replace(' ', '')[:self._seed.maxchars()]
-            if self._seed.ntype() in ('N', 'UN'): passstr = passstr.replace(' ', '-')
-        elif self._seed.ntype() in ('B', 'UB'):
-            passstr = skey.tob64()
-            if self._seed.prefix() is not None: passstr = self._seed.prefix() + passstr
-            if self._seed.ntype() == 'UB': passstr = passstr.upper()
-            if self._seed.maxchars() > 0: passstr = passstr[:self._seed.maxchars()]
-        elif self._seed.ntype() in ('H', 'UH'):
-            passstr = skey.tohex()
-            if self._seed.prefix() is not None: passstr = self._seed.prefix() + passstr
-            if self._seed.ntype() == 'UH': passstr = passstr.upper()
-            if self._seed.maxchars() > 0: passstr = passstr[:self._seed.maxchars()]
+
+        if self._seed.ntype() in ('R', 'U', 'UR'):
+            passstr = self._seed.prefix(sep = ' ') + ' '.join(skey.towords())
+        elif self._seed.ntype().endswith('N'):
+            passstr = self._seed.prefix(sep = '-') + '-'.join(skey.towords())
+        elif self._seed.ntype().endswith('B'):
+            passstr = self._seed.prefix() + skey.tob64()
+        elif self._seed.ntype().endswith('H'):
+            passstr = self._seed.prefix() + skey.tohex()
         elif self._seed.ntype() == 'D':
             passstr = ' '.join([str(x) for x in skey.todec()])
-            if self._seed.maxchars() > 0: passstr = passstr.replace(' ', '')[:self._seed.maxchars()]
         elif self._seed.ntype() == 'ND':
             passstr = ''.join([str(x) for x in skey.todec()])
-            if self._seed.maxchars() > 0: passstr = passstr[:self._seed.maxchars()]
+        else: raise RuntimeError('Unknown type: %s' % repr(self._seed.ntype()))
+
+        if self._seed.maxchars() > 0:
+            passstr = passstr.replace(' ', '')[:self._seed.maxchars()]
+        if self._seed.ntype().startswith('U'):
+            passstr = passstr.upper()
         return passstr
 
     def next_genstate(self):
         if self._seed.genstate() > 0:
-            if self._seed.prefix() is None: seedpref = ''
-            else: seedpref = '%s ' % prefix
             passstring = self.password()
             self._uio.output("% 2d/% 4d % 20s: %s" % (len(passstring), self._seed.genstate(), self._seed.regular(), passstring))
             return LesSKEY(self._seed.regular(plain = True), uio, storage, master = self._master, logins = None, genstate = self._seed.genstate() - 1)
