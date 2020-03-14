@@ -193,7 +193,9 @@ class LesSKEY(object):
                 if ma_seed is None:
                     self._uio.output("seed can not be parsed: %s" % str(self._seed))
                     try: self._seed = self._uio.input('new seed> ')
-                    except: self._uio.output(""); sys.exit(1)
+                    except:
+                        self._uio.output("")
+                        return False
                     continue
                 prefix, name, maxchars, ntype, seq, desc = ma_seed.groups()
             else: prefix, name, maxchars, ntype, seq, desc = (None,) + ma_seed.groups()
@@ -291,10 +293,8 @@ class LesSKEY(object):
             self._uio.output("% 2d/% 4d % 20s: %s" % (len(passstring), self._generate, gggseed, passstring))
             return LesSKEY(self.full_seed(), uio, storage, master = self._master, logins = None, generate = self._generate - 1)
         return None
-    
-    def __call__(self):
-        if not self.get_logins_seed(): return None
-        if not self.parse_seed(): return None
+
+    def initialize_master(self):
         if self._master is None:
             try: self._master = self._uio.input('master> ', password = True)
             except: self._uio.output(""); sys.exit(1)
@@ -302,6 +302,14 @@ class LesSKEY(object):
                 return LesSKEY(self._found_seeds[self._master], uio = uio, storage = storage, logins = self._logins)
             elif self._master == 'n':
                 return LesSKEY(None, uio = uio, storage = storage, master = None)
+        return None
+
+    def __call__(self):
+        if not self.get_logins_seed(): return None
+        if not self.parse_seed(): return None
+        next_master = self.initialize_master()
+        if next_master is not None:
+            return next_master
         if self._generate is not None:
             return self.generate()
 
