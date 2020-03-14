@@ -69,7 +69,9 @@ class TestLesskey(unittest.TestCase):
         uio.push('p')
         if callback:
             callback(uio)
-        lesskey.lesskey(seed, uio, store)
+        lk = lesskey.LesSKEY(seed, uio, store)
+        while lk is not None:
+            lk = lk()
         self.assertEqual(uio.pop(), "using '%s' as seed" % seed)
         self.assertRegex(uio.pop(), r"seed \(%s\): %s .*" % (seed_state, seed2))
         self.assertEqual(uio.pop(), "password is generated, how you want to get it?")
