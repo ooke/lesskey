@@ -216,16 +216,19 @@ class LesSKEY(object):
         try:
             maxchars, seq = int(maxchars), int(seq)
             if maxchars < 0 or seq < 1: raise('maxchars or seq is smaller then 1')
-        except Exception as err: usage('maxchars or seq is wrong %s: %s' % (repr((maxchars, seq)), repr(err)))
+        except Exception as err:
+            usage('maxchars or seq is wrong %s: %s' % (repr((maxchars, seq)), repr(err)))
+            return None
         if self._generate is None:
             self._uio.output("using %s as seed" % repr(self._seed))
+            
         if self._master is None:
             try: self._master = self._uio.input('master> ', password = True)
             except: self._uio.output(""); sys.exit(1)
             if len(self._master) < 4 and re.match(r'^[0-9a-f]+$', self._master) and self._master in found_seeds:
-                return LesSKEY(found_seeds[self._master], logins = self._logins)
+                return LesSKEY(found_seeds[self._master], uio = uio, storage = storage, logins = self._logins)
             elif self._master == 'n':
-                return LesSKEY(None, master = None)
+                return LesSKEY(None, uio = uio, storage = storage, master = None)
         if maxchars == 0: nmaxchars = ''
         else: nmaxchars = str(maxchars)
 
@@ -284,7 +287,7 @@ class LesSKEY(object):
                 else: seedpref = '%s ' % prefix
                 gggseed = '%s%s%d %s%s %d' % (seedpref, name, self._generate, nmaxchars, ntype, seq)
                 self._uio.output("% 2d/% 4d % 20s: %s" % (len(passstr), self._generate, gggseed, passstr))
-                return LesSKEY(full_seed, self._master, None, False, self._generate - 1)
+                return LesSKEY(full_seed, uio, storage, master = self._master, logins = None, generate = self._generate - 1)
             if self._generate == 0:
                 return None
 
@@ -310,23 +313,23 @@ d - delete stored name and password
                 continue
             elif next_cmd == 'l': pass
             elif next_cmd == 'n':
-                return LesSKEY(None, master = passstr, logins = self._logins)
+                return LesSKEY(None, uio, storage, master = passstr, logins = self._logins)
             elif next_cmd.startswith('n '):
                 next_seed = next_cmd[2:].strip()
                 if next_seed != '' and next_seed not in found_seeds:
-                    return LesSKEY(None, master = passstr, logins = next_seed)
+                    return LesSKEY(None, uio, storage, master = passstr, logins = next_seed)
                 elif next_seed in found_seeds:
-                    return LesSKEY(found_seeds[next_seed], master = passstr, logins = self._logins)
-                return LesSKEY(None, master = passstr, logins = self._logins)
+                    return LesSKEY(found_seeds[next_seed], uio, storage, master = passstr, logins = self._logins)
+                return LesSKEY(None, uio, storage, master = passstr, logins = self._logins)
             elif next_cmd == 'o':
-                return LesSKEY(None, master = self._master, logins = self._logins)
+                return LesSKEY(None, uio, storage, master = self._master, logins = self._logins)
             elif next_cmd.startswith('o '):
                 next_seed = next_cmd[2:].strip()
                 if next_seed != '' and next_seed not in found_seeds:
-                    return LesSKEY(None, master = self._master, logins = next_seed)
+                    return LesSKEY(None, uio, storage, master = self._master, logins = next_seed)
                 elif next_seed in found_seeds:
-                    return LesSKEY(found_seeds[next_seed], master = self._master, logins = self._logins)
-                return LesSKEY(None, master = self._master, logins = self._logins)
+                    return LesSKEY(found_seeds[next_seed], uio, storage, master = self._master, logins = self._logins)
+                return LesSKEY(None, uio, storage, master = self._master, logins = self._logins)
             elif next_cmd == 's':
                 self._storage.store(nseed, self._master)
                 continue
@@ -716,7 +719,8 @@ WORDS = ["a",     "abe",   "ace",   "act",   "ad",    "ada",   "add",
 if __name__ == '__main__':
     uio = UserIO()
     storage = Storage(storefile)
-    if len(sys.argv) > 1 and sys.argv[1] in ('-h', '--help'): usage()
+    if len(sys.argv) > 1 and sys.argv[1] in ('-h', '--help'):
+        sys.exit(usage())
     elif len(sys.argv) == 3 and sys.argv[1] in ('-l', '--logins'):
         lk = LesSKEY(None, uio, storage, master = None, logins = sys.argv[2])
     elif len(sys.argv) == 1:
