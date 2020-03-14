@@ -174,7 +174,7 @@ class LesSKEY(object):
                     self._uio.output("%s: %s" % (seedkey, self._seed))
             if fd.returncode != 0:
                 sys.stderr.write("ERROR: Failed to call command 'logins'!\n")
-                sys.exit(0)
+                return None
             if self._seed is not None:
                 ma_seed = re.match(r'^[^ :]+:\s+[0-9]+\s+(.*)$', self._seed)
                 if ma_seed: seed = ma_seed.group(1)
