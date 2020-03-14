@@ -3,8 +3,7 @@
 import hashlib, sys, getpass, re, time, os, base64, random
 from subprocess import run, Popen, PIPE, DEVNULL
 
-sys.setrecursionlimit(99999)
-storefile = os.path.expanduser('~/.lesskey')
+STOREFILE = os.path.expanduser('~/.lesskey')
 
 class UserIO(object):
     def __init__(self):
@@ -752,7 +751,7 @@ WORDS = ["a",     "abe",   "ace",   "act",   "ad",    "ada",   "add",
 
 if __name__ == '__main__':
     uio = UserIO()
-    storage = Storage(storefile)
+    storage = Storage(STOREFILE)
     if len(sys.argv) > 1 and sys.argv[1] in ('-h', '--help'):
         sys.exit(usage())
     elif len(sys.argv) == 3 and sys.argv[1] in ('-l', '--logins'):
