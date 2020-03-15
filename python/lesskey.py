@@ -163,35 +163,23 @@ class Seed(object):
                 raise SyntaxError("seed can not be parsed: %s" % str(self._seed))
             prefix, name, maxchars, ntype, seq, desc = ma_seed.groups()
         else: prefix, name, maxchars, ntype, seq, desc = (None,) + ma_seed.groups()
-        if ntype is None: ntype = 'R'
-        if seq is None: seq = 99
-        if maxchars == '' or maxchars is None: maxchars = 0
-        sa_xxx = re.search(r'(X+)$', name)
-        if sa_xxx:
-            num = random.randint(1, 10**len(sa_xxx.group(1))-1)
-            name = re.sub(r'(X+)$', str(num), name)
-        sa_ggg = re.search(r'(G+)$', name)
-        ggg_maxnum = 0
-        if sa_ggg:
-            ggg_maxnum = 10**len(sa_ggg.group(1))-1
-            name = re.sub(r'(G+)$', '', name)
-        name = name.lower(); ntype = ntype.upper()
-        try:
-            maxchars, seq = int(maxchars), int(seq)
-            if maxchars < 0 or seq < 1: raise('maxchars or seq is smaller then 1')
-        except Exception as err:
-            raise SyntaxError('maxchars or seq is wrong %s: %s' % (repr((maxchars, seq)), repr(err)))
-        if desc in (None, ''):
-            desc = time.strftime('%Y-%m-%d')
-        if ggg_maxnum > 0:
-            if self._genstate is None:
-                self._genstate = ggg_maxnum
+
+        ma_xxx = re.match(r'^(.*?)(X+|G+)$', name)
+        if ma_xxx:
+            if ma_xxx.group(2).startswith('X'):
+                num = random.randint(1, 10**len(ma_xxx.group(2))-1)
+                name = "%s%d" % (ma_xxx.group(1), num)
+            elif self._genstate is None:
+                self._genstate = 10**len(ma_xxx.group(2))-1
+                name = ma_xxx.group(1)
+
         self._prefix = prefix
-        self._name = name
-        self._maxchars = maxchars
-        self._ntype = ntype
-        self._seq = seq
-        self._desc = desc
+        self._name = name.lower()
+        self._maxchars = 0 if maxchars in (None, '') else int(maxchars)
+        self._ntype = ntype.upper() if ntype else 'R'
+        self._seq = 99 if seq in (None, '') else int(seq)
+        if self._seq < 1: raise SyntaxError('seq is smaller then 1')
+        self._desc = time.strftime('%Y-%m-%d') if desc in (None, '') else desc
 
     def prefix(self, sep = ''):
         if self._prefix is None: return ''
@@ -315,7 +303,7 @@ class LesSKEY(object):
                 self._seed = Seed(self._seed_str, self._genstate)
                 break
             except SyntaxError as err:
-                self._io.output('failed to parse seed: %s' % err.msg)
+                self._uio.output('failed to parse seed: %s' % err.msg)
                 try: self._seed_str = self._uio.input('new seed> ')
                 except:
                     self._uio.output("")
