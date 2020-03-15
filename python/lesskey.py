@@ -286,13 +286,26 @@ class LesSKEY(object):
         return None
 
     def initialize_master(self):
-        if self._master is None:
-            try: self._master = self._uio.input('master> ', password = True)
+        while self._master is None:
+            try: self._master = self._uio.input('master (? for help)> ', password = True)
             except: self._uio.output(""); sys.exit(1)
-            if len(self._master) < 4 and re.match(r'^[0-9a-f]+$', self._master) and self._master in self._found_seeds:
-                return LesSKEY(self._found_seeds[self._master], uio = uio, storage = storage, logins = self._logins)
+            if self._master == '?':
+                self._master = None
+                self._uio.output("""
+Master specials:
+n         - enter new seed manually
+p         - print found list again
+[0-9a-f]+ - change seed to given in list
+""")
+            elif self._master == 'p':
+                self._master = None
+                for seedkey in sorted(self._found_seeds.keys()):
+                    self._uio.output("%s: %s" % (seedkey, self._found_seeds[seedkey]))
+                self._uio.output("using %s as seed" % repr(self._seed.regular()))
             elif self._master == 'n':
                 return LesSKEY(None, uio = uio, storage = storage, master = None)
+            elif len(self._master) < 4 and re.match(r'^[0-9a-f]+$', self._master) and self._master in self._found_seeds:
+                return LesSKEY(self._found_seeds[self._master], uio = uio, storage = storage, logins = self._logins)
         return None
 
     def __call__(self):
