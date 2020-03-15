@@ -229,7 +229,7 @@ class Seed(object):
         return "%s %s" % (self.regular(plain), self._desc)
 
 class LesSKEY(object):
-    def __init__(self, seed, uio, storage, master = None, logins = None, genstate = None):
+    def __init__(self, seed, uio, storage, master = None, logins = None, genstate = None, previous_seeds = None):
         self._seed_str = seed
         self._uio = uio
         self._storage = storage
@@ -238,6 +238,7 @@ class LesSKEY(object):
         self._genstate = genstate
         self._clear_screen = False
         self._found_seeds = {}
+        self._previous_seeds = previous_seeds if previous_seeds is not None else []
 
     def get_logins_seed(self):
         if self._seed_str is None and self._logins is not None:
@@ -330,6 +331,8 @@ p         - print found list again
             return self.next_genstate()
 
         self._uio.output("seed (%s): %s" % (self.storage_state(), self._seed.full()))
+        for prev_seed in self._previous_seeds[::-1]:
+            self._uio.output("    parent: %s" % prev_seed.full())
         self._uio.output("password is generated, how you want to get it?")
         while True:
             try: next_cmd = self._uio.input('command (? for help)> ')
@@ -337,25 +340,35 @@ p         - print found list again
             if next_cmd == 'l':
                 break
             elif next_cmd == 'n':
-                return LesSKEY(None, uio, storage, master = self.password(), logins = self._logins)
+                return LesSKEY(None, uio, storage, master = self.password(),
+                               previous_seeds = self._previous_seeds + [self._seed])
             elif next_cmd.startswith('n '):
                 next_seed = next_cmd[2:].strip()
-                if next_seed != '' and next_seed not in self._found_seeds:
-                    return LesSKEY(None, uio, storage, master = self.password(), logins = next_seed)
-                elif next_seed in self._found_seeds:
-                    return LesSKEY(self._found_seeds[next_seed], uio, storage, master = self.password(), logins = self._logins)
-                return LesSKEY(None, uio, storage, master = self.password(), logins = self._logins)
+                if next_seed in self._found_seeds:
+                    return LesSKEY(self._found_seeds[next_seed],
+                                   uio, storage, master = self.password(), logins = self._logins,
+                                   previous_seeds = self._previous_seeds + [self._seed])
+                return LesSKEY(None, uio, storage, master = self.password(), logins = next_seed,
+                               previous_seeds = self._previous_seeds + [self._seed])
+            elif next_cmd == 'b':
+                if len(self._previous_seeds) > 0:
+                    return LesSKEY(self._previous_seeds[-1].full(),
+                                   uio, storage, master = None, logins = self._logins,
+                                   previous_seeds = self._previous_seeds[:-1])
             elif next_cmd == 'o':
-                return LesSKEY(None, uio, storage, master = self._master, logins = self._logins)
-            elif next_cmd == 'r':
-                return LesSKEY(self._seed.full(), uio, storage, master = None, logins = self._logins)
+                return LesSKEY(None, uio, storage, master = self._master,
+                               previous_seeds = self._previous_seeds)
             elif next_cmd.startswith('o '):
                 next_seed = next_cmd[2:].strip()
-                if next_seed != '' and next_seed not in self._found_seeds:
-                    return LesSKEY(None, uio, storage, master = self._master, logins = next_seed)
-                elif next_seed in self._found_seeds:
-                    return LesSKEY(self._found_seeds[next_seed], uio, storage, master = self._master, logins = self._logins)
-                return LesSKEY(None, uio, storage, master = self._master, logins = self._logins)
+                if next_seed in self._found_seeds:
+                    return LesSKEY(self._found_seeds[next_seed],
+                                   uio, storage, master = self._master, logins = self._logins,
+                                   previous_seeds = self._previous_seeds)
+                return LesSKEY(None, uio, storage, master = self._master, logins = next_seed,
+                               previous_seeds = self._previous_seeds)
+            elif next_cmd == 'r':
+                return LesSKEY(self._seed.full(), uio, storage, master = None, logins = self._logins,
+                               previous_seeds = self._previous_seeds)
             elif next_cmd == 's':
                 self._storage.store(self._seed.short(), self._master)
             elif next_cmd == 'd':
@@ -389,6 +402,7 @@ S - copy seed with all avaible methods
 q - clear screen and exit
 l - exit, don't clear screen
 n - next name in hierarchy (give next seed as optional argument)
+b - go to previous seed in hierarchy
 o - other seed with same master (give seed as optional argument)
 r - retype master with current seed
 s - store password and name (as SHA1 checksum)
