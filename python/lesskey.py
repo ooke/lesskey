@@ -205,14 +205,38 @@ class Seed(object):
     def ntype(self): return self._ntype
     def seq(self): return self._seq
     def desc(self): return self._desc
-    def genstate(self): return self._genstate
+
+    def password(self, master):
+        skey = SKey(self.name(), master, self.seq())
+        passstr, sep = None, ' '
+
+        if self.ntype() in ('R', 'U', 'UR'):
+            passstr = self.prefix(sep = sep) + sep.join(skey.towords())
+        elif self.ntype().endswith('N'):
+            sep = '-'; passstr = self.prefix(sep = sep) + sep.join(skey.towords())
+        elif self.ntype().endswith('B'):
+            passstr = self.prefix() + skey.tob64()
+        elif self.ntype().endswith('H'):
+            passstr = self.prefix() + skey.tohex()
+        elif self.ntype() == 'D':
+            passstr = sep.join([str(x) for x in skey.todec()])
+        elif self.ntype() == 'ND':
+            passstr = ''.join([str(x) for x in skey.todec()])
+        else: raise RuntimeError('Unknown type: %s' % repr(self.ntype()))
+
+        if self.maxchars() > 0:
+            passstr = passstr.replace(sep, '')[:self.maxchars()]
+        if self.ntype().startswith('U'):
+            passstr = passstr.upper()
+        return passstr
+
+    def genstate(self):
+        return self._genstate
 
     def short(self, plain = False):
         return "%s%s %s%s" % (self.prefix(sep = ' '), self.name(plain), self.nmaxchars(), self._ntype)
-
     def regular(self, plain = False):
         return "%s %d" % (self.short(plain), self._seq)
-
     def full(self, plain = False):
         return "%s %s" % (self.regular(plain), self._desc)
 
@@ -264,28 +288,7 @@ class LesSKEY(object):
         return sstate
 
     def password(self):
-        skey = SKey(self._seed.name(), self._master, self._seed.seq())
-        passstr, sep = None, ' '
-
-        if self._seed.ntype() in ('R', 'U', 'UR'):
-            passstr = self._seed.prefix(sep = sep) + sep.join(skey.towords())
-        elif self._seed.ntype().endswith('N'):
-            sep = '-'; passstr = self._seed.prefix(sep = sep) + sep.join(skey.towords())
-        elif self._seed.ntype().endswith('B'):
-            passstr = self._seed.prefix() + skey.tob64()
-        elif self._seed.ntype().endswith('H'):
-            passstr = self._seed.prefix() + skey.tohex()
-        elif self._seed.ntype() == 'D':
-            passstr = sep.join([str(x) for x in skey.todec()])
-        elif self._seed.ntype() == 'ND':
-            passstr = ''.join([str(x) for x in skey.todec()])
-        else: raise RuntimeError('Unknown type: %s' % repr(self._seed.ntype()))
-
-        if self._seed.maxchars() > 0:
-            passstr = passstr.replace(sep, '')[:self._seed.maxchars()]
-        if self._seed.ntype().startswith('U'):
-            passstr = passstr.upper()
-        return passstr
+        return self._seed.password(self._master)
 
     def next_genstate(self):
         if self._seed.genstate() > 0:
