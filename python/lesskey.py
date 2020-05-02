@@ -393,11 +393,12 @@ p         - print found list again
                 self._uio.output("""
 Available commands next commands:
 p - print generated password
+P - print current master password
 t - copy to tmux buffer
 x - copy to X11 clipboard using xclip utility
 m - copy to Mac OS X paste board
 S - copy seed with all avaible methods
-q - clear screen and exit
+q - clear screen (if required) and exit
 l - exit, don't clear screen
 n - next name in hierarchy (give next seed as optional argument)
 b - go to previous seed in hierarchy
