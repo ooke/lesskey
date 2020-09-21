@@ -20,7 +20,7 @@ function gen_otp_sha1(secret, seed, n) {
 }
 
 function sha1_fold(h) {
-    h = invert_endian(h, true);
+    var h = invert_endian(h, true);
     return Array(h[0] ^ h[2] ^ h[4], h[1] ^ h[3]);
 }
 
@@ -139,14 +139,14 @@ function a_to_6word(h) {
 
 var fakeLocalStorage = {};
 function storeItem (data) {
-    data = 'lesskey:' + data;
+    var data = 'lesskey:' + data;
     window.localStorage.setItem(data, "true");
     if (window.localStorage.getItem(data) != "true")
         fakeLocalStorage[data] = true;
 }
 function isStored (data) {
-    datarr = data.split(":");
-    data = 'lesskey:' + data;
+    var datarr = data.split(":");
+    var data = 'lesskey:' + data;
     if (window.localStorage.getItem(data) == "true") { return 1; }
     for (var i = 0; i < window.localStorage.length; i++) {
         var keyarr = window.localStorage.key(i).split(":");
@@ -162,7 +162,7 @@ function isStored (data) {
     return 0;
 }
 function removeStored (data) {
-    data = 'lesskey:' + data;
+    var data = 'lesskey:' + data;
     window.localStorage.removeItem(data);
     delete fakeLocalStorage[data];
 }
@@ -459,7 +459,7 @@ function button_store() {
         var sname = "";
         var ma_name = re_name.exec(fname.value);
         if (ma_name != null) {
-            sname = ma_name[1] + ' ' + ma_name[4] + ' ' + ma_name[6];
+            sname = ma_name[1] + ' ' + ma_name[3] + ma_name[4] + ' ' + ma_name[6];
         } else {
             ma_name = re_name2.exec(fname.value);
             if (ma_name != null) {

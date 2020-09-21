@@ -374,6 +374,9 @@ p         - print found list again
             elif next_cmd == 'p':
                 self._clear_screen = True
                 self._uio.output(self.password())
+            elif next_cmd == 'P':
+                self._clear_screen = True
+                self._uio.output(self._master)
             elif next_cmd == 'm':
                 self._uio.copy_mac(self.password())
             elif next_cmd == 'x':
