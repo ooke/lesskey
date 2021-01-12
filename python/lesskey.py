@@ -229,7 +229,7 @@ class Seed(object):
         return "%s %s" % (self.regular(plain), self._desc)
 
 class LesSKEY(object):
-    def __init__(self, seed, uio, storage, master = None, logins = None, genstate = None, previous = None):
+    def __init__(self, seed, uio, storage, master = None, logins = None, genstate = None, genshortest = None, previous = None):
         self._seed_str = seed
         self._uio = uio
         self._storage = storage
@@ -238,6 +238,7 @@ class LesSKEY(object):
         self._genstate = genstate
         self._clear_screen = False
         self._found_seeds = {}
+        self._gen_shortest = genshortest
         self._previous = previous if previous is not None else []
 
     def get_logins_seed(self):
@@ -257,11 +258,13 @@ class LesSKEY(object):
             if self._seed_str is not None:
                 ma_seed = re.match(r'^[^ :]+:\s+[0-9]+\s+(.*)$', self._seed_str)
                 if ma_seed: self._seed_str = ma_seed.group(1)
-        if self._seed_str is None:
+        while self._seed_str is None:
             try: self._seed_str = self._uio.input('name> ')
             except:
                 self._uio.output("")
                 return False
+            self._seed_str = self._seed_str.strip()
+            if self._seed_str == '': self._seed_str = None
         return True
 
     def storage_state(self):
@@ -282,9 +285,17 @@ class LesSKEY(object):
     def next_genstate(self):
         if self._seed.genstate() > 0:
             passstring = self.password()
+            if self._gen_shortest is None or self._gen_shortest[0] >= len(passstring):
+                self._gen_shortest = (len(passstring), self._seed.regular())
             self._uio.output("% 2d/% 4d % 20s: %s" % (len(passstring), self._seed.genstate(), self._seed.regular(), passstring))
-            return LesSKEY(self._seed.regular(plain = True), uio, storage, master = self._master, logins = None, genstate = self._seed.genstate() - 1)
-        return None
+            return LesSKEY(self._seed.regular(plain = True),
+                           self._uio,
+                           self._storage,
+                           master = self._master,
+                           logins = None,
+                           genstate = self._seed.genstate() - 1,
+                           genshortest = self._gen_shortest)
+        return LesSKEY(self._gen_shortest[1], self._uio, self._storage, master = self._master, previous = self._previous)
 
     def initialize_master(self):
         while self._master is None:
@@ -333,7 +344,7 @@ p         - print found list again
         self._uio.output("seed (%s): %s" % (self.storage_state(), self._seed.full()))
         for prev in self._previous[::-1]:
             self._uio.output("    parent: %s" % prev[0].full())
-        self._uio.output("password is generated, how you want to get it?")
+        self._uio.output("password with length %d is generated, how you want to get it?" % len(self.password()))
         while True:
             try: next_cmd = self._uio.input('command (? for help)> ')
             except: next_cmd = ''
@@ -358,6 +369,10 @@ p         - print found list again
                                    previous = self._previous[:-1])
             elif next_cmd == 'o':
                 return LesSKEY(None, uio, storage, master = self._master, previous = self._previous)
+            elif next_cmd == 'g':
+                return LesSKEY(self._seed_str, uio, storage, master = self._master, previous = self._previous, genstate = 9)
+            elif next_cmd == 'H':
+                return LesSKEY(self._seed_str, uio, storage, master = self._master, previous = self._previous)
             elif next_cmd.startswith('o '):
                 next_seed = next_cmd[2:].strip()
                 if next_seed in self._found_seeds:
@@ -406,9 +421,11 @@ l - exit, don't clear screen
 n - next name in hierarchy (give next seed as optional argument)
 b - go to previous seed in hierarchy
 o - other seed with same master (give seed as optional argument)
+g - generate a set of 9 passwords to choose from
 r - retype master with current seed
 s - store password and name (as SHA1 checksum)
 d - delete stored name and password
+H - print the seed hierarchy again
 """)
         return None
 
@@ -477,7 +494,7 @@ will be added automatically.
   will be replaced by a random number. Use the numbers to make the names more
   unique and easier changable. If the name contains one or several uppercase G
   characters, then the system will generate passwords for all possible numbers
-  of the given length to choose from.
+  of the given length to choose from and the shortest one is taken.
 
 [length]
   Length is optional and specifies maximal number of characters the password
