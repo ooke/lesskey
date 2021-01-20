@@ -294,7 +294,8 @@ class LesSKEY(object):
                            master = self._master,
                            logins = None,
                            genstate = self._seed.genstate() - 1,
-                           genshortest = self._gen_shortest)
+                           genshortest = self._gen_shortest,
+                           previous = self._previous)
         return LesSKEY(self._gen_shortest[1], self._uio, self._storage, master = self._master, previous = self._previous)
 
     def initialize_master(self):
