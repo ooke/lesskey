@@ -243,15 +243,26 @@ class LesSKEY(object):
 
     def get_logins_seed(self):
         if self._seed_str is None and self._logins is not None:
-            counter = 1
-            with Popen(['logins', self._logins], stdout = PIPE) as fd:
-                self._uio.output("output of the logins command:")
-                for line in fd.stdout:
-                    self._seed_str = line.decode('utf-8').strip()
-                    seedkey = hex(counter)[2:]
-                    counter += 1
-                    self._found_seeds[seedkey] = self._seed_str
-                    self._uio.output("%s: %s" % (seedkey, self._seed_str))
+            counter, seed_str, last_seed_str = 1, None, None
+            with self._storage as stored:
+                with Popen(['logins', self._logins], stdout = PIPE) as fd:
+                    self._uio.output("output of the logins command:")
+                    for line in fd.stdout:
+                        curr_seed_str = line.decode('utf-8').strip()
+                        last_seed_str = curr_seed_str
+                        seedkey = hex(counter)[2:]
+                        counter += 1
+                        self._found_seeds[seedkey] = curr_seed_str
+                        self._uio.output("%s: %s" % (seedkey, curr_seed_str))
+                        curr_seed = Seed(curr_seed_str)
+                        if self._master is not None:
+                            sseed = hashlib.sha1((curr_seed.short() + self._master).encode('utf-8')).hexdigest()
+                        else: sseed = hashlib.sha1(curr_seed.short().encode('utf-8')).hexdigest()
+                        if sseed in stored:
+                            if len(self._previous) > 0 and self._previous[-1][0].short() != curr_seed.short():
+                                seed_str = curr_seed_str
+            if seed_str is not None: self._seed_str = seed_str
+            elif last_seed_str is not None: self._seed_str = last_seed_str
             if fd.returncode != 0:
                 self._uio.output("ERROR: Failed to call command 'logins'!")
                 return False
