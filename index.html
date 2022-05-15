@@ -53,6 +53,12 @@
           border: none;
           padding: 0;
       }
+      #help {
+          display: none;
+      }
+      #help:target {
+          display: block;
+      }
       @media (min-width: 1020px) {
           .finput {
               font-size: 1.4em;
@@ -148,6 +154,11 @@
       </fieldset>
     </form>
 
+    <a href="#help">Show help ...</a>
+    </br>
+
+    <div id="help">
+
     <div class="helppara">
       <b>Security tipps:</b>
       <ol>
@@ -211,6 +222,7 @@ will move to the master password field.
      what you do.
 
 </pre>
+    </div>
 
     </br>
 
